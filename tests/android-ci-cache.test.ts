@@ -22,3 +22,20 @@ describe("Android CI Gradle cache never holds signing material", () => {
     expect(tests).not.toMatch(/\$\{\{\s*secrets\./);
   });
 });
+
+describe("Android test workflow diagnostics", () => {
+  const uploads = [...tests.matchAll(/upload-artifact@v4[\s\S]*?retention-days: (\d+)/g)];
+  it("uploads test reports on every run and the Gradle log on failure", () => {
+    expect(tests).toMatch(/Upload test reports\s+if: always\(\)/);
+    expect(tests).toMatch(/Upload failure log\s+if: failure\(\)/);
+    expect(uploads.length).toBe(2);
+  });
+  it("artifacts are short-lived (7 days or less)", () => {
+    for (const m of uploads) expect(Number(m[1])).toBeLessThanOrEqual(7);
+  });
+  it("uploads only test output and the log — never keys, settings or APKs", () => {
+    const paths = [...tests.matchAll(/path: \|?\s*([\s\S]*?)\n\s+if-no-files-found/g)].map((m) => m[1]).join("\n");
+    expect(paths).toMatch(/reports\/tests/);
+    expect(paths).not.toMatch(/\.jks|\.keystore|\.p12|local\.properties|\.apk|release-out|RUNNER_TEMP/);
+  });
+});
