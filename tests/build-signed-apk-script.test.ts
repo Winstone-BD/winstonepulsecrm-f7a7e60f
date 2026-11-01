@@ -1,0 +1,80 @@
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+
+// The official release script must refuse to build before Gradle runs whenever
+// signing inputs are missing/unsafe, and must never print secret values.
+const SCRIPT = resolve(__dirname, "../scripts/build-signed-apk.sh");
+const SECRET = "Sup3r-Secret-Pass!";
+const GOOD_FP = "AB:".repeat(31) + "AB";
+
+let root: string;
+let androidDir: string;
+
+function run(props: string) {
+  writeFileSync(join(androidDir, "local.properties"), props);
+  const env: Record<string, string> = { PATH: process.env.PATH ?? "", WINSTONE_ANDROID_DIR: androidDir };
+  const r = spawnSync("bash", [SCRIPT], { env, encoding: "utf8" });
+  return { code: r.status, out: `${r.stdout}${r.stderr}` };
+}
+
+beforeEach(() => {
+  root = mkdtempSync(join(tmpdir(), "signed-apk-"));
+  androidDir = join(root, "proj", "android");
+  mkdirSync(androidDir, { recursive: true });
+  mkdirSync(join(root, "private"), { recursive: true });
+  writeFileSync(join(root, "private", "company.jks"), "x");
+});
+afterEach(() => rmSync(root, { recursive: true, force: true }));
+
+describe("build-signed-apk.sh fails closed", () => {
+  it("lists every missing signing input by name only", () => {
+    const r = run(`RELEASE_STORE_PASSWORD=${SECRET}\n`);
+    expect(r.code).not.toBe(0);
+    expect(r.out).toContain("OFFICIAL RELEASE BLOCKED");
+    expect(r.out).toContain("RELEASE_STORE_FILE");
+    expect(r.out).toContain("RELEASE_KEY_ALIAS");
+    expect(r.out).toContain("RELEASE_CERT_SHA256");
+    expect(r.out).not.toContain(SECRET);
+  });
+
+  it("refuses a fingerprint that is not a 64-hex SHA-256", () => {
+    const r = run(
+      `RELEASE_STORE_FILE=${join(root, "private", "company.jks")}\nRELEASE_STORE_PASSWORD=${SECRET}\nRELEASE_KEY_ALIAS=winstone\nRELEASE_CERT_SHA256=abc123\n`,
+    );
+    expect(r.code).not.toBe(0);
+    expect(r.out).toContain("not a 64-hex");
+    expect(r.out).not.toContain(SECRET);
+  });
+
+  it("refuses a keystore stored inside the project folder", () => {
+    mkdirSync(join(root, "proj", "keys"));
+    writeFileSync(join(root, "proj", "keys", "k.jks"), "x");
+    const r = run(
+      `RELEASE_STORE_FILE=${join(root, "proj", "keys", "k.jks")}\nRELEASE_STORE_PASSWORD=${SECRET}\nRELEASE_KEY_ALIAS=winstone\nRELEASE_CERT_SHA256=${GOOD_FP}\n`,
+    );
+    expect(r.code).not.toBe(0);
+    expect(r.out).toContain("inside the project folder");
+  });
+
+  it("refuses when any stray keystore exists in the project", () => {
+    writeFileSync(join(androidDir, "winstone-release.jks"), "x");
+    const r = run(
+      `RELEASE_STORE_FILE=${join(root, "private", "company.jks")}\nRELEASE_STORE_PASSWORD=${SECRET}\nRELEASE_KEY_ALIAS=winstone\nRELEASE_CERT_SHA256=${GOOD_FP}\n`,
+    );
+    expect(r.code).not.toBe(0);
+    expect(r.out).toContain("keystore file(s) found inside the project");
+    expect(r.out).not.toContain(SECRET);
+  });
+
+  it("stops before Gradle when no Android SDK is available", () => {
+    const r = run(
+      `RELEASE_STORE_FILE=${join(root, "private", "company.jks")}\nRELEASE_STORE_PASSWORD=${SECRET}\nRELEASE_KEY_ALIAS=winstone\nRELEASE_CERT_SHA256=${GOOD_FP}\n`,
+    );
+    expect(r.code).not.toBe(0);
+    expect(r.out).toContain("Android SDK not found");
+    expect(r.out).not.toContain(SECRET);
+  });
+});
