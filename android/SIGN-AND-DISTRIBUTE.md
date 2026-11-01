@@ -101,3 +101,23 @@ Real phone test checklist পাস করান।
 - ইন্টারনেট ফিরে এলে আটকে থাকা কল রিপোর্ট কয়েক সেকেন্ডের মধ্যে আপনাআপনি আবার পাঠানো হয় (একই রিপোর্ট আইডি, তাই ডুপ্লিকেট হয় না)।
 - কল তালিকার নাম এখন "সাম্প্রতিক কল লগ"।
 - পরীক্ষা: এয়ারপ্লেন মোড চালু → একটি কল রিপোর্ট শেষ করুন → এয়ারপ্লেন মোড বন্ধ → কয়েক সেকেন্ডে রিপোর্ট CRM-এ দেখা যাবে, আর উপরের লাইন সবুজ হবে।
+
+## ৮) Git (GitHub) থেকে অফিশিয়াল বিল্ড — মালিকের সিদ্ধান্ত ২ নভেম্বর ২০২৬
+কী-রক্ষকের কম্পিউটারের বদলে GitHub-এ বিল্ড করা যায়। স্ক্রিপ্ট আর যাচাই একই থাকে।
+
+**একবার সেটআপ (কী-রক্ষক + রিপোজিটরির অ্যাডমিন):**
+1. Lovable → Project settings → Git → নতুন **প্রাইভেট** রিপোজিটরি সংযুক্ত করুন। রিপোজিটরিতে 2FA বাধ্যতামূলক রাখুন।
+2. রিপোজিটরি → Settings → Environments → **`android-release`** নামে environment বানান →
+   **Required reviewers**-এ ১–২ জন অনুমোদনকারী দিন (প্রতিটি বিল্ডে তাঁদের অনুমতি লাগবে)।
+3. ওই environment-এর **Secrets**-এ চারটি জিনিস রাখুন (চ্যাটে বা কোডে কখনো নয়):
+   - `ANDROID_KEYSTORE_BASE64` — `.jks` ফাইলের base64: Mac/Linux-এ `base64 -i winstone-release.jks | tr -d '\n'`, Windows-এ `[Convert]::ToBase64String([IO.File]::ReadAllBytes("winstone-release.jks"))`
+   - `WINSTONE_KEYSTORE_PASSWORD`
+   - `WINSTONE_KEY_ALIAS`
+   - `WINSTONE_KEY_PASSWORD` (key ও store পাসওয়ার্ড একই হলে এটিও একই)
+4. অনুমোদিত আইডি কোড `2E:61…7E:6D` workflow-এ লেখা আছে। অন্য কী দিলে বিল্ড বন্ধ হবে।
+
+**প্রতিটি রিলিজ:** Actions → **Android official release** → Run workflow → অনুমোদনকারী Approve করবেন →
+শেষে **Artifacts** থেকে `winstone-connect-official-release` ZIP নামান (APK, `.sha256`, `.release-record.txt`) →
+তিনটি ফাইল Lovable চ্যাটে আপলোড করুন। ফাইলগুলো ১৪ দিন পরে GitHub থেকে নিজে মুছে যায়।
+
+প্রতিটি অ্যাপ পরিবর্তনে **Android tests** নিজে চলে (কোনো কী বা পাসওয়ার্ড লাগে না)।
