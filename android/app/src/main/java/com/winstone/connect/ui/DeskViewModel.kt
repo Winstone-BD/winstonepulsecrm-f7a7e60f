@@ -212,6 +212,13 @@ class DeskViewModel(private val app: Application) : AndroidViewModel(app) {
                 .onSuccess { ws ->
                     AgentSession.cacheAgent(app, ws.agentId, ws.agentName)
                     val okAt = System.currentTimeMillis()
+                    // CRM reachable again after a failure (or first read since app start):
+                    // resend reports that failed while offline.
+                    if (_state.value.error != null || _state.value.lastCrmOkMillis == null ||
+                        okAt - (_state.value.lastCrmOkMillis ?: 0L) > com.winstone.connect.data.CrmConnection.STALE_AFTER_MS
+                    ) {
+                        com.winstone.connect.data.sync.ReportReplay.onReconnected(app)
+                    }
                     app.getSharedPreferences(CRM_PREFS, android.content.Context.MODE_PRIVATE)
                         .edit().putLong(K_CRM_OK, okAt).apply()
                     _state.value = _state.value.copy(
