@@ -152,3 +152,9 @@ Run `android/DEVICE_TEST_CHECKLIST.md`, plus:
 - Unsigned release badging: `com.winstone.connect` 2.22 (33), not debuggable. Test build `com.winstone.connect.test` 2.22-test; sandbox `com.winstone.connect.sandbox` has no INTERNET permission.
 - Release workflow now also writes `SHA256SUMS` and `build-provenance.json` (repo, commit, run URL, signer, APK SHA-256).
 - Still BLOCKED: GitHub repository contents/sync not readable by the agent; `android-release` environment, reviewers and 4 secrets unverified; no signed build; no real-device test.
+
+### Code fixes 2026-11-02 (05:30 Dhaka) — still not official
+- Mid-call process kill: the call id, lead and off-hook time now survive Android closing the app during a call (`telephony/ActiveCallStore.kt`), so an answered app-dialled call is no longer reported as "cancelled, not connected". 6 unit tests.
+- Dhaka date on the Desk/Dashboard heading regardless of phone time zone.
+- `android-tests.yml`: also builds the unsigned release + sandbox apps (catches shrinker failures), cancels superseded PR runs. `android-release.yml`: refuses to run from any ref other than `main`.
+- Results: Android unit tests 113/113; debug, sandbox and unsigned release builds OK (`com.winstone.connect` 2.22/33, not debuggable); web 1,785 passed / 37 skipped; type check clean; secret scan clean.
