@@ -782,3 +782,7 @@
 ## 2026-10-31 — Website enquiry check
 - [x] Signed website enquiry → one unassigned LeadHub lead, no duplicates (tests/website-enquiry-e2e.test.ts; staging version opt-in)
 - [ ] Run staging version against an isolated staging backend (needs staging project)
+
+## 2026-11-01 — GitHub sync visibility
+- [x] IT Console GitHub sync comparison: project changes vs `trendfluxos-dev/winstonepulsecrm` main, by exact change ID
+- [ ] Live GitHub check (repo, branch, latest commit, sync status) from the IT Console — verify connection works
