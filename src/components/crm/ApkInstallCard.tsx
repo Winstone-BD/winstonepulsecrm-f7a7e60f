@@ -129,8 +129,8 @@ export function ApkInstallCard() {
           </dl>
           <p className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
             {t({
-              bn: "এটি টেস্ট সংস্করণ, কোম্পানির অফিসিয়াল সাইন করা নয়। IT সরাসরি WhatsApp, পেনড্রাইভ বা ইমেইলে দিন। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
-              en: "This is a test build, not the official company-signed app. IT shares it directly by WhatsApp, pen drive or email. After installing, sign in with the CRM email and password.",
+              bn: "কোম্পানির কী দিয়ে সাইন করা, কিন্তু পুরনো কোড থেকে তৈরি — এখনও অফিশিয়াল রিলিজ নয়। আগে একটি ফোনে টেস্ট করুন। পুরনো টেস্ট অ্যাপ থাকলে সেটি আলাদা অ্যাপ হিসেবে থাকবে; আনইনস্টল করে দিন। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
+              en: "Company-signed, but built from older code — not the official release yet. Test on one phone first. An old test app stays as a separate app; uninstall it. After installing, sign in with the CRM email and password.",
             })}
           </p>
           {linkError ? <p className="text-xs text-destructive">{linkError}</p> : null}
