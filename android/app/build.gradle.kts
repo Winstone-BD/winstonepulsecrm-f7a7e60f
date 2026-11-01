@@ -33,9 +33,9 @@ android {
         buildConfig = true
     }
 
-    // Release signing comes only from CI secrets (never committed). Without them the
-    // release build is left unsigned and CI refuses to publish it.
-    // Local builds may use local.properties RELEASE_* (never committed).
+    // Release signing comes only from the key custodian's local.properties RELEASE_* or
+    // WINSTONE_* env (never committed). Without them the release build is left unsigned;
+    // scripts/build-signed-apk.sh refuses it and verifies the approved signer fingerprint.
     fun cfg(env: String, prop: String): String? =
         System.getenv(env)?.takeIf { it.isNotBlank() } ?: localProps.getProperty(prop)?.takeIf { it.isNotBlank() }
     val ksPath = cfg("WINSTONE_KEYSTORE_PATH", "RELEASE_STORE_FILE")

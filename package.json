@@ -18,7 +18,8 @@
     "check:colors": "node scripts/check-dashboard-colors.mjs",
     "manual:pdf": "node scripts/manual/build-html.mjs && python3 scripts/manual/print_pdf.py && node scripts/manual/manual-meta.mjs write",
     "manual:check": "node scripts/manual/manual-meta.mjs check",
-    "scan:sensitive": "bun scripts/scan-sensitive-files.ts"
+    "scan:sensitive": "bun scripts/scan-sensitive-files.ts",
+    "android:release": "bash scripts/build-signed-apk.sh"
   },
   "overrides": {
     "rolldown": "1.2.1",

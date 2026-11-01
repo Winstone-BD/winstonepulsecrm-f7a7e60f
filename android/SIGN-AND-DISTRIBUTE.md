@@ -25,6 +25,21 @@ CRM_BASE_URL=https://crm.winstonebd.com
 `local.properties` কখনো কাউকে পাঠাবেন না।
 
 ## ৪) APK তৈরি করুন
+
+**অফিসিয়াল রিলিজের জন্য (GitHub ছাড়া, এক কমান্ডে):** `local.properties`-এ অনুমোদিত সার্টিফিকেট
+ফিঙ্গারপ্রিন্ট `RELEASE_CERT_SHA256=` বসান, তারপর প্রজেক্ট ফোল্ডার থেকে চালান:
+
+```
+bash scripts/build-signed-apk.sh                                  # macOS / Linux
+powershell -ExecutionPolicy Bypass -File scripts\build-signed-apk.ps1   # Windows
+```
+
+স্ক্রিপ্টটি টেস্ট চালায়, সাইন করা APK বানায়, সাইনার ফিঙ্গারপ্রিন্ট/প্যাকেজ/ভার্সন মিলিয়ে দেখে, এবং
+`android/release-out/`-এ APK + `.sha256` + রিলিজ রেকর্ড রাখে। কিছু না মিললে বিল্ড বন্ধ করে দেয়
+(পাসওয়ার্ড কখনো দেখায় না)। কী ফাইল (`.jks`) অবশ্যই প্রজেক্ট ফোল্ডারের বাইরে রাখবেন।
+বিস্তারিত: `docs/ANDROID_OFFICIAL_RELEASE_HANDOVER.md`।
+
+হাতে চালাতে চাইলে:
 টার্মিনালে:
 
 ```
