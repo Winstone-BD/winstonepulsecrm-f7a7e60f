@@ -127,12 +127,30 @@ export function ApkInstallCard() {
             <dt className="text-muted-foreground">SHA-256</dt>
             <dd className="break-all font-mono">{APK_RELEASE.sha256}</dd>
           </dl>
-          <p className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
-            {t({
-              bn: "কোম্পানির কী দিয়ে সাইন করা, কিন্তু পুরনো কোড থেকে তৈরি — এখনও অফিশিয়াল রিলিজ নয়। আগে একটি ফোনে টেস্ট করুন। পুরনো টেস্ট অ্যাপ থাকলে সেটি আলাদা অ্যাপ হিসেবে থাকবে; আনইনস্টল করে দিন। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
-              en: "Company-signed, but built from older code — not the official release yet. Test on one phone first. An old test app stays as a separate app; uninstall it. After installing, sign in with the CRM email and password.",
-            })}
-          </p>
+          {releaseStatus === "official" ? (
+            <p className="rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-xs">
+              <span className="font-semibold">{t({ bn: "অফিশিয়াল রিলিজ", en: "Official release" })}</span>
+              {" — "}
+              {t({
+                bn: "সর্বশেষ কোড থেকে কোম্পানির অনুমোদিত কী দিয়ে সাইন করা। সব এজেন্টকে দেওয়ার আগে নিচের Real phone test checklist একটি ফোনে পাস করান। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
+                en: "Built from the latest code and signed with the approved company key. Pass the Real phone test checklist below on one phone before giving it to all agents. After installing, sign in with the CRM email and password.",
+              })}
+            </p>
+          ) : releaseStatus === "company_signed_older_code" ? (
+            <p className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
+              {t({
+                bn: "কোম্পানির কী দিয়ে সাইন করা, কিন্তু পুরনো কোড থেকে তৈরি — এখনও অফিশিয়াল রিলিজ নয়। অফিশিয়াল 2.22 আসবে কী-রক্ষকের build-signed-apk বিল্ড থেকে। পুরনো টেস্ট অ্যাপ থাকলে আনইনস্টল করে দিন। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
+                en: "Company-signed, but built from older code — not the official release yet. The official 2.22 will come from the key holder's build-signed-apk run. Uninstall any old test app. After installing, sign in with the CRM email and password.",
+              })}
+            </p>
+          ) : (
+            <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs">
+              {t({
+                bn: "এই ফাইলটি অনুমোদিত কোম্পানি কী দিয়ে সাইন করা নয় — এজেন্টদের দেবেন না।",
+                en: "This file is not signed with the approved company key — do not give it to agents.",
+              })}
+            </p>
+          )}
           {linkError ? <p className="text-xs text-destructive">{linkError}</p> : null}
           {link ? (
             <p className="text-xs text-muted-foreground">
