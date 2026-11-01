@@ -94,8 +94,8 @@ to agents. Passing means only: IT may install the APK on company agent phones (i
 
 | # | Gate | Owner | Evidence required | Status | Date (Dhaka) |
 |---|---|---|---|---|---|
-| 1 | Approved company signing certificate (A + B) | Company Signing Key Owner + IT Admin | keystore restored outside the project; fingerprint confirmed from two trusted records | NOT READY — no trusted fingerprint recorded (checked 2026-11-01) | |
-| 2 | Signed APK from the latest Lovable project code (C + D) | Key Owner + IT Admin | script output "Official release APK verified"; release record (signer/package/version/APK SHA-256); `sha256sum -c` OK | NOT READY — no official build yet | |
+| 1 | Approved company signing certificate (A + B) | Company Signing Key Owner + IT Admin | keystore restored outside the project; fingerprint confirmed from two trusted records | OWNER-APPROVED — `2E:61:50:E6…4E:1C:7E:6D` (v2.3 key) chosen by Winstone IT Team; exposure risk accepted (see readiness doc) | 2026-11-02 |
+| 2 | Signed APK from the latest Lovable project code (C + D) | Key Owner + IT Admin | script output "Official release APK verified"; release record (signer/package/version/APK SHA-256); `sha256sum -c` OK | NOT READY — the stored `winstone-connect-2.21-release.apk` (SHA-256 `c5e1e586…be394710`) has a valid signature from this key but was repackaged from 2.21-test code and lacks the microphone-readiness report | |
 | 3 | Real-device end-to-end acceptance test (E) | Agent Tester + IT Admin | completed `docs/ANDROID_DEVICE_ACCEPTANCE.md` with screenshots/recordings | NOT DONE | |
 
 Internal approval to install on agent phones: ________ (IT Admin)  ________ (Executive HQ)  Date: ________

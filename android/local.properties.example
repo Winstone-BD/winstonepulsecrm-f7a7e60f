@@ -7,5 +7,5 @@ RELEASE_STORE_PASSWORD=
 RELEASE_KEY_ALIAS=winstone
 RELEASE_KEY_PASSWORD=
 # Approved PUBLIC certificate fingerprint (keytool -list -v ... → SHA256 line). Not a secret.
-RELEASE_CERT_SHA256=
+RELEASE_CERT_SHA256=2E:61:50:E6:06:52:45:C1:B2:B5:41:37:51:2D:63:ED:40:0D:22:9B:88:1D:1B:91:5A:29:06:17:4E:1C:7E:6D
 CRM_BASE_URL=https://crm.winstonebd.com
