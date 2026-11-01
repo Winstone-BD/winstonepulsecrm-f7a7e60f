@@ -4,7 +4,7 @@
 - [x] Key ID 2E:61…7E:6D recorded in release documents as pending key-holder confirmation.
 - [x] Microphone-permission report already in phone-app code; version raised to 2.22 (code 33) so the next signed build is distinguishable.
 - [ ] Signed 2.22 build — key holder runs scripts/build-signed-apk on own computer (no Android tools/key here).
-- [ ] Publish IT Console download change (2.21, company-signed, not official).
+- [x] Published IT Console download change (2.21, company-signed, not official); live release check passed.
 
 ## 2026-11-01 — Read-only page-load diagnostics
 - [x] /load-diagnostics (HQ/IT PIN): module-load failures, asset URLs, recovery outcomes, filters, trend, browser table, events, CSV; 16 tests; full suite, typecheck, build pass.
