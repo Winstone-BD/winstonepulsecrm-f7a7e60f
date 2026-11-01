@@ -74,7 +74,7 @@ export const Route = createFileRoute("/api/public/agent/report")({
           let listQuery = supabaseAdmin
             .from("call_reports")
             .select(
-              "id, lead_id, phone_number, status, category, summary, note, follow_up_at, connected, duration_seconds, call_ended_at, temperature, grade",
+              "id, lead_id, phone_number, status, category, summary, note, follow_up_at, connected, connection_verified, channel, duration_source, duration_seconds, call_ended_at, temperature, grade",
             )
             .eq("agent_id", caller.profile.id)
             .order("call_ended_at", { ascending: false })
@@ -87,11 +87,19 @@ export const Route = createFileRoute("/api/public/agent/report")({
             ? await supabaseAdmin.from("leads").select("id, name, phone_number").in("id", ids)
             : { data: [] };
           const byId = new Map((leads ?? []).map((l) => [l.id, l]));
+          // Same evidence rule as the web CRM's report list (display only, never scoring).
+          const { callEvidence, EVIDENCE_LABEL, isMismatch } = await import("@/lib/call-evidence");
           return json({
-            reports: (list ?? []).map((row) => ({
-              ...row,
-              lead: byId.get(row.lead_id ?? "") ?? null,
-            })),
+            reports: (list ?? []).map((row) => {
+              const kind = row.status === "submitted" ? callEvidence(row) : null;
+              return {
+                ...row,
+                evidence: kind,
+                evidence_label: kind ? EVIDENCE_LABEL[kind].bn : null,
+                evidence_mismatch: kind ? isMismatch(kind) : false,
+                lead: byId.get(row.lead_id ?? "") ?? null,
+              };
+            }),
           });
         }
 

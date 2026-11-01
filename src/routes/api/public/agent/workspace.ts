@@ -73,7 +73,7 @@ export const Route = createFileRoute("/api/public/agent/workspace")({
               supabaseAdmin
                 .from("call_recordings")
                 .select(
-                  "id, lead_id, agent_id, phone_number, duration_seconds, call_direction, sync_status, is_two_sided, ai_summary, sentiment, deal_stage, created_at",
+                  "id, lead_id, agent_id, phone_number, duration_seconds, call_direction, sync_status, is_two_sided, ai_summary, sentiment, deal_stage, created_at, call_source, call_status, talk_time_source, external_call_id, call_log_id",
                 )
                 .in("lead_id", leadIds)
                 .order("created_at", { ascending: false })
@@ -89,13 +89,26 @@ export const Route = createFileRoute("/api/public/agent/workspace")({
             ])
           : [{ data: [] }, { data: [] }];
 
+        // Phone call-log match per call (display only); raw call ids stay on the server.
+        const { callLogMatch, CALL_LOG_MATCH_LABEL } = await import("@/lib/call-evidence");
+        const { hasProvenTalkTime } = await import("@/lib/lead-verification");
+        const callRows = (calls ?? []).map((row) => {
+          const { external_call_id: _e, call_log_id: _c, talk_time_source: _t, ...rest } = row as typeof row & {
+            external_call_id?: string | null;
+            call_log_id?: string | number | null;
+            talk_time_source?: string | null;
+          };
+          const match = callLogMatch(row, hasProvenTalkTime);
+          return { ...rest, log_match: match, log_match_label: CALL_LOG_MATCH_LABEL[match].bn };
+        });
+
         return json({
           ok: true,
           server_time: new Date().toISOString(),
           agent,
           roster: roster ?? [],
           leads: leads ?? [],
-          calls: calls ?? [],
+          calls: callRows,
           whatsapp: messages ?? [],
         });
       },
