@@ -7,90 +7,74 @@ uses the same production CRM backend, data and business rules as the web CRM.
 
 **Internal operational sign-off: NOT READY** (status as of 2026-11-01, 15:51 Dhaka).
 The three gates in section F are technical, internal checks — not app-store gates.
-This document is the handover sequence. Supporting detail stays in:
+This document is the handover sequence. The release process does **not** use GitHub, CI or any cloud
+build service (GitHub was removed 2026-11-01). Supporting detail stays in:
 `docs/ANDROID_RELEASE_READINESS.md` (key backup/restore, ledger), `docs/ANDROID_DEVICE_ACCEPTANCE.md`
 (device checklist), `docs/ANDROID_CRM_CONSISTENCY_AUDIT.md` (Android ↔ web CRM data/call-time audit),
-`.github/workflows/android-apk.yml` and `android-release.yml` (the build gate; a tag creates only a private
-draft release inside the company repository), `tests/android-release-gates.test.ts` (guards the gate rules).
+`scripts/build-signed-apk.sh` / `.ps1` (the build gate) and `tests/build-signed-apk-script.test.ts` (guards its refusals).
 
 | Fixed identity | Value |
 |---|---|
-| Repository / branch | `trendfluxos-dev/winstone-pulse-crm` (private) / `main` |
+| Source | the `android/` folder of this Lovable project (download the project code) |
 | Release applicationId | `com.winstone.connect` (test build `com.winstone.connect.test` is never official) |
 | Version | `versionName 2.21`, `versionCode 32` (`android/app/build.gradle.kts`) |
 | Live CRM (same backend the APK uses) | https://crm.winstonebd.com |
-| Distribution | internal only: IT shares the verified APK + `.sha256` directly with company agent phones |
+| Distribution | internal only: IT Console private download (`android-apk` storage, PIN-gated 60-minute links) or direct copy to company phones |
 
 Never put keystore files, passwords, alias values, secret values or `local.properties` in chat, logs,
-screenshots, tickets or this repository. Only the **public** certificate SHA-256 fingerprint may be written down.
+screenshots, tickets or this project. Only the **public** certificate SHA-256 fingerprint may be written down.
 
 ---
 
-## A. Company Signing Key Owner — GitHub encrypted secrets
+## A. Company Signing Key Owner — prepare the trusted build computer
 
-Where: GitHub → `trendfluxos-dev/winstone-pulse-crm` → Settings → Secrets and variables → Actions → **Secrets**.
+1. Use one trusted IT computer with Android Studio (provides JDK 17 + Android SDK, build-tools 35).
+2. Restore the company keystore from its encrypted backup (readiness doc, section 3 "Restore") to a private
+   folder **outside** the project, e.g. `C:\winstone-keys\` or `~/winstone-keys/`.
+3. Never use `android/winstone-release.jks` (committed in project history; retired and untrusted by owner decision B, 2026-10-28)
+   or any key that was ever committed, emailed or pasted in chat. The build script refuses if any `.jks/.keystore/.p12`
+   file exists inside the project.
+4. Lovable/AI agents and IT staff without key custody must not generate, rotate, choose or upload a key on the company's behalf.
 
-| Secret name | Content |
-|---|---|
-| `WINSTONE_KEYSTORE_B64` | the company keystore, base64 on one line (`base64 -w0 <keystore>`) |
-| `WINSTONE_KEYSTORE_PASSWORD` | keystore password |
-| `WINSTONE_KEY_ALIAS` | key alias |
-| `WINSTONE_KEY_PASSWORD` | key password |
-
-1. Work on a trusted IT computer. Use only the company key from its encrypted backup (readiness doc, section 3 "Restore").
-2. Paste each value directly into GitHub's secret form. Do not echo it in a terminal that is recorded or shared.
-3. Delete any plain decoded keystore copy afterwards; keep only the encrypted backup.
-4. Never use `android/winstone-release.jks` (committed in project history; retired and untrusted by owner decision B, 2026-10-28) or any key that was ever committed, emailed or pasted in chat.
-5. Lovable/AI agents and IT staff without key custody must not generate, rotate, choose or upload a key on the company's behalf.
-
-Done when: GitHub lists all four names (values are never shown). Record name presence only in the sign-off table.
+Done when: the keystore exists only in the private folder and its encrypted backup.
 
 ## B. Company Signing Key Owner + IT Admin — approved certificate fingerprint
 
-Presence of the four secrets is **not** enough: the build fails unless the signer equals the approved fingerprint.
-
-1. Key owner reads the fingerprint from the restored company key on the offline computer:
+1. Key owner reads the fingerprint from the restored key:
    `keytool -list -v -keystore <keystore> -alias <alias>` → copy the `SHA256:` line only.
 2. IT Admin independently confirms it against a second trusted record (the fingerprint recorded at key creation in the
    readiness doc section 3 table, or the signer of the last officially distributed APK via `apksigner verify --print-certs`).
    If the two disagree or no trusted record exists → **STOP**; do not pick one.
-3. Set repository **variable** (not secret) `WINSTONE_RELEASE_CERT_SHA256` = that fingerprint
-   (Settings → Secrets and variables → Actions → **Variables**). Colons and case are ignored by the gate.
-4. Write the same public fingerprint into the readiness doc section 3 "Canonical fingerprint" row.
+3. Write the same public fingerprint into the readiness doc section 3 "Canonical fingerprint" row.
 
-Done when: variable exists, two people confirmed the value from independent trusted evidence.
+Done when: two people confirmed the value from independent trusted evidence.
 
-## C. Lovable Project Owner — sync the EXISTING repository
+## C. IT Admin — get the latest source
 
-Do not change repository, branch or history, and never force-push.
+1. Download this Lovable project's code (latest version) to the trusted computer; use its `android/` folder.
+2. Confirm `android/app/build.gradle.kts` shows the expected `versionCode`/`versionName`. For a new release,
+   both must be higher than the version currently on agent phones (ask Lovable to bump them first).
 
-1. Lovable → this project → Project settings → **Git**. Confirm it shows `trendfluxos-dev/winstone-pulse-crm`, branch `main`.
-2. If it shows connected but behind: push any small commit to `main` from a local clone (normal push), which makes Lovable sync.
-   If it reports "diverged": merge the newest `lovable-sync*` branch into `main` on GitHub (pull request, normal merge).
-3. If it shows **disconnected**: Lovable cannot re-link an existing repository — reconnecting always creates a new one.
-   **Stop and decide with IT** before reconnecting, because secrets (A) and the variable (B) would then have to be set on the new repository.
-4. Confirm sync: the newest commit on GitHub `main` (Code → commits) must match the newest change in Lovable's history,
-   and `android/app/build.gradle.kts` on GitHub must show the expected version.
-
-Status 2026-11-01: GitHub `main` = `e181c951` (2026-10-31 04:38 UTC); Lovable is ahead at `f2e56ab8` (2026-11-01 09:24 UTC) → **stale**.
-
-## D. IT Admin — build and verify the official signed APK
+## D. Key owner — build and verify the official signed APK
 
 Start only when A, B and C are Done.
 
-1. GitHub → Actions → **Android APKs** → Run workflow on `main` (or push a tag `v2.21` for **Android tagged release**, which only makes a **draft** release).
-2. The release job blocks (names only, no values) when any secret or the variable is missing, and refuses to build if any keystore file is tracked in the repository.
-3. Required log evidence (job `release`):
-   - `apksigner` signer SHA-256 equals `WINSTONE_RELEASE_CERT_SHA256` (else "Signer fingerprint mismatch" → STOP).
-   - `aapt2` shows `name='com.winstone.connect'`, `versionCode='32'`, `versionName='2.21'`.
-   - `.sha256` file printed; job summary says "Official release APK verified".
-4. Download the APK and `.sha256` from the `apk-builds` branch (`build-info-release.txt`) or the artifact / draft release.
-   Run `sha256sum -c <apk>.sha256` → `OK`.
-5. Reading the result:
-   - **Warning only** "artifact copy NOT uploaded (usually storage quota)" = build is good; use the `apk-builds` branch / draft release copy.
-   - Any red step in build, signing, fingerprint, package or version checks = **real failure**; nothing is official.
-   - `Official release: BLOCKED — missing: …` = A/B not done; nothing was signed.
-6. A file named `*-debug*`, `*-test*` or package `com.winstone.connect.test` is **never** the official APK.
+1. Copy `android/local.properties.example` to `android/local.properties` and fill in `sdk.dir`,
+   `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` and the approved
+   `RELEASE_CERT_SHA256` from B. Type the values yourself; never paste them anywhere else.
+2. Run from the project folder: `bash scripts/build-signed-apk.sh` (macOS/Linux) or
+   `powershell -ExecutionPolicy Bypass -File scripts\build-signed-apk.ps1` (Windows).
+3. The script fails closed (`OFFICIAL RELEASE BLOCKED: …`, names only, never values) when any signing input is
+   missing, the fingerprint is malformed, the keystore is inside the project, a stray keystore exists, or the SDK is missing.
+   Then it runs the unit tests, builds the release, and verifies:
+   - APK Signature Scheme v2, exactly one signer, signer SHA-256 equals `RELEASE_CERT_SHA256` (else "signer fingerprint mismatch" → STOP);
+   - `aapt2` package `com.winstone.connect`, version equal to `build.gradle.kts`, not debuggable.
+4. Output in `android/release-out/`: `winstone-connect-<version>-<code>-release.apk`, its `.sha256`, and a
+   `.release-record.txt` (public facts only). Check with `sha256sum -c <apk>.sha256` → `OK`.
+5. Delete `android/local.properties` from the computer afterwards if it is shared; keep the keystore only in its private folder.
+6. Send the APK, `.sha256` and release record to the Lovable project owner, who asks Lovable to store it privately
+   in the IT Console download card. Lovable re-checks the SHA-256, package and version before replacing the test build.
+7. A file named `*-debug*`, `*-test*`, `*-unsigned*` or package `com.winstone.connect.test` is **never** the official APK.
 
 ## E. Agent Tester — real Android phone test
 
