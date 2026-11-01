@@ -251,12 +251,16 @@ export type Database = {
           id: string
           last_seen_at: string
           manufacturer: string | null
+          mic_permission: string | null
           model: string | null
           phone_number: string | null
           platform: string
           profile_id: string
+          readiness_reported_at: string | null
           recording_capable: boolean | null
           recording_checked_at: string | null
+          recording_consent: string | null
+          recording_consent_version: number | null
           recording_mode: string | null
           recording_note: string | null
           recording_tested: boolean
@@ -274,12 +278,16 @@ export type Database = {
           id?: string
           last_seen_at?: string
           manufacturer?: string | null
+          mic_permission?: string | null
           model?: string | null
           phone_number?: string | null
           platform?: string
           profile_id: string
+          readiness_reported_at?: string | null
           recording_capable?: boolean | null
           recording_checked_at?: string | null
+          recording_consent?: string | null
+          recording_consent_version?: number | null
           recording_mode?: string | null
           recording_note?: string | null
           recording_tested?: boolean
@@ -297,12 +305,16 @@ export type Database = {
           id?: string
           last_seen_at?: string
           manufacturer?: string | null
+          mic_permission?: string | null
           model?: string | null
           phone_number?: string | null
           platform?: string
           profile_id?: string
+          readiness_reported_at?: string | null
           recording_capable?: boolean | null
           recording_checked_at?: string | null
+          recording_consent?: string | null
+          recording_consent_version?: number | null
           recording_mode?: string | null
           recording_note?: string | null
           recording_tested?: boolean

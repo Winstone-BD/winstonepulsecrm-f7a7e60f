@@ -133,16 +133,33 @@ class DeskViewModel(private val app: Application) : AndroidViewModel(app) {
             recordingMode = mode,
             recordingReason = capability.reason,
         )
-        if (mode == lastCapability && !stale) return
+        // Consent + microphone readiness travel with the same beacon so IT sees
+        // per-phone readiness; a change in either re-reports within one tick.
+        val consent = when (
+            com.winstone.connect.telephony.RecordingConsent.decision(app, AgentSession.employeeId)
+        ) {
+            com.winstone.connect.telephony.RecordingConsent.Decision.GRANTED -> "granted"
+            com.winstone.connect.telephony.RecordingConsent.Decision.DECLINED -> "declined"
+            com.winstone.connect.telephony.RecordingConsent.Decision.NONE -> "not_asked"
+        }
+        val mic = if (
+            androidx.core.content.ContextCompat.checkSelfPermission(app, android.Manifest.permission.RECORD_AUDIO) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) "granted" else "denied"
+        val key = "$mode|$consent|$mic"
+        if (key == lastCapability && !stale) return
         runCatching {
             WinstoneAgentApi.reportRecordingCapability(
                 mode,
                 capability.reason,
                 AgentSession.simNumberNow(app),
+                consent = consent,
+                consentVersion = com.winstone.connect.telephony.RecordingConsent.VERSION,
+                micPermission = mic,
             )
         }
             .onSuccess {
-                lastCapability = mode
+                lastCapability = key
                 lastCapabilityAt = System.currentTimeMillis()
                 _state.value = _state.value.copy(recordingStatus = capability.label)
             }
