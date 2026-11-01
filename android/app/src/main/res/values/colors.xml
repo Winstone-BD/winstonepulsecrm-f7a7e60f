@@ -23,5 +23,5 @@
     <color name="win_on_green">#FFFFFF</color>
 
     <!-- Launcher icon tile -->
-    <color name="win_icon_background">#FFFFFF</color>
+    <color name="win_icon_background">#0A0A0A</color>  <!-- matches the logo's black disc so the gold ring stands out -->
 </resources>

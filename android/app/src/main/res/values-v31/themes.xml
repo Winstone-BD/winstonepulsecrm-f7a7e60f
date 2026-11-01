@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+: the system opening screen shows the gold Winstone Pulse logo on white. -->
+    <style name="Theme.WinstoneConnect" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorBackground">@color/win_cream</item>
+        <item name="android:windowBackground">@color/win_cream</item>
+        <item name="android:statusBarColor">@color/win_cream</item>
+        <item name="android:navigationBarColor">@color/win_cream</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowSplashScreenBackground">@color/win_cream</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+    </style>
+</resources>
