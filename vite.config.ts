@@ -5,6 +5,7 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import fs from "node:fs";
+import { execSync } from "node:child_process";
 import path from "node:path";
 import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
@@ -70,12 +71,30 @@ function browserAsyncHooksStub() {
   };
 }
 
+// Project change list for the IT Console "GitHub sync comparison". Read once at
+// build time; null when git history is unavailable (shown as "unknown", never zero).
+function readProjectCommits(): unknown[] | null {
+  try {
+    const raw = execSync("git log -40 --format=%x1e%H%x1f%cI%x1f%s --name-only", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 5000, maxBuffer: 4 * 1024 * 1024 });
+    const out = raw.split("\x1e").map((b) => b.trim()).filter(Boolean).flatMap((block) => {
+      const [header = "", ...rest] = block.split("\n");
+      const [sha = "", date = "", message = ""] = header.split("\x1f");
+      if (!/^[a-f0-9]{40}$/.test(sha)) return [];
+      return [{ sha, date: date || null, message: message.slice(0, 160), files: rest.map((l) => l.trim()).filter(Boolean).slice(0, 15) }];
+    });
+    return out.length ? out : null;
+  } catch {
+    return null;
+  }
+}
+
 export default defineConfig({
   plugins: [mcpPlugin(), browserAsyncHooksStub()],
   vite: {
     // Build stamp shown in the nav so staff can confirm which published build they run.
     define: {
       __BUILD_STAMP__: JSON.stringify(new Date().toISOString()),
+      __PROJECT_COMMITS__: JSON.stringify(readProjectCommits()),
     },
     // Root cause of "Failed to fetch dynamically imported module" / "Invalid server
     // function ID" after a restart: Vite discovered these deps late on every cold
