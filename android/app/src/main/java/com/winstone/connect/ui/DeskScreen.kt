@@ -264,8 +264,9 @@ fun DeskScreen(
         Column(Modifier.fillMaxSize().padding(padding)) {
             BrandBar(
                 agentName = data?.agentName ?: "…",
-                online = state.error == null,
+                online = state.error == null && state.lastCrmOkMillis != null,
             )
+            CrmConnectionStrip(state = state, onRetry = { vm.refresh() })
 
             update?.takeIf { !updateDismissed || it.mandatory }?.let { available ->
                 UpdateBanner(
@@ -284,14 +285,6 @@ fun DeskScreen(
                 )
             }
 
-            state.error?.let {
-                Text(
-                    "সমস্যা: $it",
-                    color = WinRed,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                )
-            }
 
             // মূল ব্যানার: আগের কলের রিপোর্ট বাকি — এক ট্যাপে শিট খোলে
             if (reportPending || callBlocked != null) {
@@ -575,6 +568,43 @@ fun DeskScreen(
                 }
             },
         )
+    }
+}
+
+/** CRM সংযোগ: ফোনটি সার্ভারে পৌঁছাচ্ছে কি না, আর শেষ সফল সিঙ্ক কখন। শুধু ফোনের দেখা তথ্য থেকে। */
+@Composable
+private fun CrmConnectionStrip(state: DeskUiState, onRetry: () -> Unit) {
+    var now by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) { while (true) { delay(15_000); now = System.currentTimeMillis() } }
+    val view = com.winstone.connect.data.CrmConnection.describe(
+        error = state.error,
+        lastOkMillis = state.lastCrmOkMillis,
+        lastOkClock = state.lastSyncedAt,
+        nowMillis = now,
+        checking = state.crmChecking,
+    )
+    val S = com.winstone.connect.data.CrmConnection.State
+    val color = when (view.state) {
+        S.CONNECTED -> WinLive
+        S.CHECKING, S.NEVER -> WinInkMuted
+        S.STALE -> WinAmber
+        S.NO_INTERNET, S.SERVER_ERROR -> WinRed
+    }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(8.dp).background(color, CircleShape))
+        Spacer(Modifier.width(8.dp))
+        Column(Modifier.weight(1f)) {
+            Text(view.title, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = color)
+            view.detail?.let { Text(it, fontSize = 11.sp, color = WinInkMuted) }
+        }
+        if (view.state != S.CONNECTED && view.state != S.CHECKING) {
+            TextButton(onClick = onRetry) { Text("আবার চেষ্টা", fontSize = 12.sp) }
+        }
     }
 }
 
