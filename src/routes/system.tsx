@@ -14,6 +14,7 @@ import { useT } from "@/lib/i18n";
 
 import { AccountApprovals } from "@/components/crm/AccountApprovals";
 import { ApkInstallCard } from "@/components/crm/ApkInstallCard";
+import { PhoneAcceptanceChecklist } from "@/components/crm/PhoneAcceptanceChecklist";
 import { AppReleasePanel } from "@/components/crm/AppReleasePanel";
 import { AuditTrail } from "@/components/crm/AuditTrail";
 import { AccountabilityReviewPanel } from "@/components/crm/AccountabilityReviewPanel";
@@ -229,6 +230,7 @@ function SystemBoard() {
       {sec === "releases" && (
         <div className="space-y-6">
           <ApkInstallCard />
+          <PhoneAcceptanceChecklist />
           <AppReleasePanel />
         </div>
       )}
