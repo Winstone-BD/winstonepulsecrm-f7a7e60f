@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowDownToLine, ArrowUpFromLine, CheckCircle2, GitCompare, HelpCircle, RefreshCw, TriangleAlert } from "lucide-react";
@@ -56,6 +56,18 @@ export function GitSyncComparisonPanel() {
   const age = checkAge(r?.checkedAt ?? null, now);
   const left = secondsUntilStale(r?.checkedAt ?? null, now);
   const countdown = left === null || left === 0 ? "" : `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+  // Auto-refresh once per stale result, only while the tab is visible; a failed
+  // auto-refresh is not retried in a loop (the next try needs a new result or a tap).
+  const autoTriedFor = useRef<string | null>(null);
+  const [autoRefreshing, setAutoRefreshing] = useState(false);
+  useEffect(() => {
+    if (!r || left !== 0 || refreshing) return;
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+    if (autoTriedFor.current === r.checkedAt) return;
+    autoTriedFor.current = r.checkedAt;
+    setAutoRefreshing(true);
+    check.mutate(undefined, { onSettled: () => setAutoRefreshing(false) });
+  }, [r, left, refreshing, check]);
   const ageText = age.minutes === null ? "" : age.minutes === 0 ? t({ en: "just now", bn: "এইমাত্র" }) : t({ en: `${age.minutes} min ago`, bn: `${age.minutes} মিনিট আগে` });
 
   const verdict: Record<SyncState, { tone: "ok" | "warn" | "bad" | "unknown"; en: string; bn: string }> = {
@@ -86,15 +98,15 @@ export function GitSyncComparisonPanel() {
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-muted px-3 py-2 text-sm" aria-live="polite" aria-atomic="true">
         {refreshing ? (
-          <span role="status" className="flex items-center gap-2 font-medium text-foreground"><RefreshCw className="size-4 animate-spin motion-reduce:animate-none" />{t({ en: "Refreshing from GitHub…", bn: "GitHub থেকে হালনাগাদ হচ্ছে…" })}</span>
+          <span role="status" className="flex items-center gap-2 font-medium text-foreground"><RefreshCw className="size-4 animate-spin motion-reduce:animate-none" />{autoRefreshing ? t({ en: "Stale — refreshing automatically…", bn: "পুরনো — স্বয়ংক্রিয়ভাবে হালনাগাদ হচ্ছে…" }) : t({ en: "Refreshing from GitHub…", bn: "GitHub থেকে হালনাগাদ হচ্ছে…" })}</span>
         ) : r ? (
           <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${age.stale ? "border-warning text-warning" : "border-success text-success"}`}>{age.stale ? t({ en: "Stale", bn: "পুরনো" }) : t({ en: "Current", bn: "হালনাগাদ" })}</span>
         ) : (
           <span className="text-muted-foreground">{t({ en: "Not checked yet — tap Compare now", bn: "এখনও যাচাই হয়নি — এখন তুলনা করুন চাপুন" })}</span>
         )}
         {r && <span>{t({ en: "Last checked", bn: "সর্বশেষ যাচাই" })}: <time className="font-medium" dateTime={r.checkedAt}>{dhaka(r.checkedAt)}</time>{ageText && <span className="text-muted-foreground"> · {ageText}</span>}</span>}
-        {r && !refreshing && countdown && <span className="text-muted-foreground">{t({ en: "Stale in", bn: "পুরনো হবে" })} <span className="font-mono font-medium tabular-nums text-foreground" aria-hidden="true">{countdown}</span><span className="sr-only">{t({ en: `${Math.ceil((left ?? 0) / 60)} minutes`, bn: `${Math.ceil((left ?? 0) / 60)} মিনিট` })}</span></span>}
-        {r && age.stale && !refreshing && <span className="w-full text-xs text-muted-foreground">{t({ en: `Older than ${SYNC_STALE_MINUTES} minutes — compare again before relying on it.`, bn: `${SYNC_STALE_MINUTES} মিনিটের বেশি পুরনো — ভরসা করার আগে আবার তুলনা করুন।` })}</span>}
+        {r && !refreshing && countdown && <span className="text-muted-foreground">{t({ en: "Auto-refresh in", bn: "স্বয়ংক্রিয় হালনাগাদ" })} <span className="font-mono font-medium tabular-nums text-foreground" aria-hidden="true">{countdown}</span><span className="sr-only">{t({ en: `${Math.ceil((left ?? 0) / 60)} minutes`, bn: `${Math.ceil((left ?? 0) / 60)} মিনিট` })}</span></span>}
+        {r && age.stale && !refreshing && <span className="w-full text-xs text-muted-foreground">{check.isError ? t({ en: `Older than ${SYNC_STALE_MINUTES} minutes and the automatic refresh failed — tap Compare now.`, bn: `${SYNC_STALE_MINUTES} মিনিটের বেশি পুরনো এবং স্বয়ংক্রিয় হালনাগাদ ব্যর্থ — এখন তুলনা করুন চাপুন।` }) : t({ en: `Older than ${SYNC_STALE_MINUTES} minutes — it refreshes automatically while this page is open.`, bn: `${SYNC_STALE_MINUTES} মিনিটের বেশি পুরনো — পেজ খোলা থাকলে নিজে থেকে হালনাগাদ হবে।` })}</span>}
       </div>
 
       {check.isError && <p role="alert" className="text-sm text-destructive">{r ? t({ en: "Refresh failed — still showing the last successful check. ", bn: "হালনাগাদ ব্যর্থ — আগের সফল যাচাই দেখানো হচ্ছে। " }) : ""}{check.error.message}</p>}
