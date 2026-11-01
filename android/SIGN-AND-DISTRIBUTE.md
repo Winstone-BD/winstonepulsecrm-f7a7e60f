@@ -117,7 +117,7 @@ Real phone test checklist পাস করান।
 4. অনুমোদিত আইডি কোড `2E:61…7E:6D` workflow-এ লেখা আছে। অন্য কী দিলে বিল্ড বন্ধ হবে।
 
 **প্রতিটি রিলিজ:** Actions → **Android official release** → Run workflow → অনুমোদনকারী Approve করবেন →
-শেষে **Artifacts** থেকে `winstone-connect-official-release` ZIP নামান (APK, `.sha256`, `.release-record.txt`) →
-তিনটি ফাইল Lovable চ্যাটে আপলোড করুন। ফাইলগুলো ১৪ দিন পরে GitHub থেকে নিজে মুছে যায়।
+শেষে **Artifacts** থেকে `winstone-connect-2.22-official-release` ZIP নামান (APK, `.sha256`, `.release-record.txt`) →
+তিনটি ফাইল Lovable চ্যাটে আপলোড করুন। ফাইলগুলো ৭ দিন পরে GitHub থেকে নিজে মুছে যায়। বিল্ড শুরুর আগেই চারটি গোপন তথ্য আছে কি না আর প্রজেক্টের ভার্সন 2.22 (33) কি না যাচাই হয়; কিছু না মিললে বিল্ড থেমে যায়।
 
 প্রতিটি অ্যাপ পরিবর্তনে **Android tests** নিজে চলে (কোনো কী বা পাসওয়ার্ড লাগে না)।
