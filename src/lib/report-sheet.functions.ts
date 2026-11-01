@@ -19,8 +19,21 @@ export const reportSheet = createServerFn({ method: "POST" })
     await requireSupervisor(data.adminToken ?? null);
     const { fetchReportSheetRows, readSyncState, reportSheetUrl, REPORT_SHEET_HEADER } =
       await import("@/lib/report-sheet.server");
-    const [rows, sync] = await Promise.all([fetchReportSheetRows(data.limit), readSyncState()]);
-    return { rows, header: [...REPORT_SHEET_HEADER], sheetUrl: reportSheetUrl(), sync };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const events = supabaseAdmin.from("sheet_sync_events").select("created_at, http_status").eq("surface", "report_sheet");
+    const [rows, sync, okRes, badRes] = await Promise.all([
+      fetchReportSheetRows(data.limit),
+      readSyncState(),
+      events.eq("outcome", "success").neq("operation", "read").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      supabaseAdmin.from("sheet_sync_events").select("created_at, http_status").eq("surface", "report_sheet").eq("outcome", "failure").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    ]);
+    const writes = {
+      lastWriteSuccessAt: okRes.error ? null : (okRes.data?.created_at ?? null),
+      lastFailureAt: badRes.error ? null : (badRes.data?.created_at ?? null),
+      lastFailureStatus: badRes.error ? null : (badRes.data?.http_status ?? null),
+      readFailed: Boolean(okRes.error || badRes.error),
+    };
+    return { rows, header: [...REPORT_SHEET_HEADER], sheetUrl: reportSheetUrl(), sync, writes };
   });
 
 export const pushReportSheet = createServerFn({ method: "POST" })

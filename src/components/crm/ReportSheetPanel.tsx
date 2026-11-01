@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { downloadCsv, toCsv } from "@/lib/crm-reports";
 import { useAdminToken } from "@/lib/local-session";
 import { pushReportSheet, reportSheet } from "@/lib/report-sheet.functions";
+import { reportSheetStatus } from "@/lib/report-sheet-status";
 
 const DEADLINE_HOUR = 17;
 const DEADLINE_MINUTE = 20;
@@ -129,6 +130,25 @@ export function ReportSheetPanel() {
           ) : null}
         </div>
       </header>
+
+      {sheet.data ? (() => {
+        const w = sheet.data.writes;
+        const status = w.readFailed ? "unknown" : reportSheetStatus(w);
+        const label = status === "ok" ? "সচল — শেষ লেখা সফল" : status === "failing" ? "সমস্যা — শেষ চেষ্টা ব্যর্থ" : "অজানা — কোনো সফল লেখা রেকর্ডে নেই";
+        const tone = status === "ok" ? "border-success/40 bg-success/10" : status === "failing" ? "border-destructive/40 bg-destructive/10" : "border-border bg-muted/40";
+        return (
+          <div role="status" aria-live="polite" className={`grid gap-1 rounded-md border p-3 text-xs sm:grid-cols-2 ${tone}`}>
+            <p className="font-semibold sm:col-span-2">লাইভ সিঙ্ক অবস্থা: {label}</p>
+            <p>সর্বশেষ সফল লেখা: <time className="font-medium" dateTime={w.lastWriteSuccessAt ?? undefined}>{dhakaTime(w.lastWriteSuccessAt)}</time></p>
+            <p>সর্বশেষ ব্যর্থতা: <time dateTime={w.lastFailureAt ?? undefined}>{dhakaTime(w.lastFailureAt)}</time>{w.lastFailureStatus ? ` (${w.lastFailureStatus})` : ""}</p>
+            <p className="text-muted-foreground sm:col-span-2">
+              সার্ভারে রেকর্ড করা Google Sheet লেখা থেকে; প্রতি ১ মিনিটে হালনাগাদ। শেষ যাচাই: {dhakaTime(sheet.dataUpdatedAt ? new Date(sheet.dataUpdatedAt).toISOString() : null)}
+              {w.readFailed ? " — সিঙ্ক রেকর্ড পড়া যায়নি।" : ""}
+            </p>
+          </div>
+        );
+      })() : null}
+
 
       {sheet.data?.sync.pendingSince || sheet.data?.sync.lastError ? (
         <p className="rounded-md border border-warning/40 bg-warning/10 p-3 text-xs">
