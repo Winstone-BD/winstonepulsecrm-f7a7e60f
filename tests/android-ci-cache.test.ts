@@ -39,3 +39,31 @@ describe("Android test workflow diagnostics", () => {
     expect(paths).not.toMatch(/\.jks|\.keystore|\.p12|local\.properties|\.apk|release-out|RUNNER_TEMP/);
   });
 });
+
+describe("Android official release workflow", () => {
+  it("is started only by hand and pins version 2.22 (33) by default", () => {
+    expect(release).toMatch(/on:\s+workflow_dispatch:/);
+    expect(release).not.toMatch(/^\s+(push|pull_request|schedule):/m);
+    expect(release).toMatch(/default: "2\.22"/);
+    expect(release).toMatch(/default: "33"/);
+  });
+  it("checks all four signing secrets before anything else runs", () => {
+    const check = release.indexOf("Check required signing secrets");
+    expect(check).toBeGreaterThan(-1);
+    expect(check).toBeLessThan(release.indexOf("actions/checkout@v4"));
+    for (const name of ["ANDROID_KEYSTORE_BASE64", "WINSTONE_KEYSTORE_PASSWORD", "WINSTONE_KEY_ALIAS", "WINSTONE_KEY_PASSWORD"]) {
+      expect(release).toContain(`missing+=("${name}")`);
+    }
+  });
+  it("re-verifies checksum, package, version and signer, then uploads only the 3 release files for 7 days", () => {
+    const verify = release.indexOf("Re-check the release files");
+    const upload = release.indexOf("Upload only the verified release files");
+    expect(verify).toBeGreaterThan(release.indexOf("Erase company key"));
+    expect(upload).toBeGreaterThan(verify);
+    expect(release).toMatch(/sha256sum -c/);
+    const uploadBlock = release.slice(upload);
+    expect(uploadBlock).toMatch(/retention-days: 7/);
+    expect(uploadBlock.match(/release-out\//g)?.length).toBe(3);
+    expect(uploadBlock).not.toMatch(/\*|\.jks|local\.properties|RUNNER_TEMP/);
+  });
+});
