@@ -5,7 +5,7 @@ import { useT } from "@/lib/i18n";
 
 type L = { en: string; bn: string };
 const ITEMS: { title: L; hint: L }[] = [
-  { title: { en: "Source: link came directly from IT/HQ", bn: "উৎস: লিংক সরাসরি IT/HQ থেকে এসেছে" }, hint: { en: "Downloads open on github.com under the Winstone repository. Never install a forwarded or WhatsApp file.", bn: "ডাউনলোড github.com-এ Winstone রিপোজিটরিতে খোলে। ফরওয়ার্ড বা WhatsApp ফাইল কখনো ইনস্টল করবেন না।" } },
+  { title: { en: "Source: file came directly from IT", bn: "উৎস: ফাইল সরাসরি IT থেকে এসেছে" }, hint: { en: "IT sends it by WhatsApp, pen drive, email or the IT Console link. Never install a file someone else forwarded.", bn: "IT WhatsApp, পেনড্রাইভ, ইমেইল বা IT Console লিংকে পাঠায়। অন্য কারো ফরওয়ার্ড করা ফাইল ইনস্টল করবেন না।" } },
   { title: { en: "File: name ends in .apk and matches what IT told you", bn: "ফাইল: নাম .apk-এ শেষ এবং IT যা বলেছে তার সঙ্গে মেলে" }, hint: { en: "If the file asks to install from another app store or has a different name, stop and ask IT.", bn: "অন্য অ্যাপ স্টোর থেকে ইনস্টল করতে বললে বা নাম আলাদা হলে থামুন ও IT-কে জিজ্ঞেস করুন।" } },
   { title: { en: "Version: matches the version IT announced", bn: "সংস্করণ: IT ঘোষিত সংস্করণের সঙ্গে মেলে" }, hint: { en: "After install, check Settings → Apps → Winstone Pulse → App version.", bn: "ইনস্টলের পর সেটিংস → অ্যাপস → Winstone Pulse → অ্যাপ সংস্করণ দেখুন।" } },
   { title: { en: "Install permission: allowed only for this install", bn: "ইনস্টল অনুমতি: শুধু এই ইনস্টলের জন্য" }, hint: { en: "Allow \"Install unknown apps\" for your browser, then turn it off again after installing.", bn: "ব্রাউজারের জন্য \"অজানা অ্যাপ ইনস্টল\" চালু করুন, ইনস্টলের পর আবার বন্ধ করুন।" } },
