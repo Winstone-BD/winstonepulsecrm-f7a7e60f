@@ -49,4 +49,10 @@ object IncomingCallTracker {
         callUid = null
         number = null
     }
+
+    /** Puts back a call saved before the process was restarted (ActiveCallStore). */
+    fun restore(savedNumber: String?, savedCallUid: String) {
+        number = savedNumber
+        callUid = savedCallUid
+    }
 }
