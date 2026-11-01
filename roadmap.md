@@ -790,3 +790,4 @@
 - [x] Uploaded ZIP removed from GitHub main (d799ad8)
 - [ ] Owner: confirm Project settings → Git status after GitHub change
 - [ ] Owner: one live report-sheet sync to confirm the 403s are gone (writes to the sheet)
+- [ ] Owner: give the GitHub connection access to Winstone-Properties-Ltd/winstonepulsecrm so the live comparison can read the synced repository

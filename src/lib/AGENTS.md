@@ -56,3 +56,4 @@
 - Server `fetch` uses `redirect: "manual"` (or default), never `"error"` — why: the live Worker throws on `"error"`, which made the IT Console GitHub check fail as READ_FAILED.
 - IT Console GitHub pages, the APK build widgets and the hourly access watch default to `CRM_REPOSITORY`/`CRM_BRANCH` in github-access.ts; never hardcode a repository name in a component — why: the old repository kept being reported as the current CRM.
 - GitHub sync comparison matches exact SHAs: project list is captured at build time by vite.config (`__PROJECT_COMMITS__`, read only in `project-commits.server.ts`), GitHub side read live; missing list shows Unknown — why: never infer sync from dates, and commit details stay out of the browser bundle.
+- Lovable Git sync link shown in the IT Console is `LOVABLE_SYNC_LINK` in github-access.ts, an owner-confirmed record with its confirmation time; never present it as live — why: the app cannot read Project settings → Git.
