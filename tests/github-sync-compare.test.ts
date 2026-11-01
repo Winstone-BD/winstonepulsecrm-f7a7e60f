@@ -59,3 +59,12 @@ describe("GitHub sync comparison access", () => {
     expect(transport).not.toHaveBeenCalled();
   });
 });
+
+import { checkAge } from "@/lib/github-sync-compare";
+describe("GitHub comparison freshness", () => {
+  const at = "2026-11-01T15:00:00Z";
+  const t0 = Date.parse(at);
+  it("is current under 10 minutes", () => expect(checkAge(at, t0 + 9 * 60000)).toEqual({ minutes: 9, stale: false }));
+  it("is stale at 10 minutes", () => expect(checkAge(at, t0 + 10 * 60000)).toEqual({ minutes: 10, stale: true }));
+  it("treats a missing time as stale, never current", () => expect(checkAge(null, t0)).toEqual({ minutes: null, stale: true }));
+});
