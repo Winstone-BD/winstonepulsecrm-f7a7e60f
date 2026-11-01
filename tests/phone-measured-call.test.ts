@@ -12,9 +12,14 @@ describe("which calls prove talk time", () => {
   });
 
   it("keeps the app's SIM call and the phone recorder, and never a web callback", () => {
-    expect(isPhoneMeasuredCall({ call_source: "android_sim" })).toBe(true);
+    expect(isPhoneMeasuredCall({ call_source: "android_sim", talk_time_source: "call_log" })).toBe(true);
     expect(isPhoneMeasuredCall({ call_source: "phone_recorder" })).toBe(true);
     expect(isPhoneMeasuredCall({ call_source: "web_callback", external_call_id: "log-1-0171" })).toBe(false);
+  });
+
+  it("never treats an app 2.21 SIM call's ringing-inclusive time as talk time", () => {
+    expect(isPhoneMeasuredCall({ call_source: "android_sim", external_call_id: "uuid-1" })).toBe(false);
+    expect(isPhoneMeasuredCall({ call_source: "android_sim", talk_time_source: "live" })).toBe(false);
   });
 
   it("uses the call log's 280 seconds for a report opened soon after", () => {

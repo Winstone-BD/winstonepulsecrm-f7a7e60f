@@ -15,7 +15,8 @@ import { z } from "zod";
  * the mandatory report flow continues untouched.
  */
 const Body = z.object({
-  call_uid: z.string().trim().min(6).max(120),
+  // "log-" ids are reserved for rows read from the phone's call history.
+  call_uid: z.string().trim().min(6).max(120).refine((v) => !v.startsWith("log-"), "Reserved call id"),
   lead_id: z.string().uuid(),
   state: z.enum(["initiated", "ringing", "answered", "completed", "failed", "no_answer"]),
   at: z.string().datetime({ offset: true }).optional(),
@@ -92,7 +93,7 @@ export const Route = createFileRoute("/api/public/agent/call-state")({
 
         const { data: existing } = await supabaseAdmin
           .from("call_recordings")
-          .select("id, call_status, agent_id, lead_id, storage_path, audio_url, upload_status, recording_status")
+          .select("id, call_status, agent_id, lead_id, storage_path, audio_url, upload_status, recording_status, talk_time_source")
           .eq("external_call_id", body.call_uid)
           .maybeSingle();
         // A call record may only be updated by the agent who owns it, for the same lead.
@@ -104,7 +105,14 @@ export const Route = createFileRoute("/api/public/agent/call-state")({
         // Call-history evidence is authoritative for the final result and talk time,
         // so it applies even when the row already looks finished.
         const evidence = talkTimeEvidence(body);
-        const acceptedPatch = { ...(existing ? lifecyclePatch(existing, patch) : patch), ...evidence };
+        // Talk time the call history already proved is never replaced by a live
+        // (ringing-inclusive) push; only new call-history evidence may change it.
+        const livePatch = existing ? lifecyclePatch(existing, patch) : patch;
+        const { duration_seconds: _liveSeconds, ...liveWithoutDuration } = livePatch as typeof livePatch & { duration_seconds?: number };
+        const acceptedPatch = {
+          ...(existing?.talk_time_source === "call_log" ? liveWithoutDuration : livePatch),
+          ...evidence,
+        };
         let recordingId = existing?.id ?? null;
 
         if (existing) {
