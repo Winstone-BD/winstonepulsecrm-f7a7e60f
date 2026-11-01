@@ -1,8 +1,11 @@
-# Copy to local.properties (never commit it).
+# Copy to local.properties (never commit, share or upload it).
 sdk.dir=/path/to/Android/sdk
-# Optional local release signing (CI uses WINSTONE_* GitHub secrets instead)
+# Official release signing — key custodian's computer only. The keystore must live
+# OUTSIDE the project folder. Used by scripts/build-signed-apk.sh (.ps1 on Windows).
 RELEASE_STORE_FILE=/secure/path/winstone-release.jks
 RELEASE_STORE_PASSWORD=
 RELEASE_KEY_ALIAS=winstone
 RELEASE_KEY_PASSWORD=
+# Approved PUBLIC certificate fingerprint (keytool -list -v ... → SHA256 line). Not a secret.
+RELEASE_CERT_SHA256=
 CRM_BASE_URL=https://crm.winstonebd.com
