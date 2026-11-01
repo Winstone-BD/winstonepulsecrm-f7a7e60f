@@ -87,7 +87,7 @@ export function evaluatePhoneAcceptance(input: {
   if (best) call = { key: "call", status: "pass", reason: "verified" };
   else if (!mine.length) call = { key: "call", status: "waiting", reason: "no_call" };
   else {
-    const c = mine[0];
+    const c = mine[0]!;
     const reason: StepReason =
       c.call_status !== "completed" ? "not_completed"
         : !(typeof c.duration_seconds === "number" && c.duration_seconds > 0) ? "no_talk_time"
