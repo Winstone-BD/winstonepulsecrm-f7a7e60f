@@ -197,6 +197,8 @@ class DeskViewModel(private val app: Application) : AndroidViewModel(app) {
             // Offline sign-out still clears locally; the token stays revocable from IT Console.
             AgentSession.deviceTokenNow(app)?.let { WinstoneApi.logout(it) }
             AgentSession.clear(app)
+            // The next agent's connection status starts fresh, never with this agent's last sync.
+            app.getSharedPreferences(CRM_PREFS, android.content.Context.MODE_PRIVATE).edit().remove(K_CRM_OK).apply()
             _state.value = DeskUiState()
         }
     }
