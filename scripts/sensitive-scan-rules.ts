@@ -19,7 +19,7 @@ const CONTENT_RULES: { rule: string; re: RegExp }[] = [
   { rule: "Stripe secret key", re: /\bsk_live_[A-Za-z0-9]{16,}/ },
   { rule: "Supabase secret key", re: /\bsb_secret_[A-Za-z0-9_-]{16,}/ },
   { rule: "Google service account key", re: /"type"\s*:\s*"service_account"[\s\S]{0,400}"private_key"/ },
-  { rule: "Signing password value", re: /(storePassword|keyPassword|KEYSTORE_PASSWORD|KEY_PASSWORD)\s*[=:]\s*["']?[^\s"'$<{][^\s"']{5,}/ },
+  { rule: "Signing password value", re: /(storePassword|keyPassword|KEYSTORE_PASSWORD|KEY_PASSWORD)\s*[=:]\s*["']?(?!(System|providers|project|findProperty|getenv|process|env|secrets|keystoreProperties)\b)[^\s"'$<{(][^\s"'()]{5,}["']?\s*$/m },
 ];
 
 /** Allowed placeholder/example files that only describe where secrets go. */

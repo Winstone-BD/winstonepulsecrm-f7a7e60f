@@ -15,7 +15,7 @@ describe("sensitive file scan rules", () => {
     expect(checkContent("build.gradle", 'storePassword = "hunter2secret"')).toHaveLength(1);
   });
   it("does not flag passwords read from the environment", () => {
-    expect(checkContent("build.gradle", 'storePassword = System.getenv("X")'.replace("System", "$System"))).toEqual([]);
+    expect(checkContent("build.gradle", 'storePassword = System.getenv("X")')).toEqual([]);
     expect(checkContent("ci.yml", "KEY_PASSWORD: ${{ secrets.WINSTONE_KEY_PASSWORD }}")).toEqual([]);
   });
 });
