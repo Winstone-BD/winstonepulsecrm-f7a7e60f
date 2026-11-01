@@ -301,14 +301,27 @@ object CallSyncQueue {
         val owned = Data.Builder().putAll(data)
             .putString(KEY_OWNER, owner)
             .build()
-        val request = OneTimeWorkRequestBuilder<CrmSyncWorker>()
+        SyncStatus.queued(context)
+        // Report jobs keep a copy so a reconnect can skip a long offline backoff.
+        ReportReplay.remember(context, unique, owned)
+        WorkManager.getInstance(context).enqueueUniqueWork(unique, policy, buildRequest(owned, tags))
+    }
+
+    private fun buildRequest(owned: Data, tags: List<String> = emptyList()) =
+        OneTimeWorkRequestBuilder<CrmSyncWorker>()
             .apply { tags.forEach { addTag(it) } }
             .setInputData(owned)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
-        SyncStatus.queued(context)
-        WorkManager.getInstance(context).enqueueUniqueWork(unique, policy, request)
+
+    /**
+     * Internet is back: run a report job that was waiting on backoff right away.
+     * Same unique name and payload (owner, report id, call_uid unchanged), so the
+     * CRM still records it once. Not counted as a new queued item.
+     */
+    fun requeueNow(context: Context, unique: String, owned: Data) {
+        WorkManager.getInstance(context).enqueueUniqueWork(unique, ExistingWorkPolicy.REPLACE, buildRequest(owned))
     }
 
     const val TAG_RECORDING = "winstone_recording"

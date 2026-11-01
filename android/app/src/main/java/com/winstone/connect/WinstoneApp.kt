@@ -21,5 +21,7 @@ class WinstoneApp : Application() {
         }
         CallLogSweepWorker.schedule(this)
         ReminderWorker.schedule(this)
+        // Internet back → resend call reports that failed while offline.
+        com.winstone.connect.data.sync.ReportReplay.watch(this)
     }
 }
