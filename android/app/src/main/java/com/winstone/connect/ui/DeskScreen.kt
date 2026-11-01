@@ -587,19 +587,12 @@ private fun BrandBar(agentName: String, online: Boolean) {
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            Modifier
-                .size(38.dp)
-                .background(WinGreen, RoundedCornerShape(11.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                "W",
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.Black,
-                fontSize = 18.sp,
-            )
-        }
+        // Brand logo (same drawable as sign-in and the welcome card), never a letter tile.
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(com.winstone.connect.R.drawable.winstone_logo),
+            contentDescription = "Winstone Pulse logo",
+            modifier = Modifier.size(40.dp).clip(CircleShape),
+        )
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
