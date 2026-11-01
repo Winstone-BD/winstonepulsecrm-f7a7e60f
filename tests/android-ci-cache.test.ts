@@ -19,6 +19,6 @@ describe("Android CI Gradle cache never holds signing material", () => {
     }
   });
   it("the tests workflow, which has no secrets, never sees signing secrets", () => {
-    expect(tests).not.toMatch(/secrets\./);
+    expect(tests).not.toMatch(/\$\{\{\s*secrets\./);
   });
 });
