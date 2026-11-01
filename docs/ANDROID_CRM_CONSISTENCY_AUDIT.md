@@ -84,3 +84,11 @@ Real-phone checks: `docs/ANDROID_DEVICE_ACCEPTANCE.md` — **NOT DONE**.
 - The updated app sends `talk_time_source = "call_log"` with the verified outcome from call history; app 2.21 never does.
 - Lead verification (`hasProvenTalkTime` in `src/lib/lead-verification.ts`) trusts app-dialled (`android_sim`) talk time only with that mark. Report `connection_verified` and KPI "phone-measured" counts still use `isPhoneMeasuredCall` and are unchanged.
 - Tests: `tests/lead-verification-evidence.test.ts`, `tests/talk-time-evidence.test.ts`, `tests/call-state-ack.test.ts`.
+
+## Android platform limits (what the app can and cannot know) — 2026-11-02
+- **Outgoing answer:** Android gives third-party apps no "remote party answered" signal. OFFHOOK only means dialling started. The app sends `initiated`, and answered/unanswered plus talk time come only from the phone's own CallLog row (`READ_CALL_LOG`, user-granted). No permission or no matching row → `failed` / "not verified", never "connected".
+- **Incoming / missed:** RINGING → OFFHOOK is a real answer. CallLog `INCOMING_TYPE` counts as answered even at 0 s; `MISSED`/`REJECTED`/`BLOCKED` stay unanswered. Zero-second calls never count as verified talk time.
+- **Call audio:** Android 10+ blocks app capture of the far side on most phones. The app records only after per-agent consent, and otherwise uploads the phone's own built-in recorder file when one exists and matches uniquely. Many phones will have no recording; this is expected and scores zero. No Accessibility-service or root workaround is used.
+- **Default dialer:** in-call controls use Telecom `InCallService` only when the agent grants the dialer role; otherwise calls go through the normal phone app and are still logged from the CallLog.
+- **OEM differences:** some brands (e.g. Xiaomi/Oppo/Vivo) stop background work aggressively; queued reports wait on the phone and resend when the app runs and the internet returns. Each needs a real-device test row in `docs/ANDROID_DEVICE_ACCEPTANCE.md`.
+- **Location:** nearby-lead sorting uses GPS on the phone only; coordinates are never uploaded.
