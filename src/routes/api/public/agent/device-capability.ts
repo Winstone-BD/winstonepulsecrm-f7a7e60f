@@ -24,6 +24,10 @@ const Body = z.object({
   // the SIM ↔ desk binding automatically instead of trusting the device token
   // alone.
   sim_number: z.string().trim().max(25).nullable().optional(),
+  // Recording readiness (app 2.22+). Omitted by older apps → left untouched.
+  recording_consent: z.enum(["granted", "declined", "not_asked"]).optional(),
+  recording_consent_version: z.number().int().min(0).max(1000).optional(),
+  mic_permission: z.enum(["granted", "denied"]).optional(),
 });
 
 function json(body: unknown, status = 200): Response {
@@ -69,6 +73,14 @@ export const Route = createFileRoute("/api/public/agent/device-capability")({
             ...(body.android_version ? { android_version: body.android_version } : {}),
             ...(body.manufacturer ? { manufacturer: body.manufacturer } : {}),
             ...(body.model ? { model: body.model } : {}),
+            ...(body.recording_consent && body.mic_permission
+              ? {
+                  recording_consent: body.recording_consent,
+                  recording_consent_version: body.recording_consent_version ?? null,
+                  mic_permission: body.mic_permission,
+                  readiness_reported_at: now,
+                }
+              : {}),
           })
           .eq("id", caller.device.id);
         if (error) return json({ error: error.message }, 500);

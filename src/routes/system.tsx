@@ -57,6 +57,7 @@ import { CallOpsPanel } from "@/components/crm/CallOpsPanel";
 import { SyncedCallsPanel } from "@/components/crm/SyncedCallsPanel";
 import { DayCallExportPanel } from "@/components/crm/DayCallExportPanel";
 import { RecordingPipelinePanel } from "@/components/crm/RecordingPipelinePanel";
+import { RecordingReadinessPanel } from "@/components/crm/RecordingReadinessPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { buildBillingSummary, DEFAULT_RATE_PER_MINUTE, useSnapshot } from "@/lib/crm-data";
@@ -201,6 +202,7 @@ function SystemBoard() {
         <div className="space-y-6">
           <DistributionFailurePanel />
           <CallOpsPanel showControls />
+          <RecordingReadinessPanel />
           <RecordingPipelinePanel />
           <SyncedCallsPanel />
           <DayCallExportPanel />
