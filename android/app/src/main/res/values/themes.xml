@@ -7,4 +7,9 @@
         <item name="android:navigationBarColor">@color/win_cream</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
+
+    <!-- App start only (MainActivity): gold logo on white until the first screen draws. -->
+    <style name="Theme.WinstoneConnect.Launch" parent="Theme.WinstoneConnect">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
 </resources>

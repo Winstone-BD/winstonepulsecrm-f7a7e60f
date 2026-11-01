@@ -59,6 +59,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:theme="@style/Theme.WinstoneConnect.Launch"
             android:exported="true"
             android:launchMode="singleTop"
             android:showWhenLocked="true"

@@ -37,6 +37,8 @@ import com.winstone.connect.data.remote.MaintenanceControl
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Opening-screen logo theme only covers app start; switch back to the plain app theme.
+        setTheme(R.style.Theme_WinstoneConnect)
         super.onCreate(savedInstanceState)
         com.winstone.connect.data.AppVersion.init(this)
         requestCallPermissions()
