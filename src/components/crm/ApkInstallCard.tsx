@@ -1,10 +1,12 @@
-import { Check, Copy, Download, QrCode, RefreshCw, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Check, Copy, Download, Link2, QrCode, RefreshCw, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
 import { useT, useLang } from "@/lib/i18n";
-
-const APK_PATH = "/api/public/download/apk";
+import { getAdminToken } from "@/lib/local-session";
+import { getApkDownloadLink } from "@/lib/apk-download.functions";
+import { APK_LINK_MINUTES, APK_RELEASE } from "@/lib/apk-release";
 
 type SmokeCheck = { name: string; ok: boolean; status: number | null; detail: string };
 type SmokeResult = {
@@ -16,42 +18,49 @@ type SmokeResult = {
   checks: SmokeCheck[];
 };
 
+const mb = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`;
+
 /**
- * IT Console card: QR code for fast phone install of the agent app plus the
- * automatic post-publish smoke test (APK availability + key CRM routes).
+ * IT Console card: PIN-gated private download of the agent phone app (link,
+ * QR, file facts) plus the automatic post-publish smoke test.
  */
 export function ApkInstallCard() {
   const t = useT();
   const lang = useLang();
-  const [origin, setOrigin] = useState("");
+  const loadLink = useServerFn(getApkDownloadLink);
+  const [link, setLink] = useState<{ url: string; expiresAt: string } | null>(null);
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<SmokeResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const apkUrl = origin ? `${origin}${APK_PATH}` : APK_PATH;
+  const makeLink = async () => {
+    setLinkBusy(true);
+    setLinkError(null);
+    try {
+      setLink(await loadLink({ data: { adminToken: getAdminToken() } }));
+    } catch {
+      setLinkError(t({ bn: "লিংক তৈরি হয়নি। IT PIN দিয়ে আবার চেষ্টা করুন।", en: "Could not create the link. Unlock with the IT PIN and try again." }));
+    } finally {
+      setLinkBusy(false);
+    }
+  };
 
   useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  useEffect(() => {
-    if (!origin) return;
+    if (!link) { setQr(null); return; }
     let cancelled = false;
     void (async () => {
       const { default: QRCode } = await import("qrcode");
-      const dataUrl = await QRCode.toDataURL(`${origin}${APK_PATH}`, {
-        width: 320,
-        margin: 1,
-        errorCorrectionLevel: "M",
-      });
+      const dataUrl = await QRCode.toDataURL(link.url, { width: 320, margin: 1, errorCorrectionLevel: "M" });
       if (!cancelled) setQr(dataUrl);
     })().catch(() => setQr(null));
     return () => {
       cancelled = true;
     };
-  }, [origin]);
+  }, [link]);
 
   const runSmoke = useCallback(async () => {
     setRunning(true);
@@ -72,10 +81,12 @@ export function ApkInstallCard() {
   }, [runSmoke]);
 
   const copy = async () => {
-    await navigator.clipboard.writeText(apkUrl);
+    if (!link) return;
+    await navigator.clipboard.writeText(link.url);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
+  const expires = link ? new Date(link.expiresAt).toLocaleTimeString("en-GB", { timeZone: "Asia/Dhaka", hour: "2-digit", minute: "2-digit" }) : "";
 
   return (
     <section className="space-y-3">
