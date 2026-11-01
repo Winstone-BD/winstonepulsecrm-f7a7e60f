@@ -11,8 +11,12 @@ export function classifyAccess(visibility: RepoVisibility, pendingInvite: boolea
 /** Which linked credential names to check, in the order the app reads them. */
 export const GITHUB_KEY_NAMES = ["GITHUB_API_KEY", "GITHUB_API_KEY_1", "GITHUB_API_KEY_2", "GITHUB_API_KEY_3"] as const;
 
+/** The current CRM repository and synced branch; every IT Console GitHub page defaults to these. */
+export const CRM_REPOSITORY = "trendfluxos-dev/winstonepulsecrm";
+export const CRM_BRANCH = "main";
+
 /** Repository the automatic access watch checks. */
-export const WATCHED_REPOSITORY = "trendfluxos-dev/winstone-pulse-crm";
+export const WATCHED_REPOSITORY = CRM_REPOSITORY;
 
 export type AccessSnapshot = { key: string; login: string | null; verdict: AccessVerdict; canPush: boolean | null };
 export type AccessChange = { kind: "revoked" | "write_lost" | "account_changed" | "connection_removed" | "restored"; key: string; login: string | null; previousLogin: string | null };
