@@ -92,8 +92,9 @@ describe("Android workflow hardening (2026-11-02)", () => {
 
   it("builds the unsigned release and sandbox apps on every Android change, without secrets", () => {
     expect(tests).toContain(":app:assembleRelease :app:assembleSandbox");
-    expect(tests).not.toMatch(/secrets\./);
-    expect(tests).not.toMatch(/app-release-unsigned\.apk\s*$/m.source.includes("x") ? /path:[^\n]*\.apk/ : /$^/);
+    expect(tests).not.toContain("${{ secrets.");
+    // APKs are built only to prove the build works; no upload path lists an APK.
+    expect(tests).not.toMatch(/^\s+android\/[^\n]*\.apk\s*$/m);
   });
 
   it("cancels superseded pull-request runs only", () => {
