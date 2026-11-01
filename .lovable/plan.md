@@ -47,3 +47,61 @@ Steps 1 to 4 are owner actions on GitHub and in Project settings. Step 5 is the 
 - Screenshot of Project settings → Git: repository, branch, status, last sync time.
 - Screenshot of the GitHub branch list, to see any `lovable-sync*` branch.
 - Screenshot of the comparison screen showing the page address and the "Project list saved" time.
+
+---
+
+# IT Console dashboard alerts: diagnosis only (no changes made)
+
+Checked through the Google Sheets request log and read-only database queries. No settings, keys or data were touched.
+
+## P1: Report sheet (রিপোর্ট শিট) 403 errors, confirmed and probably already resolved
+
+Evidence from the sheet sync history (last 3 days):
+- **Report sheet failures:** 132 failed writes on 1 Nov, 08:23 to 11:18 UTC.
+  - First 8 (08:23 to 08:34): "Project is not authorized to use this credential". The Google Sheets connection was briefly unlinked from this project after the workspace move.
+  - Next 124 (08:36 to 11:18): "LOVABLE_API_KEY not registered". The project's own service key was rejected, most likely an old copy still held after the move or after a key change.
+- **Lead report sheet:** 19 succeeded, 0 failed. **Shift summary:** 45 succeeded, 0 failed. All three use the same Google connection. Only the report sheet (spreadsheet `1cS2…`) was affected, because it was the one syncing during that window.
+- **Google request log:** every request to the report sheet since 11:23 UTC returned 200, the latest at 12:28 UTC. No failures after 11:18.
+- Unconfirmed: the sync history has no report-sheet success after 10:50 UTC, even though the Google log shows successes after 11:23. So it is unclear whether the published site has picked up the current key.
+
+Safe checks (read-only):
+1. Open IT Console → Health → Sheet sync health and confirm no new 403s after 11:18 UTC.
+2. Tap the report sheet's manual sync once on the live site and confirm a new success row. This writes report rows to the sheet, so it needs owner approval.
+3. If 403s return on the live site only: the published site is still running with the old key. A fresh publish reloads it. Never rotate the key twice for the same error.
+
+## P2: 29 versioned reports pending re-ingestion (2.21-test(32), 2.20-test(31)) — needs verification
+
+- Not re-queried here. Both app versions are test builds, so these are most likely reports from test phones, not agent work lost.
+- Safe check: on `/sync-failures` and the reports page, filter by app version and confirm the per-version counts, which agent each belongs to, and their submitted time.
+- Re-ingesting writes production data, so it needs owner approval per batch. Never reassign leads to make reports fit; LeadHub stays the only assignment path.
+
+## P2: 3 failed recording uploads and 10 calls with no audio — partly confirmed
+
+- **Confirmed:** in the last 2 days there are 42 call rows whose recording is marked "not available" and whose upload is still pending. Those calls have no audio on the server.
+- **Not confirmed:** the alert's exact "3 failed / 10 no audio" split, which depends on its own day window.
+- Likely causes: recording permission or consent off on the phone, Android blocking call audio, or the phone being offline. None of these affect call reports or scoring; audio is optional.
+- Safe next step: ask the affected agents to open the app and re-sync, then check `/sync-failures`. Do not mark any call connected without call-history proof.
+
+## P2: 724 leads pending 48 hours — needs verification
+
+- My count using the assumed column names returned 0. That most likely means those names are wrong, so the alert's own rule must be read before trusting either number.
+- The alert's advice points to the retired Coordinator Deck. That wording is outdated; LeadHub Nexus is the only reassignment path.
+- The neglect rule already recalls untouched leads on the 3rd business day.
+- Safe next step: read the alert's rule and compare it with the lead neglect notices. Any reassignment or recall needs HQ/LeadHub action, not IT.
+
+## P3: "No active bill/subscription"
+
+- **Confirmed:** the only subscription row is marked "trialing", last updated 12 Sep 2026. The alert is reading that stored state.
+- Project memory says the owner reports payment through 14 Nov 2026 and the fee is $35.29.
+- Safe next step: verify the stored payment proof in Billing. Recording a payment or approval needs owner approval, and approval is not the same as payment.
+
+## P1: GitHub sync — not verified, split apart
+
+- See the audit above. The dashboard's green "Connected" line only means the page loaded; it is not the GitHub sync status.
+- Only Project settings → Git can confirm the sync.
+
+## Actions that need owner approval
+
+- Any manual sheet sync on the live site, report re-ingestion, lead reassignment or recall.
+- Recording a billing payment or approval.
+- All GitHub steps in the audit, and any publish.
