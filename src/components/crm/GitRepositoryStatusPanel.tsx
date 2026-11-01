@@ -8,12 +8,13 @@ import { getAdminToken, useAdminToken } from "@/lib/local-session";
 import { getGithubRepositoryStatus, getGithubCheckHistory } from "@/lib/github-status.functions";
 import { githubCheckInput } from "@/lib/github-status-shared";
 import { useT } from "@/lib/i18n";
+import { CRM_BRANCH, CRM_REPOSITORY } from "@/lib/github-access";
 import { githubRecovery } from "@/lib/github-recovery";
 
 export function GitRepositoryStatusPanel() {
   const t = useT();
-  const [repository, setRepository] = useState("trendfluxos-dev/winstone-pulse-crm");
-  const [branch, setBranch] = useState("");
+  const [repository, setRepository] = useState(CRM_REPOSITORY);
+  const [branch, setBranch] = useState(CRM_BRANCH);
   const [retryUsed, setRetryUsed] = useState(false);
   const [finishedAt, setFinishedAt] = useState<string | null>(null);
   const load = useServerFn(getGithubRepositoryStatus);
@@ -79,12 +80,16 @@ export function GitRepositoryStatusPanel() {
       </div>
       <div className="space-y-2 border-t border-border pt-3 text-sm">
         <h3 className="font-medium">Lovable Git sync</h3>
-        <div className="space-y-2 border-l-2 border-primary pl-3" aria-label="Saved commit comparison">
-          <p className="font-medium">{t({ en: "Last saved-commit comparison: matched", bn: "শেষ সংরক্ষিত কাজের তুলনা: মিলেছে" })}</p>
-          <p className="break-all">trendfluxos-dev/winstone-pulse-crm · main</p>
-          <a className="break-all underline" href="https://github.com/trendfluxos-dev/winstone-pulse-crm/commit/96b57651ea91d4133e49142fca809dde723b2223" target="_blank" rel="noopener noreferrer">96b57651ea91d4133e49142fca809dde723b2223</a>
-          <p className="text-xs text-muted-foreground">{t({ en: "Compared in chat", bn: "চ্যাটে তুলনা করা হয়েছে" })}: <time dateTime="2026-10-30T15:19:45Z">30 Oct 2026 · 21:19:45 Dhaka</time></p>
-          <p className="text-muted-foreground">{t({ en: "The project's saved commit and GitHub main head matched at that time. This dated evidence is not a live sync status; later edits are not covered.", bn: "ওই সময় প্রকল্পের সংরক্ষিত কাজ ও GitHub main-এর সর্বশেষ কাজ একই ছিল। এটি ওই সময়ের প্রমাণ, বর্তমান সিঙ্ক অবস্থা নয়; পরের পরিবর্তন এতে অন্তর্ভুক্ত নয়।" })}</p>
+        <div className="space-y-2 border-l-2 border-destructive pl-3" aria-label="Saved commit comparison">
+          <p className="font-medium text-destructive">{t({ en: "Last saved-commit comparison: not matched", bn: "শেষ সংরক্ষিত কাজের তুলনা: মেলেনি" })}</p>
+          <p className="break-all">{CRM_REPOSITORY} · {CRM_BRANCH}</p>
+          <p className="text-xs text-muted-foreground">{t({ en: "Compared in chat", bn: "চ্যাটে তুলনা করা হয়েছে" })}: <time dateTime="2026-11-01T15:16:00Z">1 Nov 2026 · 21:16 Dhaka</time></p>
+          <ul className="list-disc space-y-1 pl-4 text-muted-foreground">
+            <li>{t({ en: "Last Lovable change on GitHub main: 1 Nov 2026 · 17:34 Dhaka.", bn: "GitHub main-এ Lovable-এর শেষ পরিবর্তন: ১ নভেম্বর ২০২৬ · ১৭:৩৪ ঢাকা।" })}</li>
+            <li>{t({ en: "GitHub main head is a manual ZIP upload (19:16 Dhaka), not a Lovable change:", bn: "GitHub main-এর সর্বশেষ কাজ একটি হাতে আপলোড করা ZIP (১৯:১৬ ঢাকা), Lovable-এর পরিবর্তন নয়:" })} <a className="break-all underline" href={`https://github.com/${CRM_REPOSITORY}/commit/46c43d7234daaaa61bb90fc4f51cbc31e381f619`} target="_blank" rel="noopener noreferrer">46c43d7</a></li>
+            <li>{t({ en: "The project's later saved work (18:58 Dhaka) was not on GitHub at that time.", bn: "প্রকল্পের পরের সংরক্ষিত কাজ (১৮:৫৮ ঢাকা) ওই সময় GitHub-এ ছিল না।" })}</li>
+          </ul>
+          <p className="text-muted-foreground">{t({ en: "This dated evidence is not a live sync status; later edits are not covered.", bn: "এটি ওই সময়ের প্রমাণ, বর্তমান সিঙ্ক অবস্থা নয়; পরের পরিবর্তন এতে অন্তর্ভুক্ত নয়।" })}</p>
         </div>
         <p className="text-muted-foreground">{t({ en: "Current Lovable sync: not verified. GitHub access checks do not read the sync queue. Confirm Connected / In sync with GitHub in Lovable Project settings → Git → Re-check.", bn: "বর্তমান Lovable সিঙ্ক: যাচাই হয়নি। GitHub অ্যাক্সেস যাচাইয়ে সিঙ্কের অপেক্ষমাণ কাজ দেখা যায় না। Lovable Project settings → Git → Re-check-এ Connected / In sync with GitHub নিশ্চিত করুন।" })}</p>
         <dl className="grid gap-3 sm:grid-cols-2">{[t({ en: "Connected repository", bn: "সংযুক্ত রিপোজিটরি" }), t({ en: "Synced branch", bn: "সিঙ্ক ব্রাঞ্চ" }), t({ en: "Pending changes", bn: "অপেক্ষমাণ পরিবর্তন" }), t({ en: "Recent sync errors", bn: "সাম্প্রতিক সিঙ্ক ত্রুটি" })].map(label => <div key={label}><dt>{label}</dt><dd className="text-xs text-muted-foreground">{unknown}</dd></div>)}</dl>

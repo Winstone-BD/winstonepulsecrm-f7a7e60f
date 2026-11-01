@@ -54,3 +54,4 @@
 - Website enquiries sync to their own 'Website Enquiries' tab via website-enquiry-sheet.ts (ID-matched, append-only, HQ notes kept; failure never blocks the day tab) — why: separate from agent rows.
 - Call-evidence labels come only from call-evidence.ts over submitted reports, display-only; connection_verified stays the sole scoring signal — why: one explanation, unchanged KPIs.
 - Server `fetch` uses `redirect: "manual"` (or default), never `"error"` — why: the live Worker throws on `"error"`, which made the IT Console GitHub check fail as READ_FAILED.
+- IT Console GitHub pages, the APK build widgets and the hourly access watch default to `CRM_REPOSITORY`/`CRM_BRANCH` in github-access.ts; never hardcode a repository name in a component — why: the old repository kept being reported as the current CRM.
