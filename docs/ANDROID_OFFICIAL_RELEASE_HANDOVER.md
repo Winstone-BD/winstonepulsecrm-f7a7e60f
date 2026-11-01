@@ -94,8 +94,8 @@ to agents. Passing means only: IT may install the APK on company agent phones (i
 
 | # | Gate | Owner | Evidence required | Status | Date (Dhaka) |
 |---|---|---|---|---|---|
-| 1 | Approved company signing certificate (A + B) | Company Signing Key Owner + IT Admin | keystore restored outside the project; fingerprint confirmed from two trusted records | OWNER-APPROVED — `2E:61:50:E6…4E:1C:7E:6D` (v2.3 key) chosen by Winstone IT Team; exposure risk accepted (see readiness doc) | 2026-11-02 |
-| 2 | Signed APK from the latest Lovable project code (C + D) | Key Owner + IT Admin | script output "Official release APK verified"; release record (signer/package/version/APK SHA-256); `sha256sum -c` OK | NOT READY — the stored `winstone-connect-2.21-release.apk` (SHA-256 `c5e1e586…be394710`) has a valid signature from this key but was repackaged from 2.21-test code and lacks the microphone-readiness report | |
+| 1 | Approved company signing certificate (A + B) | Company Signing Key Owner + IT Admin | keystore restored outside the project; fingerprint confirmed from two trusted records | PENDING — owner chose the v2.3 key; key holder must match `2E:61:50:E6:06:52:45:C1:B2:B5:41:37:51:2D:63:ED:40:0D:22:9B:88:1D:1B:91:5A:29:06:17:4E:1C:7E:6D` and a second person confirm it (exposure risk accepted, see readiness doc) | 2026-11-02 (recorded) |
+| 2 | Signed APK from the latest Lovable project code (C + D) | Key Owner + IT Admin | script output "Official release APK verified"; release record (signer/package/version/APK SHA-256); `sha256sum -c` OK | NOT READY — the stored `winstone-connect-2.21-release.apk` (SHA-256 `c5e1e586…be394710`) has a valid signature from this key but was repackaged from 2.21-test code and lacks the microphone-readiness report; next build is 2.22 (code 33) from the latest code | |
 | 3 | Real-device end-to-end acceptance test (E) | Agent Tester + IT Admin | completed `docs/ANDROID_DEVICE_ACCEPTANCE.md` with screenshots/recordings | NOT DONE | |
 
 Internal approval to install on agent phones: ________ (IT Admin)  ________ (Executive HQ)  Date: ________
