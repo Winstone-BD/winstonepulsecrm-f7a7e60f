@@ -105,3 +105,50 @@ export function callTimeLabel(input: { call_started_at?: string | null; call_end
   const b = DHAKA_CLOCK.format(end);
   return `${a === b ? a : `${a} – ${b}`} · ${talkLabel(input.duration_seconds)}`;
 }
+
+/**
+ * Phone call-log match for one synced call row (call_recordings), shown on the
+ * Android app's call list. Display only — scoring keeps its own rules. A row
+ * matches only when hasProvenTalkTime says the phone's own call history
+ * proved it; ringing time alone never counts as a match with talk.
+ */
+export type CallLogMatch =
+  /** Phone call history proves this call and its talk time. */
+  | "log_talk"
+  /** Phone call history has the call, but nobody talked (no answer / busy / 0s). */
+  | "log_no_answer"
+  /** App/phone call, but the phone's call history has not confirmed it (yet). */
+  | "not_matched"
+  /** Web/other call — there is no phone call history to compare. */
+  | "no_phone_log";
+
+export type CallLogRow = {
+  call_source?: string | null;
+  call_status?: string | null;
+  duration_seconds?: number | null;
+  talk_time_source?: string | null;
+  external_call_id?: string | null;
+  call_log_id?: string | number | null;
+};
+
+const PHONE_SOURCES = new Set(["android_sim", "android_dialer", "android_incoming", "phone_recorder"]);
+
+export function callLogMatch(row: CallLogRow, proven: (r: CallLogRow) => boolean): CallLogMatch {
+  const source = String(row.call_source ?? "");
+  if (!PHONE_SOURCES.has(source)) return "no_phone_log";
+  const fromLog =
+    row.talk_time_source === "call_log" ||
+    String(row.external_call_id ?? "").startsWith("log-") ||
+    (row.call_log_id !== null && row.call_log_id !== undefined && String(row.call_log_id) !== "");
+  const talked = row.call_status === "completed" && secs(row.duration_seconds) > 0;
+  if (talked && proven(row)) return "log_talk";
+  if (fromLog && !talked) return "log_no_answer";
+  return "not_matched";
+}
+
+export const CALL_LOG_MATCH_LABEL: Record<CallLogMatch, { bn: string; en: string }> = {
+  log_talk: { bn: "ফোন লগের সঙ্গে মিলেছে · কথা হয়েছে", en: "Matched phone log · talked" },
+  log_no_answer: { bn: "ফোন লগের সঙ্গে মিলেছে · কথা হয়নি", en: "Matched phone log · no talk" },
+  not_matched: { bn: "ফোন লগের সঙ্গে মেলেনি", en: "Not matched to phone log" },
+  no_phone_log: { bn: "ফোন লগ নেই · এজেন্টের দেওয়া তথ্য", en: "No phone log · agent-reported" },
+};
