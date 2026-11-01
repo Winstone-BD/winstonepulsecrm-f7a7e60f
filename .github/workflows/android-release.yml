@@ -38,6 +38,12 @@ jobs:
       EXPECTED_VERSION: ${{ inputs.expected_version }}
       EXPECTED_VERSION_CODE: ${{ inputs.expected_version_code }}
     steps:
+      - name: Official builds run only from main
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "OFFICIAL RELEASE BLOCKED: run this workflow from main (got $GITHUB_REF)" >&2
+            exit 1
+          fi
       - name: Check required signing secrets (names only, values never printed)
         env:
           S_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}

@@ -53,6 +53,10 @@ object LiveCallLauncher {
     @Volatile
     private var pendingCall: PendingCall? = null
 
+    /** Application context, kept so clear() can drop the saved call snapshot. */
+    @Volatile
+    private var appContext: android.content.Context? = null
+
     private val _phase = MutableStateFlow(CallPhase.Idle)
     val phase: StateFlow<CallPhase> = _phase.asStateFlow()
 
@@ -71,6 +75,7 @@ object LiveCallLauncher {
         leadName: String? = null,
     ) {
         pendingCall = PendingCall(leadId, phone, agentId, leadName)
+        appContext = activity.applicationContext
 
         val granted =
             ContextCompat.checkSelfPermission(activity, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
@@ -110,6 +115,8 @@ object LiveCallLauncher {
         // retried state update updates that row instead of adding another call.
         val uid = CallLifecycle.newCallUid(pending.leadId)
         activeCallUid = uid
+        // Survives Android killing the app mid-call, so the hang-up keeps this call id.
+        ActiveCallStore.save(activity.applicationContext, lastState = null, offHookAtMs = 0L)
         val capability = RecordingCapabilityCheck.check(activity)
         CallSyncQueue.queueCallState(
             context = activity.applicationContext,
@@ -171,6 +178,7 @@ object LiveCallLauncher {
         activeLeadId = null; activePhone = null; activeAgentId = null; activeLeadName = null
         activeCallUid = null
         connectedAt = 0L; recording = false; recordingIssue = null
+        appContext?.let { ActiveCallStore.clear(it) }
         _phase.value = CallPhase.Idle
     }
 }

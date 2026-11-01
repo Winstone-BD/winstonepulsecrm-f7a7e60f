@@ -33,6 +33,15 @@ class CallStateReceiver : BroadcastReceiver() {
         // Cold start (incoming call wakes the process): read the synchronous mirror.
         val employeeId = AgentSession.employeeIdNow(app) ?: return
 
+        // Cold process mid-call: bring back the call id, lead and off-hook time.
+        if (lastState == null && offHookAt == 0L) {
+            ActiveCallStore.load(app)?.let { snap ->
+                ActiveCallStore.restoreIntoTrackers(snap)
+                lastState = snap.lastState
+                offHookAt = snap.offHookAtMs
+            }
+        }
+
         val outgoing = LiveCallLauncher.activeCallUid != null
         when (state) {
             TelephonyManager.EXTRA_STATE_OFFHOOK -> {
@@ -72,6 +81,7 @@ class CallStateReceiver : BroadcastReceiver() {
                     IncomingCallTracker.ensure(intent.incomingNumber())
                     reportIncoming(app, CallLifecycle.incomingState(CallLifecycle.ANDROID_OFFHOOK, false))
                 }
+                ActiveCallStore.save(app, lastState, offHookAt)
                 scope.launch {
                     runCatching { WinstoneApi.postPresence(employeeId, "on_call", leadId = LiveCallLauncher.activeLeadId) }
                 }
@@ -195,6 +205,9 @@ class CallStateReceiver : BroadcastReceiver() {
                     runCatching { WinstoneApi.postPresence(employeeId, "idle", leadId = endedLeadId) }
                 }
                 LiveCallLauncher.recording = false
+                // This call is fully handed to the queue; a later call must not inherit it.
+                offHookAt = 0L
+                ActiveCallStore.clear(app)
                 // The overlay collects the outcome, then calls LiveCallLauncher.clear().
                 if (wasOnCall) LiveCallLauncher.setPhase(CallPhase.Ended) else LiveCallLauncher.clear()
             }
@@ -207,6 +220,7 @@ class CallStateReceiver : BroadcastReceiver() {
                     IncomingCallTracker.begin(intent.incomingNumber())
                     reportIncoming(app, CallLifecycle.incomingState(CallLifecycle.ANDROID_RINGING, false))
                 }
+                ActiveCallStore.save(app, lastState, offHookAt)
             }
 
             else -> lastState = state

@@ -36,6 +36,12 @@ object DialerCallTracker {
         number = null
         callUid = null
     }
+
+    /** Puts back a call saved before the process was restarted (ActiveCallStore). */
+    fun restore(savedNumber: String?, savedCallUid: String) {
+        number = savedNumber
+        callUid = savedCallUid
+    }
 }
 
 /** Registered in the manifest for ACTION_NEW_OUTGOING_CALL. */
@@ -44,6 +50,10 @@ class OutgoingCallReceiver : BroadcastReceiver() {
         if (intent.action != Intent.ACTION_NEW_OUTGOING_CALL) return
         // A call the app itself dialled is already tracked with its lead id.
         if (LiveCallLauncher.activeCallUid != null) return
+        // A cold process has empty trackers: an app-dialled call saved on disk wins.
+        ActiveCallStore.load(context)?.let { ActiveCallStore.restoreIntoTrackers(it) }
+        if (LiveCallLauncher.activeCallUid != null) return
         DialerCallTracker.begin(intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER))
+        ActiveCallStore.save(context, lastState = null, offHookAtMs = 0L)
     }
 }
