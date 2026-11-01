@@ -83,6 +83,7 @@ import com.winstone.connect.location.asDistanceLabel
 import com.winstone.connect.telephony.RecordingCapabilityCheck
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
+import com.winstone.connect.data.CrmConnection.State as CrmState
 import kotlinx.coroutines.launch
 import com.winstone.connect.ui.theme.WinAmber
 import com.winstone.connect.ui.theme.WinBorder
@@ -583,12 +584,11 @@ private fun CrmConnectionStrip(state: DeskUiState, onRetry: () -> Unit) {
         nowMillis = now,
         checking = state.crmChecking,
     )
-    val S = com.winstone.connect.data.CrmConnection.State
     val color = when (view.state) {
-        S.CONNECTED -> WinLive
-        S.CHECKING, S.NEVER -> WinInkMuted
-        S.STALE -> WinAmber
-        S.NO_INTERNET, S.SERVER_ERROR -> WinRed
+        CrmState.CONNECTED -> WinLive
+        CrmState.CHECKING, CrmState.NEVER -> WinInkMuted
+        CrmState.STALE -> WinAmber
+        CrmState.NO_INTERNET, CrmState.SERVER_ERROR -> WinRed
     }
     Row(
         Modifier
@@ -602,7 +602,7 @@ private fun CrmConnectionStrip(state: DeskUiState, onRetry: () -> Unit) {
             Text(view.title, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = color)
             view.detail?.let { Text(it, fontSize = 11.sp, color = WinInkMuted) }
         }
-        if (view.state != S.CONNECTED && view.state != S.CHECKING) {
+        if (view.state != CrmState.CONNECTED && view.state != CrmState.CHECKING) {
             TextButton(onClick = onRetry) { Text("আবার চেষ্টা", fontSize = 12.sp) }
         }
     }
