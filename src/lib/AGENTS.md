@@ -53,3 +53,4 @@
 - Lead-import previews use only server-configured report workbooks; inventory keeps its own read scope; audit exports neutralise every cell — why: no widened access or formula execution.
 - Website enquiries sync to their own 'Website Enquiries' tab via website-enquiry-sheet.ts (ID-matched, append-only, HQ notes kept; failure never blocks the day tab) — why: separate from agent rows.
 - Call-evidence labels come only from call-evidence.ts over submitted reports, display-only; connection_verified stays the sole scoring signal — why: one explanation, unchanged KPIs.
+- Server `fetch` uses `redirect: "manual"` (or default), never `"error"` — why: the live Worker throws on `"error"`, which made the IT Console GitHub check fail as READ_FAILED.
