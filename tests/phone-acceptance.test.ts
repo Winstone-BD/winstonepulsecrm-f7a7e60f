@@ -16,8 +16,13 @@ describe("real phone acceptance checklist", () => {
     expect(run().ready).toBe(true);
   });
 
-  it("flags a test build as not official", () => {
-    const r = run({ d: { app_version: "2.21-test" } });
+  it("passes the test build IT currently hands out, but names it as a test build", () => {
+    const r = evaluatePhoneAcceptance({ device: { ...device, app_version: "2.21-test" }, agentId: "a1", calls: [call()], expectedVersion: "2.21-test", now });
+    expect(r.steps[0]).toEqual({ key: "install", status: "pass", reason: "current_test_build" });
+  });
+
+  it("flags a test build that is not the current download", () => {
+    const r = run({ d: { app_version: "2.20-test" } });
     expect(step(r, "install")).toEqual({ key: "install", status: "warn", reason: "test_build" });
     expect(r.ready).toBe(false);
   });

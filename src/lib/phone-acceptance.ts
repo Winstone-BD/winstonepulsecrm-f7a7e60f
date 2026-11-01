@@ -28,7 +28,7 @@ export type AcceptanceCall = {
 };
 
 export type StepReason =
-  | "app_reported" | "test_build" | "other_version" | "no_version"
+  | "app_reported" | "current_test_build" | "test_build" | "other_version" | "no_version"
   | "active" | "stale" | "revoked"
   | "verified" | "not_completed" | "no_talk_time" | "not_verified" | "no_call";
 
@@ -54,13 +54,15 @@ export function evaluatePhoneAcceptance(input: {
   const { device, agentId, expectedVersion, now } = input;
 
   const v = device.app_version?.trim() || null;
+  // The version IT currently hands out passes (noted when it is a test build);
+  // any other test build or older/newer version needs attention.
   const install: AcceptanceStep = !v
     ? { key: "install", status: "waiting", reason: "no_version" }
-    : isTestBuild(v)
-      ? { key: "install", status: "warn", reason: "test_build" }
-      : v !== expectedVersion
-        ? { key: "install", status: "warn", reason: "other_version" }
-        : { key: "install", status: "pass", reason: "app_reported" };
+    : v === expectedVersion
+      ? { key: "install", status: "pass", reason: isTestBuild(v) ? "current_test_build" : "app_reported" }
+      : isTestBuild(v)
+        ? { key: "install", status: "warn", reason: "test_build" }
+        : { key: "install", status: "warn", reason: "other_version" };
 
   const seen = device.last_seen_at ? Date.parse(device.last_seen_at) : NaN;
   const signin: AcceptanceStep = device.revoked_at
@@ -110,6 +112,7 @@ export const STEP_TITLE: Record<StepKey, L> = {
 
 export const REASON_LABEL: Record<StepReason, L> = {
   app_reported: { en: "Phone reports the current app version", bn: "ফোন বর্তমান অ্যাপ ভার্সন জানাচ্ছে" },
+  current_test_build: { en: "Current IT Console test build installed (not the official signed app)", bn: "বর্তমান IT Console টেস্ট বিল্ড ইনস্টল (অফিসিয়াল সাইন করা অ্যাপ নয়)" },
   test_build: { en: "Test build installed — not the official app", bn: "টেস্ট বিল্ড ইনস্টল — অফিসিয়াল অ্যাপ নয়" },
   other_version: { en: "Different app version than the current release", bn: "বর্তমান রিলিজের চেয়ে ভিন্ন ভার্সন" },
   no_version: { en: "Phone has not reported an app version yet", bn: "ফোন এখনো অ্যাপ ভার্সন জানায়নি" },
