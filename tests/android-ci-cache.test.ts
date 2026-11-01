@@ -55,15 +55,26 @@ describe("Android official release workflow", () => {
       expect(release).toContain(`missing+=("${name}")`);
     }
   });
-  it("re-verifies checksum, package, version and signer, then uploads only the 3 release files for 7 days", () => {
+  it("re-verifies checksum, package, version and signer, then uploads only the 3 release files plus SHA256SUMS and provenance for 7 days", () => {
     const verify = release.indexOf("Re-check the release files");
     const upload = release.indexOf("Upload only the verified release files");
+    expect(release.indexOf("Write SHA256SUMS")).toBeGreaterThan(verify);
+    expect(release.indexOf("Write SHA256SUMS")).toBeLessThan(upload);
     expect(verify).toBeGreaterThan(release.indexOf("Erase company key"));
     expect(upload).toBeGreaterThan(verify);
     expect(release).toMatch(/sha256sum -c/);
     const uploadBlock = release.slice(upload);
     expect(uploadBlock).toMatch(/retention-days: 7/);
-    expect(uploadBlock.match(/release-out\//g)?.length).toBe(3);
+    expect(uploadBlock.match(/release-out\//g)?.length).toBe(5);
+    expect(uploadBlock).toContain("release-out/SHA256SUMS");
+    expect(uploadBlock).toContain("release-out/build-provenance.json");
     expect(uploadBlock).not.toMatch(/\*|\.jks|local\.properties|RUNNER_TEMP/);
+  });
+});
+
+describe("Android release shrinker rules", () => {
+  it("keeps the Tink annotation rule so the minified release build can complete", () => {
+    const rules = readFileSync("android/app/proguard-rules.pro", "utf8");
+    expect(rules).toMatch(/^-dontwarn com\.google\.errorprone\.annotations\.\*\*$/m);
   });
 });

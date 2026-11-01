@@ -4,7 +4,7 @@
 # protected "android-release" environment, so an approver must confirm each run.
 # Order: check secrets (names only) → check version → restore key to runner temp →
 # build/sign/verify with scripts/build-signed-apk.sh → erase key → re-verify the three
-# release files → upload only those files for 7 days.
+# release files → write SHA256SUMS + provenance → upload only those 5 files for 7 days.
 # The approved signer fingerprint is pinned below: a different key always fails the build.
 name: Android official release
 
@@ -126,6 +126,34 @@ jobs:
           echo "RELEASE_APK=$base" >> "$GITHUB_ENV"
           echo "Verified: $base"
 
+      - name: Write SHA256SUMS and build provenance (public facts only)
+        working-directory: android/release-out
+        run: |
+          set -euo pipefail
+          sha256sum "$RELEASE_APK" "$RELEASE_APK.release-record.txt" > SHA256SUMS
+          apk_sha="$(sha256sum "$RELEASE_APK" | awk '{print $1}')"
+          fp="$(printf '%s' "$WINSTONE_RELEASE_CERT_SHA256" | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
+          cat > build-provenance.json <<JSON
+          {
+            "package": "com.winstone.connect",
+            "version_name": "${EXPECTED_VERSION}",
+            "version_code": ${EXPECTED_VERSION_CODE},
+            "apk": "${RELEASE_APK}",
+            "apk_sha256": "${apk_sha}",
+            "signer_sha256": "${fp}",
+            "source_repository": "${GITHUB_REPOSITORY}",
+            "source_ref": "${GITHUB_REF}",
+            "source_commit": "${GITHUB_SHA}",
+            "workflow_run": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}",
+            "run_attempt": ${GITHUB_RUN_ATTEMPT},
+            "started_by": "${GITHUB_ACTOR}",
+            "built_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "status": "SIGNED - not approved for agent phones until the real-device test passes"
+          }
+          JSON
+          python3 -m json.tool build-provenance.json > /dev/null
+          sha256sum -c SHA256SUMS
+
       - name: Upload only the verified release files (7 days)
         uses: actions/upload-artifact@v4
         with:
@@ -134,5 +162,7 @@ jobs:
             android/release-out/${{ env.RELEASE_APK }}
             android/release-out/${{ env.RELEASE_APK }}.sha256
             android/release-out/${{ env.RELEASE_APK }}.release-record.txt
+            android/release-out/SHA256SUMS
+            android/release-out/build-provenance.json
           if-no-files-found: error
           retention-days: 7

@@ -6,3 +6,6 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+# Tink (used by androidx.security-crypto for the Keystore-backed token store) references
+# compile-time-only Error Prone annotations; they are not needed at runtime.
+-dontwarn com.google.errorprone.annotations.**

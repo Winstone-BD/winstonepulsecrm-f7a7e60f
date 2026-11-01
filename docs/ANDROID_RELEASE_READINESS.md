@@ -145,3 +145,10 @@ Run `android/DEVICE_TEST_CHECKLIST.md`, plus:
 - Built in the Lovable workspace with JDK 17 + Android SDK 35 / build-tools 35.0.0 from the current project code (GitHub not yet synced): `./gradlew testDebugUnitTest assembleDebug` → BUILD SUCCESSFUL; 84 unit tests, 0 failures (incl. CallHistoryEvidence, SyncErrorClassifier, RecordingBinding, PhoneRecordingMatcher).
 - Output: `com.winstone.connect.test` 2.21-test (32), SHA-256 `59a7e26ff5dfc32ef44f6ee7969b48ce1015fc0fd2ec0b5bd15939d030024c27`, debug-signed — not the official APK.
 - Not done: emulator/instrumented UI tests (no hardware virtualisation available), real-device run, signed release.
+
+### Code-level release check 2026-11-02 (05:20 Dhaka) — no signing, not official
+- Built in a sandbox with JDK 17 + Android SDK 35: `:app:testDebugUnitTest` 107 passed / 0 failed; `:app:assembleDebug`, `:app:assembleSandbox`, `:app:assembleRelease` (unsigned) succeeded.
+- Found and fixed a release blocker: R8 failed on a missing Error Prone annotation referenced by Tink (androidx.security-crypto). Added `-dontwarn com.google.errorprone.annotations.**` to `proguard-rules.pro` (guarded by `tests/android-ci-cache.test.ts`).
+- Unsigned release badging: `com.winstone.connect` 2.22 (33), not debuggable. Test build `com.winstone.connect.test` 2.22-test; sandbox `com.winstone.connect.sandbox` has no INTERNET permission.
+- Release workflow now also writes `SHA256SUMS` and `build-provenance.json` (repo, commit, run URL, signer, APK SHA-256).
+- Still BLOCKED: GitHub repository contents/sync not readable by the agent; `android-release` environment, reviewers and 4 secrets unverified; no signed build; no real-device test.
