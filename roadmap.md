@@ -787,5 +787,6 @@
 - [x] IT Console GitHub sync comparison: project changes vs `trendfluxos-dev/winstonepulsecrm` main, by exact change ID
 - [x] Live GitHub check (repo, branch, latest commit, sync status) from the IT Console — connection verified 2026-11-01
 - [x] Retired signing key removed from project files (still in old Git history; never trusted)
-- [ ] Owner: delete the uploaded ZIP from GitHub main with a normal commit, then confirm Project settings → Git (needs GitHub owner)
+- [x] Uploaded ZIP removed from GitHub main (d799ad8)
+- [ ] Owner: confirm Project settings → Git status after GitHub change
 - [ ] Owner: one live report-sheet sync to confirm the 403s are gone (writes to the sheet)
