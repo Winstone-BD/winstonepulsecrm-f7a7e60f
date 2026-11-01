@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+ opening-screen icon: 288dp canvas, logo kept inside the 192dp visible circle. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="288dp"
+        android:height="288dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+    <item
+        android:width="184dp"
+        android:height="184dp"
+        android:gravity="center"
+        android:drawable="@drawable/winstone_logo" />
+</layer-list>
