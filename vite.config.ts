@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import fs from "node:fs";
 import { execSync } from "node:child_process";
+import { parseGitLog } from "./src/lib/github-sync-compare";
 import path from "node:path";
 import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
@@ -76,12 +77,7 @@ function browserAsyncHooksStub() {
 function readProjectCommits(): unknown[] | null {
   try {
     const raw = execSync("git log -40 --format=%x1e%H%x1f%cI%x1f%s --name-only", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 5000, maxBuffer: 4 * 1024 * 1024 });
-    const out = raw.split("\x1e").map((b) => b.trim()).filter(Boolean).flatMap((block) => {
-      const [header = "", ...rest] = block.split("\n");
-      const [sha = "", date = "", message = ""] = header.split("\x1f");
-      if (!/^[a-f0-9]{40}$/.test(sha)) return [];
-      return [{ sha, date: date || null, message: message.slice(0, 160), files: rest.map((l) => l.trim()).filter(Boolean).slice(0, 15) }];
-    });
+    const out = parseGitLog(raw, 40);
     return out.length ? out : null;
   } catch {
     return null;
