@@ -785,4 +785,4 @@
 
 ## 2026-11-01 — GitHub sync visibility
 - [x] IT Console GitHub sync comparison: project changes vs `trendfluxos-dev/winstonepulsecrm` main, by exact change ID
-- [ ] Live GitHub check (repo, branch, latest commit, sync status) from the IT Console — verify connection works
+- [x] Live GitHub check (repo, branch, latest commit, sync status) from the IT Console — connection verified 2026-11-01
