@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowDownToLine, ArrowUpFromLine, CheckCircle2, GitCompare, HelpCircle, RefreshCw, TriangleAlert } from "lucide-react";
@@ -6,7 +7,7 @@ import { getAdminToken } from "@/lib/local-session";
 import { getGithubSyncComparison } from "@/lib/github-status.functions";
 import { githubCheckInput } from "@/lib/github-status-shared";
 import { CRM_BRANCH, CRM_REPOSITORY } from "@/lib/github-access";
-import type { SyncCommit, SyncState } from "@/lib/github-sync-compare";
+import { checkAge, SYNC_STALE_MINUTES, type SyncCommit, type SyncState } from "@/lib/github-sync-compare";
 import { useT } from "@/lib/i18n";
 
 const dhaka = (iso: string | null) =>
@@ -38,10 +39,22 @@ function CommitList({ commits, repo, link }: { commits: SyncCommit[]; repo: stri
 export function GitSyncComparisonPanel() {
   const t = useT();
   const load = useServerFn(getGithubSyncComparison);
+  type Result = Awaited<ReturnType<typeof load>>;
+  // Keep the last good result on screen while a refresh runs or fails.
+  const [last, setLast] = useState<Result | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
   const check = useMutation({
     mutationFn: () => load({ data: githubCheckInput.parse({ adminToken: getAdminToken(), repository: CRM_REPOSITORY, branch: CRM_BRANCH }) }),
+    onSuccess: (data) => { setLast(data); setNow(Date.now()); },
   });
-  const r = check.data;
+  const r = last;
+  const refreshing = check.isPending;
+  const age = checkAge(r?.checkedAt ?? null, now);
+  const ageText = age.minutes === null ? "" : age.minutes === 0 ? t({ en: "just now", bn: "এইমাত্র" }) : t({ en: `${age.minutes} min ago`, bn: `${age.minutes} মিনিট আগে` });
 
   const verdict: Record<SyncState, { tone: "ok" | "warn" | "bad" | "unknown"; en: string; bn: string }> = {
     in_sync: { tone: "ok", en: "In sync — GitHub has the project's latest change", bn: "সিঙ্কড — GitHub-এ প্রজেক্টের সর্বশেষ পরিবর্তন আছে" },
@@ -69,17 +82,29 @@ export function GitSyncComparisonPanel() {
       </div>
       <p className="text-xs text-muted-foreground">{t({ en: "Read-only. Matches exact change IDs; nothing is pushed or changed. The project list is the one saved when this version was built.", bn: "শুধু দেখা। পরিবর্তনের ID হুবহু মেলানো হয়; কিছু পাঠানো বা বদলানো হয় না। প্রজেক্টের তালিকাটি এই ভার্সন তৈরির সময়ের।" })}</p>
 
-      {check.isError && <p role="alert" className="text-sm text-destructive">{check.error.message}</p>}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-muted px-3 py-2 text-sm" aria-live="polite" aria-atomic="true">
+        {refreshing ? (
+          <span role="status" className="flex items-center gap-2 font-medium text-foreground"><RefreshCw className="size-4 animate-spin motion-reduce:animate-none" />{t({ en: "Refreshing from GitHub…", bn: "GitHub থেকে হালনাগাদ হচ্ছে…" })}</span>
+        ) : r ? (
+          <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${age.stale ? "border-warning text-warning" : "border-success text-success"}`}>{age.stale ? t({ en: "Stale", bn: "পুরনো" }) : t({ en: "Current", bn: "হালনাগাদ" })}</span>
+        ) : (
+          <span className="text-muted-foreground">{t({ en: "Not checked yet — tap Compare now", bn: "এখনও যাচাই হয়নি — এখন তুলনা করুন চাপুন" })}</span>
+        )}
+        {r && <span>{t({ en: "Last checked", bn: "সর্বশেষ যাচাই" })}: <time className="font-medium" dateTime={r.checkedAt}>{dhaka(r.checkedAt)}</time>{ageText && <span className="text-muted-foreground"> · {ageText}</span>}</span>}
+        {r && age.stale && !refreshing && <span className="w-full text-xs text-muted-foreground">{t({ en: `Older than ${SYNC_STALE_MINUTES} minutes — compare again before relying on it.`, bn: `${SYNC_STALE_MINUTES} মিনিটের বেশি পুরনো — ভরসা করার আগে আবার তুলনা করুন।` })}</span>}
+      </div>
 
-      <div aria-live="polite" aria-atomic="true">
+      {check.isError && <p role="alert" className="text-sm text-destructive">{r ? t({ en: "Refresh failed — still showing the last successful check. ", bn: "হালনাগাদ ব্যর্থ — আগের সফল যাচাই দেখানো হচ্ছে। " }) : ""}{check.error.message}</p>}
+
+      <div aria-busy={refreshing}>
         {r && v && (
-          <div className="space-y-4 text-sm">
+          <div className={`space-y-4 text-sm transition-opacity ${refreshing ? "opacity-60" : ""}`}>
             <p className={`flex items-start gap-2 font-medium ${toneClass}`}><Icon className="mt-0.5 size-4 shrink-0" />{t(v)}</p>
             <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="rounded-md border border-border p-3"><dt className="text-xs text-muted-foreground">{t({ en: "Project latest", bn: "প্রজেক্টের সর্বশেষ" })}</dt><dd className="font-mono">{r.projectHead?.slice(0, 7) ?? "Unknown"}</dd></div>
               <div className="rounded-md border border-border p-3"><dt className="text-xs text-muted-foreground">{t({ en: "GitHub latest", bn: "GitHub-এর সর্বশেষ" })}</dt><dd className="font-mono">{r.githubHead?.slice(0, 7) ?? "Unknown"}</dd></div>
               <div className="rounded-md border border-border p-3"><dt className="text-xs text-muted-foreground">{t({ en: "Last shared change", bn: "শেষ মিল থাকা পরিবর্তন" })}</dt><dd className="font-mono">{r.commonSha?.slice(0, 7) ?? "None found"}</dd></div>
-              <div className="rounded-md border border-border p-3"><dt className="text-xs text-muted-foreground">{t({ en: "Checked / project list saved", bn: "যাচাই / তালিকা সংরক্ষণ" })}</dt><dd className="text-xs">{dhaka(r.checkedAt)} · {dhaka(r.projectCapturedAt)}</dd></div>
+              <div className="rounded-md border border-border p-3"><dt className="text-xs text-muted-foreground">{t({ en: "Project list saved", bn: "প্রজেক্টের তালিকা সংরক্ষণ" })}</dt><dd className="text-xs">{dhaka(r.projectCapturedAt)}</dd></div>
             </dl>
 
             {r.state !== "project_unknown" && (

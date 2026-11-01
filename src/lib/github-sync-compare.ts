@@ -64,3 +64,14 @@ export function compareWithGithub(project: SyncCommit[] | null, github: SyncComm
     : "diverged";
   return { state, commonSha, projectOnly, githubOnly, projectHead, githubHead };
 }
+
+/** Comparisons older than this are flagged as stale in the IT Console. */
+export const SYNC_STALE_MINUTES = 10;
+
+/** Pure: how old a check is; unknown/invalid times are never "fresh". */
+export function checkAge(checkedAt: string | null, now: number): { minutes: number | null; stale: boolean } {
+  const at = checkedAt ? Date.parse(checkedAt) : NaN;
+  if (Number.isNaN(at)) return { minutes: null, stale: true };
+  const minutes = Math.max(0, Math.floor((now - at) / 60000));
+  return { minutes, stale: minutes >= SYNC_STALE_MINUTES };
+}
