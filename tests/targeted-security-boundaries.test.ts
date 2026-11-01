@@ -73,7 +73,7 @@ vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: {
     maybeSingle: async () => {
       if (table === "call_reports") return { data: { id: "report-a", agent_id: "agent-a", lead_id: "lead-a", recording_id: "recording-a", grade: state.savedGrade, channel: state.channel, connected: true, duration_seconds: 9000, created_at: "2026-10-19T00:00:00Z" }, error: null };
       if (table === "leads") return { data: { assigned_to: state.leadOwner, name: "Lead", phone_number: "01700000000", status: "pending" }, error: null };
-      if (table === "call_recordings") return { data: state.phoneSeconds === null ? { duration_seconds: 9000, call_source: "web_manual" } : { agent_id: state.phoneOwner, lead_id: "lead-a", call_status: state.phoneStatus, duration_seconds: state.phoneSeconds, call_source: "android_sim", created_at: "2026-10-19T00:01:00Z" }, error: null };
+      if (table === "call_recordings") return { data: state.phoneSeconds === null ? { duration_seconds: 9000, call_source: "web_manual" } : { agent_id: state.phoneOwner, lead_id: "lead-a", call_status: state.phoneStatus, duration_seconds: state.phoneSeconds, call_source: "android_sim", talk_time_source: "call_log", created_at: "2026-10-19T00:01:00Z" }, error: null };
       const r = result();
       return { ...r, data: r.data?.[0] ?? null };
     },
