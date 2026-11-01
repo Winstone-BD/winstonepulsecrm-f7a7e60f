@@ -37,6 +37,14 @@ jobs:
         with:
           packages: "platforms;android-35 build-tools;35.0.0"
 
+      # Gradle dependency/wrapper cache from the tests workflow, READ-ONLY here: a release
+      # run never saves a cache, so nothing from a signing run (key, passwords, signed
+      # outputs) can enter it. Configuration cache stays off (it could hold env values).
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: true
+          cache-disabled: false
+
       - name: Restore company key (temp folder, outside the project)
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}

@@ -24,6 +24,11 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: "platforms;android-35 build-tools;35.0.0"
+      # Caches only Gradle's downloaded dependencies and wrapper (~/.gradle caches).
+      # This job has no secrets. Only pushes to main save the cache; PRs read it.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name != 'push' || github.ref != 'refs/heads/main' }}
       - name: Unit tests
         working-directory: android
         run: |
