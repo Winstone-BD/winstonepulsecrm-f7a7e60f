@@ -1,14 +1,24 @@
 # Official company-signed Winstone Connect APK (owner decision 2026-11-02: Git builds allowed).
 #
-# Runs only when started by hand (Actions → "Android official release" → Run workflow) and only
-# inside the protected "android-release" environment, so an approver must confirm each run.
-# The company key lives only in this repository's encrypted secrets; it is written to the
-# runner's temp folder (outside the project), used by scripts/build-signed-apk.sh, and erased.
+# Start by hand: Actions → "Android official release" → Run workflow. Runs only inside the
+# protected "android-release" environment, so an approver must confirm each run.
+# Order: check secrets (names only) → check version → restore key to runner temp →
+# build/sign/verify with scripts/build-signed-apk.sh → erase key → re-verify the three
+# release files → upload only those files for 7 days.
 # The approved signer fingerprint is pinned below: a different key always fails the build.
 name: Android official release
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_version:
+        description: "Version name this run must produce"
+        required: true
+        default: "2.22"
+      expected_version_code:
+        description: "Version code this run must produce"
+        required: true
+        default: "33"
 
 permissions:
   contents: read
@@ -25,8 +35,41 @@ jobs:
     env:
       # Public certificate fingerprint of the approved company key (v2.3 signer). Not a secret.
       WINSTONE_RELEASE_CERT_SHA256: "2E:61:50:E6:06:52:45:C1:B2:B5:41:37:51:2D:63:ED:40:0D:22:9B:88:1D:1B:91:5A:29:06:17:4E:1C:7E:6D"
+      EXPECTED_VERSION: ${{ inputs.expected_version }}
+      EXPECTED_VERSION_CODE: ${{ inputs.expected_version_code }}
     steps:
+      - name: Check required signing secrets (names only, values never printed)
+        env:
+          S_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          S_STORE_PASSWORD: ${{ secrets.WINSTONE_KEYSTORE_PASSWORD }}
+          S_KEY_ALIAS: ${{ secrets.WINSTONE_KEY_ALIAS }}
+          S_KEY_PASSWORD: ${{ secrets.WINSTONE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -n "${S_KEYSTORE:-}" ] || missing+=("ANDROID_KEYSTORE_BASE64")
+          [ -n "${S_STORE_PASSWORD:-}" ] || missing+=("WINSTONE_KEYSTORE_PASSWORD")
+          [ -n "${S_KEY_ALIAS:-}" ] || missing+=("WINSTONE_KEY_ALIAS")
+          [ -n "${S_KEY_PASSWORD:-}" ] || missing+=("WINSTONE_KEY_PASSWORD")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "OFFICIAL RELEASE BLOCKED: missing secrets in environment android-release: ${missing[*]}" >&2
+            exit 1
+          fi
+          echo "All 4 signing secrets are set."
+
       - uses: actions/checkout@v4
+
+      - name: Check the project version matches this run
+        run: |
+          set -euo pipefail
+          f=android/app/build.gradle.kts
+          code="$(grep -E '^[[:space:]]*versionCode[[:space:]]*=' "$f" | head -n1 | grep -oE '[0-9]+')"
+          name="$(grep -E '^[[:space:]]*versionName[[:space:]]*=' "$f" | head -n1 | sed -E 's/.*"([^"]+)".*/\1/')"
+          if [ "$name" != "$EXPECTED_VERSION" ] || [ "$code" != "$EXPECTED_VERSION_CODE" ]; then
+            echo "OFFICIAL RELEASE BLOCKED: project is $name ($code), this run expects $EXPECTED_VERSION ($EXPECTED_VERSION_CODE)" >&2
+            exit 1
+          fi
+          echo "Project version $name ($code) matches."
 
       - uses: actions/setup-java@v4
         with:
@@ -50,9 +93,6 @@ jobs:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
           set -euo pipefail
-          if [ -z "${ANDROID_KEYSTORE_BASE64:-}" ]; then
-            echo "OFFICIAL RELEASE BLOCKED: secret ANDROID_KEYSTORE_BASE64 is not set" >&2; exit 1
-          fi
           umask 077
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/winstone-release.jks"
           echo "WINSTONE_KEYSTORE_PATH=$RUNNER_TEMP/winstone-release.jks" >> "$GITHUB_ENV"
@@ -68,13 +108,31 @@ jobs:
         if: always()
         run: rm -f "$RUNNER_TEMP/winstone-release.jks"
 
-      - name: Keep the APK, checksum and release record (private to this repository)
+      - name: Re-check the release files before upload
+        working-directory: android/release-out
+        run: |
+          set -euo pipefail
+          base="winstone-connect-${EXPECTED_VERSION}-${EXPECTED_VERSION_CODE}-release.apk"
+          for f in "$base" "$base.sha256" "$base.release-record.txt"; do
+            [ -f "$f" ] || { echo "OFFICIAL RELEASE BLOCKED: $f missing" >&2; exit 1; }
+          done
+          count="$(find . -maxdepth 1 -type f | wc -l | tr -d ' ')"
+          [ "$count" = "3" ] || { echo "OFFICIAL RELEASE BLOCKED: expected exactly 3 release files, found $count" >&2; exit 1; }
+          sha256sum -c "$base.sha256"
+          grep -q "^Package:[[:space:]]*com.winstone.connect$" "$base.release-record.txt"
+          grep -q "^Version:[[:space:]]*${EXPECTED_VERSION} (code ${EXPECTED_VERSION_CODE})$" "$base.release-record.txt"
+          fp="$(printf '%s' "$WINSTONE_RELEASE_CERT_SHA256" | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
+          grep -q "^Signer SHA-256:[[:space:]]*${fp} " "$base.release-record.txt"
+          echo "RELEASE_APK=$base" >> "$GITHUB_ENV"
+          echo "Verified: $base"
+
+      - name: Upload only the verified release files (7 days)
         uses: actions/upload-artifact@v4
         with:
-          name: winstone-connect-official-release
+          name: winstone-connect-${{ inputs.expected_version }}-official-release
           path: |
-            android/release-out/*.apk
-            android/release-out/*.sha256
-            android/release-out/*.release-record.txt
+            android/release-out/${{ env.RELEASE_APK }}
+            android/release-out/${{ env.RELEASE_APK }}.sha256
+            android/release-out/${{ env.RELEASE_APK }}.release-record.txt
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 7
