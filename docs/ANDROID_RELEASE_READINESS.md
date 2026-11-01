@@ -51,7 +51,7 @@ What never goes in this file, chat or screenshots: keystore files, store/key pas
 
 ## 3. Signing decision (owner)
 
-- Existing key: `android/winstone-release.jks` (committed in this project; used for earlier `winstone-agent-v2.3-release.apk`).
+- Retired key: `android/winstone-release.jks` (used for the earlier `winstone-agent-v2.3-release.apk`). Removed from the project files on 2026-11-01; it remains only in old history and must never be trusted again.
 - New key: created 2026-10-27, stored only as encrypted GitHub secrets.
 - Different keys ⇒ phones on v2.3 cannot update in place.
 - Decision: ☐ keep existing key (move to GitHub secrets, remove from repo) ☐ keep new key (one-time uninstall on every agent phone)
