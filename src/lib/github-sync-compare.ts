@@ -75,3 +75,10 @@ export function checkAge(checkedAt: string | null, now: number): { minutes: numb
   const minutes = Math.max(0, Math.floor((now - at) / 60000));
   return { minutes, stale: minutes >= SYNC_STALE_MINUTES };
 }
+
+/** Pure: seconds left before a check turns stale; 0 once stale, null when the time is unknown. */
+export function secondsUntilStale(checkedAt: string | null, now: number): number | null {
+  const at = checkedAt ? Date.parse(checkedAt) : NaN;
+  if (Number.isNaN(at)) return null;
+  return Math.max(0, Math.ceil((at + SYNC_STALE_MINUTES * 60000 - now) / 1000));
+}

@@ -68,3 +68,12 @@ describe("GitHub comparison freshness", () => {
   it("is stale at 10 minutes", () => expect(checkAge(at, t0 + 10 * 60000)).toEqual({ minutes: 10, stale: true }));
   it("treats a missing time as stale, never current", () => expect(checkAge(null, t0)).toEqual({ minutes: null, stale: true }));
 });
+
+import { secondsUntilStale } from "@/lib/github-sync-compare";
+describe("GitHub comparison stale countdown", () => {
+  const at = "2026-11-01T15:00:00Z"; const t0 = Date.parse(at);
+  it("starts at 10 minutes", () => expect(secondsUntilStale(at, t0)).toBe(600));
+  it("counts down", () => expect(secondsUntilStale(at, t0 + 9 * 60000 + 30000)).toBe(30));
+  it("stops at zero once stale", () => expect(secondsUntilStale(at, t0 + 11 * 60000)).toBe(0));
+  it("is unknown without a time", () => expect(secondsUntilStale(null, t0)).toBeNull());
+});
