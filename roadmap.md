@@ -791,4 +791,4 @@
 - [ ] Owner: confirm Project settings → Git status after GitHub change
 - [ ] Owner: one live report-sheet sync to confirm the 403s are gone (writes to the sheet)
 - [ ] Owner: give the GitHub connection access to Winstone-Properties-Ltd/winstonepulsecrm so the live comparison can read the synced repository
-- [ ] Decide: remove public/downloads/winstone-connect-android-studio.zip (scan:sensitive found hardcoded signing passwords in it) — needs owner OK
+- [x] Public Android Studio ZIP (had signing passwords) removed from project; live copy disappears after next publish
