@@ -9,7 +9,7 @@ export async function readGithubStatus(repository: string, branch: string | unde
   async function read(path: string): Promise<unknown> {
     const response = await fetch(`${GATEWAY_URL}${path}`, {
       headers,
-      signal: AbortSignal.timeout(10000), redirect: "error",
+      signal: AbortSignal.timeout(10000), redirect: "manual",
     });
     if (!response.ok) {
       // Do not expose arbitrary upstream text or credentials through the UI.
@@ -44,7 +44,7 @@ export async function readGithubActivity(repository: string) {
   if (!key || !lovableKey) throw new Error("GitHub connection is not configured");
   const headers = { Accept: "application/vnd.github+json", Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": key };
   async function read<T>(path: string): Promise<T> {
-    const response = await fetch(`${GATEWAY_URL}${path}`, { headers, signal: AbortSignal.timeout(10000), redirect: "error" });
+    const response = await fetch(`${GATEWAY_URL}${path}`, { headers, signal: AbortSignal.timeout(10000), redirect: "manual" });
     if (!response.ok) {
       console.error(`GitHub activity read failed [${response.status}]`);
       throw new Error(`GitHub read failed (HTTP ${response.status})`);
@@ -97,7 +97,7 @@ export async function readAndroidBuilds(repository: string) {
   if (!key || !lovableKey) throw new Error("GitHub connection is not configured");
   const headers = { Accept: "application/vnd.github+json", Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": key };
   async function read<T>(path: string): Promise<T | null> {
-    const response = await fetch(`${GATEWAY_URL}${path}`, { headers, signal: AbortSignal.timeout(10000), redirect: "error" });
+    const response = await fetch(`${GATEWAY_URL}${path}`, { headers, signal: AbortSignal.timeout(10000), redirect: "manual" });
     if (response.status === 404) return null;
     if (!response.ok) {
       console.error(`GitHub build read failed [${response.status}]`);
@@ -113,7 +113,7 @@ export async function readAndroidBuilds(repository: string) {
     if (versions.has(sha)) return versions.get(sha)!;
     let v: string | null = null;
     try {
-      const res = await fetch(`${GATEWAY_URL}/repos/${repository}/contents/android/app/build.gradle.kts?ref=${sha}`, { headers: { ...headers, Accept: "application/vnd.github.raw" }, signal: AbortSignal.timeout(10000), redirect: "error" });
+      const res = await fetch(`${GATEWAY_URL}/repos/${repository}/contents/android/app/build.gradle.kts?ref=${sha}`, { headers: { ...headers, Accept: "application/vnd.github.raw" }, signal: AbortSignal.timeout(10000), redirect: "manual" });
       if (res.ok) v = parseApkVersion((await res.text()).slice(0, 20000));
     } catch { v = null; }
     versions.set(sha, v);

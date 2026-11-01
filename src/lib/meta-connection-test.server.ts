@@ -11,7 +11,7 @@ export async function testMetaConnection(config: { appId?: string | undefined; p
   const { appId, pageId, pageToken, appSecret } = config;
   if (!appId || !pageId || !pageToken || !appSecret || !/^\d+$/.test(appId) || !/^\d+$/.test(pageId)) return result;
   async function get(path: string, bearer: string) {
-    const response = await transport(`https://graph.facebook.com/v26.0/${path}`, { method: "GET", headers: { Authorization: `Bearer ${bearer}` }, signal: AbortSignal.timeout(10000), redirect: "error" });
+    const response = await transport(`https://graph.facebook.com/v26.0/${path}`, { method: "GET", headers: { Authorization: `Bearer ${bearer}` }, signal: AbortSignal.timeout(10000), redirect: "manual" });
     if (!response.ok) {
       await response.body?.cancel();
       throw new Error(response.status === 401 || response.status === 403 ? "ACCESS_REJECTED" : "META_CHECK_FAILED");

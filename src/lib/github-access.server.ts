@@ -13,7 +13,7 @@ export async function readGithubAccess(repository: string) {
 
   const connections = await Promise.all(slots.map(async ({ name, key }, index) => {
     const headers = { Accept: "application/vnd.github+json", Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": key };
-    const get = (path: string) => fetch(`${GATEWAY_URL}${path}`, { headers, signal: AbortSignal.timeout(10000), redirect: "error" });
+    const get = (path: string) => fetch(`${GATEWAY_URL}${path}`, { headers, signal: AbortSignal.timeout(10000), redirect: "manual" });
     let login: string | null = null;
     let visibility: RepoVisibility = "error";
     let repoPrivate: boolean | null = null;
