@@ -32,5 +32,30 @@ jobs:
       - name: Unit tests
         working-directory: android
         run: |
+          set -o pipefail
           chmod +x ./gradlew
-          ./gradlew --no-daemon :app:testDebugUnitTest
+          mkdir -p build/ci-logs
+          ./gradlew --no-daemon --stacktrace :app:testDebugUnitTest 2>&1 | tee build/ci-logs/gradle-unit-tests.log
+
+      # Readable reports for every run (HTML report + JUnit XML). This job has no
+      # secrets, and only test output folders are uploaded — never the project,
+      # local.properties, keystores or APKs.
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-reports-${{ github.run_number }}
+          path: |
+            android/app/build/reports/tests/
+            android/app/build/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload failure log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-failure-log-${{ github.run_number }}
+          path: android/build/ci-logs/gradle-unit-tests.log
+          if-no-files-found: ignore
+          retention-days: 7
