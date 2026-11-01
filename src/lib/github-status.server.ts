@@ -133,3 +133,41 @@ export async function readAndroidBuilds(repository: string) {
   };
 }
 
+
+type GhBranchCommit = { sha: string; commit: { message: string; committer?: { date?: string } | null; author?: { date?: string } | null } };
+type GhCommitDetail = { files?: Array<{ filename: string }> };
+
+/** Read-only: compare the project's own latest changes with a GitHub branch by exact SHA. */
+export async function readGithubSyncComparison(repository: string, branch: string) {
+  const key = process.env["GITHUB_API_KEY"];
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  if (!key || !lovableKey) throw new Error("GitHub connection is not configured");
+  const headers = { Accept: "application/vnd.github+json", Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": key };
+  async function read<T>(path: string): Promise<T> {
+    const response = await fetch(`${GATEWAY_URL}${path}`, { headers, signal: AbortSignal.timeout(10000), redirect: "manual" });
+    if (!response.ok) {
+      console.error(`GitHub sync comparison read failed [${response.status}]`);
+      throw new Error(`GitHub read failed (HTTP ${response.status})`);
+    }
+    return response.json() as Promise<T>;
+  }
+  const { compareWithGithub } = await import("@/lib/github-sync-compare");
+  const { projectCommits } = await import("@/lib/project-commits.server");
+  const project = projectCommits();
+  const list = await read<GhBranchCommit[]>(`/repos/${repository}/commits?sha=${encodeURIComponent(branch)}&per_page=100`);
+  const github = list.map((c) => ({
+    sha: c.sha,
+    date: c.commit.committer?.date ?? c.commit.author?.date ?? null,
+    message: (c.commit.message.split("\n")[0] ?? "").slice(0, 160),
+    files: [] as string[],
+  }));
+  const comparison = compareWithGithub(project.commits, github);
+  // File names only for the few GitHub-only changes (bounded; a failed read leaves the list empty).
+  await Promise.all(comparison.githubOnly.slice(0, 5).map(async (c) => {
+    try {
+      const detail = await read<GhCommitDetail>(`/repos/${repository}/commits/${c.sha}`);
+      c.files = (detail.files ?? []).map((f) => f.filename.slice(0, 200)).slice(0, 15);
+    } catch { c.files = []; }
+  }));
+  return { repository, branch, checkedAt: new Date().toISOString(), projectCapturedAt: project.capturedAt, githubWindow: github.length, ...comparison };
+}

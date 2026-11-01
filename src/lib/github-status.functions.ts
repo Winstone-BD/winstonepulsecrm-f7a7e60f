@@ -44,3 +44,12 @@ export const getGithubAccess = createServerFn({ method: "POST" })
     const { readGithubAccess } = await import("@/lib/github-access.server");
     return readGithubAccess(data.repository);
   });
+
+export const getGithubSyncComparison = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => githubCheckInput.parse(input))
+  .handler(async ({ data }) => {
+    const { adminTokenScope } = await import("@/lib/admin-gate.server");
+    if (adminTokenScope(data.adminToken) !== "full") throw new Error("Full IT PIN required");
+    const { readGithubSyncComparison } = await import("@/lib/github-status.server");
+    return readGithubSyncComparison(data.repository, data.branch ?? "main");
+  });
