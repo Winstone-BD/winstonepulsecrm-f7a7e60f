@@ -4,6 +4,7 @@ import { SystemManualCard } from "@/components/crm/SystemManualCard";
 import { DeploymentStatusPanel } from "@/components/crm/DeploymentStatusPanel";
 import { GitRepositoryStatusPanel } from "@/components/crm/GitRepositoryStatusPanel";
 import { GitHubActivityDashboard } from "@/components/crm/GitHubActivityDashboard";
+import { GitSyncComparisonPanel } from "@/components/crm/GitSyncComparisonPanel";
 import { GitHubAccessPanel } from "@/components/crm/GitHubAccessPanel";
 import { AndroidBuildStatus } from "@/components/crm/AndroidBuildStatus";
 import { BuildEfficiencyDashboard } from "@/components/crm/BuildEfficiencyDashboard";
@@ -170,6 +171,7 @@ function SystemBoard() {
         <div className="space-y-6">
           <DeploymentStatusPanel />
           <GitRepositoryStatusPanel />
+          <GitSyncComparisonPanel />
           <GitHubAccessPanel />
           <GitHubActivityDashboard />
           <AndroidBuildStatus />
