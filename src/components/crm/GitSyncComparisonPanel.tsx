@@ -42,6 +42,7 @@ export function GitSyncComparisonPanel() {
   type Result = Awaited<ReturnType<typeof load>>;
   // Keep the last good result on screen while a refresh runs or fails.
   const [last, setLast] = useState<Result | null>(null);
+  const [failedAt, setFailedAt] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1_000);
@@ -49,7 +50,9 @@ export function GitSyncComparisonPanel() {
   }, []);
   const check = useMutation({
     mutationFn: () => load({ data: githubCheckInput.parse({ adminToken: getAdminToken(), repository: CRM_REPOSITORY, branch: CRM_BRANCH }) }),
+    onMutate: () => setFailedAt(null),
     onSuccess: (data) => { setLast(data); setNow(Date.now()); },
+    onError: () => setFailedAt(new Date().toISOString()),
   });
   const r = last;
   const refreshing = check.isPending;
@@ -104,7 +107,8 @@ export function GitSyncComparisonPanel() {
         ) : (
           <span className="text-muted-foreground">{t({ en: "Not checked yet — tap Compare now", bn: "এখনও যাচাই হয়নি — এখন তুলনা করুন চাপুন" })}</span>
         )}
-        {r && <span>{t({ en: "Last checked", bn: "সর্বশেষ যাচাই" })}: <time className="font-medium" dateTime={r.checkedAt}>{dhaka(r.checkedAt)}</time>{ageText && <span className="text-muted-foreground"> · {ageText}</span>}</span>}
+        {r ? <span>{t({ en: "Last successful comparison", bn: "সর্বশেষ সফল তুলনা" })}: <time className="font-medium" dateTime={r.checkedAt}>{dhaka(r.checkedAt)}</time>{ageText && <span className="text-muted-foreground"> · {ageText}</span>}</span> : <span className="text-muted-foreground">{t({ en: "No successful comparison yet", bn: "এখনো কোনো সফল তুলনা হয়নি" })}</span>}
+        {failedAt && <span className="w-full text-xs text-destructive">{t({ en: "Last attempt failed", bn: "সর্বশেষ চেষ্টা ব্যর্থ" })}: <time dateTime={failedAt}>{dhaka(failedAt)}</time></span>}
         {r && !refreshing && countdown && <span className="text-muted-foreground">{t({ en: "Auto-refresh in", bn: "স্বয়ংক্রিয় হালনাগাদ" })} <span className="font-mono font-medium tabular-nums text-foreground" aria-hidden="true">{countdown}</span><span className="sr-only">{t({ en: `${Math.ceil((left ?? 0) / 60)} minutes`, bn: `${Math.ceil((left ?? 0) / 60)} মিনিট` })}</span></span>}
         {r && age.stale && !refreshing && <span className="w-full text-xs text-muted-foreground">{check.isError ? t({ en: `Older than ${SYNC_STALE_MINUTES} minutes and the automatic refresh failed — tap Compare now.`, bn: `${SYNC_STALE_MINUTES} মিনিটের বেশি পুরনো এবং স্বয়ংক্রিয় হালনাগাদ ব্যর্থ — এখন তুলনা করুন চাপুন।` }) : t({ en: `Older than ${SYNC_STALE_MINUTES} minutes — it refreshes automatically while this page is open.`, bn: `${SYNC_STALE_MINUTES} মিনিটের বেশি পুরনো — পেজ খোলা থাকলে নিজে থেকে হালনাগাদ হবে।` })}</span>}
       </div>
