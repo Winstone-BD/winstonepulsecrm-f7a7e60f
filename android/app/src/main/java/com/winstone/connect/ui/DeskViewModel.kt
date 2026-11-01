@@ -28,6 +28,10 @@ data class DeskUiState(
     val coachLoading: Boolean = false,
     /** Local time of the last successful CRM sync, for the status screen. */
     val lastSyncedAt: String? = null,
+    /** Wall-clock millis of the last successful CRM read (persisted), for the connection strip. */
+    val lastCrmOkMillis: Long? = null,
+    /** True while a CRM read is in flight (silent or not). */
+    val crmChecking: Boolean = false,
     /** Items still waiting on this phone / given up on, plus the last error. */
     val sync: SyncStatus.Snapshot = SyncStatus.Snapshot(),
     /** Set when the CRM refused this phone (device access removed by IT). */
@@ -41,6 +45,15 @@ data class DeskUiState(
 )
 
 class DeskViewModel(private val app: Application) : AndroidViewModel(app) {
+    private companion object {
+        const val CRM_PREFS = "crm_connection"
+        const val K_CRM_OK = "last_ok_millis"
+        fun clock(millis: Long): String =
+            java.text.SimpleDateFormat("dd MMM, hh:mm a", java.util.Locale.ENGLISH).apply {
+                timeZone = java.util.TimeZone.getTimeZone("Asia/Dhaka")
+            }.format(java.util.Date(millis))
+    }
+
 
     private val _state = MutableStateFlow(DeskUiState(employeeId = AgentSession.employeeId))
     val state: StateFlow<DeskUiState> = _state
@@ -49,7 +62,12 @@ class DeskViewModel(private val app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             AgentSession.load(app)
             SyncStatus.load(app)
-            _state.value = _state.value.copy(employeeId = AgentSession.employeeId)
+            val savedOk = app.getSharedPreferences(CRM_PREFS, android.content.Context.MODE_PRIVATE).getLong(K_CRM_OK, 0L)
+            _state.value = _state.value.copy(
+                employeeId = AgentSession.employeeId,
+                lastCrmOkMillis = savedOk.takeIf { it > 0L },
+                lastSyncedAt = savedOk.takeIf { it > 0L }?.let { clock(it) },
+            )
             if (AgentSession.isSignedIn()) {
                 refresh()
                 reportRecordingCapability()
@@ -179,6 +197,8 @@ class DeskViewModel(private val app: Application) : AndroidViewModel(app) {
             // Offline sign-out still clears locally; the token stays revocable from IT Console.
             AgentSession.deviceTokenNow(app)?.let { WinstoneApi.logout(it) }
             AgentSession.clear(app)
+            // The next agent's connection status starts fresh, never with this agent's last sync.
+            app.getSharedPreferences(CRM_PREFS, android.content.Context.MODE_PRIVATE).edit().remove(K_CRM_OK).apply()
             _state.value = DeskUiState()
         }
     }
@@ -186,15 +206,20 @@ class DeskViewModel(private val app: Application) : AndroidViewModel(app) {
     fun refresh(silent: Boolean = false) {
         val employeeId = AgentSession.employeeId ?: return
         viewModelScope.launch {
-            if (!silent) _state.value = _state.value.copy(loading = true, error = null)
+            _state.value = if (!silent) _state.value.copy(loading = true, error = null, crmChecking = true)
+            else _state.value.copy(crmChecking = true)
             runCatching { WinstoneApi.fetchWorkspace(employeeId) }
                 .onSuccess { ws ->
                     AgentSession.cacheAgent(app, ws.agentId, ws.agentName)
+                    val okAt = System.currentTimeMillis()
+                    app.getSharedPreferences(CRM_PREFS, android.content.Context.MODE_PRIVATE)
+                        .edit().putLong(K_CRM_OK, okAt).apply()
                     _state.value = _state.value.copy(
                         loading = false,
                         error = null,
-                        lastSyncedAt = java.text.SimpleDateFormat("dd MMM, hh:mm a", java.util.Locale.getDefault())
-                            .format(java.util.Date()),
+                        crmChecking = false,
+                        lastCrmOkMillis = okAt,
+                        lastSyncedAt = clock(okAt),
                         data = DeskData(
                             agentId = ws.agentId,
                             agentName = ws.agentName,
@@ -219,6 +244,7 @@ class DeskViewModel(private val app: Application) : AndroidViewModel(app) {
                     } else {
                         _state.value = _state.value.copy(
                             loading = false,
+                            crmChecking = false,
                             error = message.ifBlank { "সার্ভারে সংযোগ করা যাচ্ছে না" },
                         )
                     }
