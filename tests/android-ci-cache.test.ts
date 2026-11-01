@@ -71,3 +71,10 @@ describe("Android official release workflow", () => {
     expect(uploadBlock).not.toMatch(/\*|\.jks|local\.properties|RUNNER_TEMP/);
   });
 });
+
+describe("Android release shrinker rules", () => {
+  it("keeps the Tink annotation rule so the minified release build can complete", () => {
+    const rules = readFileSync("android/app/proguard-rules.pro", "utf8");
+    expect(rules).toMatch(/^-dontwarn com\.google\.errorprone\.annotations\.\*\*$/m);
+  });
+});
