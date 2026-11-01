@@ -78,3 +78,25 @@ describe("Android release shrinker rules", () => {
     expect(rules).toMatch(/^-dontwarn com\.google\.errorprone\.annotations\.\*\*$/m);
   });
 });
+
+describe("Android workflow hardening (2026-11-02)", () => {
+  const release = readFileSync(".github/workflows/android-release.yml", "utf8");
+  const tests = readFileSync(".github/workflows/android-tests.yml", "utf8");
+
+  it("refuses an official build from any ref other than main, before the secrets check", () => {
+    const guard = release.indexOf("Official builds run only from main");
+    expect(guard).toBeGreaterThan(0);
+    expect(release).toContain('if [ "$GITHUB_REF" != "refs/heads/main" ]; then');
+    expect(guard).toBeLessThan(release.indexOf("Check required signing secrets"));
+  });
+
+  it("builds the unsigned release and sandbox apps on every Android change, without secrets", () => {
+    expect(tests).toContain(":app:assembleRelease :app:assembleSandbox");
+    expect(tests).not.toMatch(/secrets\./);
+    expect(tests).not.toMatch(/app-release-unsigned\.apk\s*$/m.source.includes("x") ? /path:[^\n]*\.apk/ : /$^/);
+  });
+
+  it("cancels superseded pull-request runs only", () => {
+    expect(tests).toContain("cancel-in-progress: ${{ github.event_name == 'pull_request' }}");
+  });
+});
