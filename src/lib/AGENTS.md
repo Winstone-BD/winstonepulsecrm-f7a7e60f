@@ -3,7 +3,6 @@
 - Market News writes only via market-news.server.ts; auto items keep source_url + retrieved_excerpt and pass groundedAgainst; rows unpublished, never deleted — why: AI must never invent news.
 - Recording analysis reclaims only expired leases via analyzeOne's atomic timestamp/status claim; queue-read errors fail — why: interrupted workers recover without double AI spend or false empty success.
 - One-day morning feedback uses existing team_support_tickets and session-first own-work checks; exact server expiry ends the gate and responses remain saved — why: no new customer data store or recurring lock.
-- GitHub status checks append allowlisted outcomes to audit_logs and read the latest 50 only behind full IT PIN; history failures are explicit and Git sync stays unknown — why: durable evidence without secrets or invented past checks.
 - Call diagnostics read session-own devices and bounded own/assigned recording evidence; permission stays unknown without telemetry; audio refs aren't playback proof — why: evidence can't imply performance or expose other agents.
 - Phone-upgrade billing remains preparation-only until owner pricing/payer/release confirmation; only existing verified Architect identity plus its session may approve, never HQ/IT; monthly maintenance is separate — why: unknown pricing cannot create payable bills or paid distribution.
 - site_visits is server-only (site-visits.functions.ts via siCaller); never deleted, lead link immutable, cancel via status — why: visit history must stay trustworthy.
@@ -53,7 +52,4 @@
 - Lead-import previews use only server-configured report workbooks; inventory keeps its own read scope; audit exports neutralise every cell — why: no widened access or formula execution.
 - Website enquiries sync to their own 'Website Enquiries' tab via website-enquiry-sheet.ts (ID-matched, append-only, HQ notes kept; failure never blocks the day tab) — why: separate from agent rows.
 - Call-evidence labels come only from call-evidence.ts over submitted reports, display-only; connection_verified stays the sole scoring signal — why: one explanation, unchanged KPIs.
-- Server `fetch` uses `redirect: "manual"` (or default), never `"error"` — why: the live Worker throws on `"error"`, which made the IT Console GitHub check fail as READ_FAILED.
-- IT Console GitHub pages, the APK build widgets and the hourly access watch default to `CRM_REPOSITORY`/`CRM_BRANCH` in github-access.ts; never hardcode a repository name in a component — why: the old repository kept being reported as the current CRM.
-- GitHub sync comparison matches exact SHAs: project list is captured at build time by vite.config (`__PROJECT_COMMITS__`, read only in `project-commits.server.ts`), GitHub side read live; missing list shows Unknown — why: never infer sync from dates, and commit details stay out of the browser bundle.
-- Lovable Git sync link shown in the IT Console is `LOVABLE_SYNC_LINK` in github-access.ts, an owner-confirmed record with its confirmation time; never present it as live — why: the app cannot read Project settings → Git.
+- Server `fetch` uses `redirect: "manual"` (or default), never `"error"` — why: the live Worker throws on `"error"`.

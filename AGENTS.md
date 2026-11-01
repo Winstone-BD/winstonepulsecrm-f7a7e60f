@@ -62,11 +62,12 @@
 - Reads use page-all.ts (parallel 1,000-row pages, id-dedupe, fail on errors); homepage uses WebP CDN/shared fonts — why: avoid serial reads/downloads.
 - Desk/Analytics/HQ KPIs use kpi-contract.ts; agent-kpi-board.ts groups authorized rows, never phone-sync metrics — why: one definition.
 - Rejections use shared defaults; mobile UI tests mock all writes — why: no invented facts or live test data.
-- HQ forecasts never allocate; IT GitHub cannot prove sync; version choices grant no access; call-sandbox and the sandbox APK's SyncFailureDrill stay offline (liveWrites 0) — why: facts are not authority.
+- HQ forecasts never allocate; version choices grant no access; call-sandbox and the sandbox APK's SyncFailureDrill stay offline (liveWrites 0) — why: facts are not authority.
 - Extra Google tags use RootShell head; keep original — why: router dedupes.
 - HQ Claude briefing: on-demand, HQ/IT-gated, aggregate-only, native /v1/messages streamed server-side — why: no customer data or background AI cost.
-- GitHub access (hourly) and Firebase grpc-js advisory (daily) watches use managed cron auth, diff against system_settings and write system_alerts; failed checks never mean revocation — why: no false alarms.
+- The Firebase grpc-js advisory (daily) watch uses managed cron auth, diff against system_settings and write system_alerts; failed checks never mean revocation — why: no false alarms.
 - Lead `is_verified` only via ingest/outcome + `lead-verification.ts`: own completed call_recordings row (same call_uid/agent/lead) with `hasProvenTalkTime` (`android_sim` needs `talk_time_source='call_log'`); device `connected` is a claim. Late call-log entries reconcile the unique same-agent live row via `call-log-reconcile.server.ts` (`call_log_id` once, pending reports only), never merge ambiguous calls — why: app 2.21 counted ringing as talk.
 - Phone call history entries use `lead-events-once.server.ts` (sync_events key `lead_event:<id>:<kind>`) — why: retries never duplicate history.
 - Android sync failures: app `SyncFailureLog` → POST /api/public/agent/sync-failures → sync_events `android_sync_failure` (per device+report id, technical fields only) → authority-only read-only `/sync-failures` — why: IT sees phone failures without customer data.
 - `bun run scan:sensitive` is the read-only scan for signing keys/secrets in tracked files and public downloads (ZIPs opened); it prints file + rule only, never values — why: one check, no leaked matches.
+- No GitHub logic in the CRM (owner removed Git 2026-11-01): no GitHub panels, API calls, cron watch, issue creation or CI workflows; the agent APK is distributed by IT from the private `android-apk` bucket via PIN-gated signed links (`apk-release.ts`) — why: Git was disconnected and the app must not depend on it.
