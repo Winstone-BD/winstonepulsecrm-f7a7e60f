@@ -15,7 +15,7 @@ it("matched identity and subscriptions never infer permission approval or activa
   for (const [url, options] of transport.mock.calls as unknown as [string, RequestInit][]) {
     expect(url).not.toMatch(/synthetic|access_token/);
     expect(options.method).toBe("GET");
-    expect(options.redirect).toBe("error");
+    expect(options.redirect).toBe("manual");
   }
 });
 it("provider errors containing credentials are reduced to safe codes", async () => {
