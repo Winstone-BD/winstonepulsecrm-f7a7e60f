@@ -59,7 +59,7 @@ export function PhoneAcceptanceChecklist() {
 
       {q.data && !q.data.official && (
         <p className="rounded-md border border-border bg-muted p-3 text-sm">
-          {t({ en: `The current download is a test build (${q.data.expectedVersion}). A pass here proves the flow works, not that the official app is approved.`, bn: `বর্তমান ডাউনলোডটি টেস্ট বিল্ড (${q.data.expectedVersion})। এখানে পাস মানে প্রক্রিয়া কাজ করছে, অফিসিয়াল অ্যাপ অনুমোদিত নয়।` })}
+          {t({ en: `The current download (${q.data.expectedVersion}) is company-signed but not yet the official release. A pass here proves the flow works, not that the official app is approved.`, bn: `বর্তমান ডাউনলোডটি (${q.data.expectedVersion}) কোম্পানির কী দিয়ে সাইন করা, কিন্তু এখনও অফিশিয়াল রিলিজ নয়। এখানে পাস মানে প্রক্রিয়া কাজ করছে, অফিশিয়াল অ্যাপ অনুমোদিত নয়।` })}
         </p>
       )}
 

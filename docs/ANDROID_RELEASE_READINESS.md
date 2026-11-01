@@ -74,7 +74,9 @@ What never goes in this file, chat or screenshots: keystore files, store/key pas
 
 **If A is chosen:** treat the committed key as possibly exposed — only acceptable if the project code has never been shared outside the owner/IT; otherwise prefer B.
 
-Owner decision: ☐ A ☑ **B — switch to new key** — by owner (TrendFlux OS IT) date **2026-10-28** reason: the old keystore lived in the project tree and cannot be guaranteed uncompromised; enforce the safe switch checklist; back up the new key in IT password storage.
+Owner decision (superseded): ☐ A ☑ B — switch to new key — by owner (TrendFlux OS IT) date 2026-10-28 reason: the old keystore lived in the project tree and cannot be guaranteed uncompromised.
+
+**Current owner decision: ☑ A — keep the v2.3 key** — by Winstone IT Team, **2026-11-02 Dhaka**. Reason given: the app was never handed to agents and the key file was never given to anyone. Accepted risk: the keystore was in this project's files (and its history) until 2026-11-01, so anyone with an old copy of the code could sign a fake update that phones accept. The new GitHub-secrets key had no backup and is abandoned.
 
 ### Encrypted backup and restore of the signing key
 
@@ -98,7 +100,7 @@ GitHub secrets are write-only: nobody (including Lovable) can read the current k
 
 | Item | Value |
 |---|---|
-| Canonical fingerprint (SHA-256) | ________ |
+| Canonical fingerprint (SHA-256) | `2E:61:50:E6:06:52:45:C1:B2:B5:41:37:51:2D:63:ED:40:0D:22:9B:88:1D:1B:91:5A:29:06:17:4E:1C:7E:6D` (CN=Winstone Connect, O=Winstone, C=BD; the v2.3 key) — owner decision 2026-11-02 Dhaka, see below |
 | `.gpg` file SHA-256 | ________ |
 | Backup locations (names only, no secrets) | ________ |
 | Created by / date | ________ |
