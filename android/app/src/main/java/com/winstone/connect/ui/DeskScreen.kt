@@ -208,6 +208,9 @@ fun DeskScreen(
                     durationSeconds = row.optInt("duration_seconds", 0),
                     status = row.optString("status"),
                     endedAt = row.optString("call_ended_at").takeIf { it.isNotBlank() && it != "null" },
+                    evidenceLabel = row.optString("evidence_label").takeIf { it.isNotBlank() && it != "null" },
+                    evidenceKind = row.optString("evidence").takeIf { it.isNotBlank() && it != "null" },
+                    evidenceMismatch = row.optBoolean("evidence_mismatch", false),
                 )
             }
         } ?: emptyList()
@@ -417,8 +420,8 @@ fun DeskScreen(
                                 if (coach.nextSteps.isNotEmpty()) item { CoachCard("পরবর্তী ধাপ", coach.nextSteps) }
                             }
                             item { PhoneRecordingsSection() }
-                            item { SectionTitle("আজকের কল লগ", null) {} }
-                            if (calls.isEmpty()) item { EmptyNote("আজ কোনো কল রেকর্ড নেই।") }
+                            item { SectionTitle("সাম্প্রতিক কল লগ", null) {} }
+                            if (calls.isEmpty()) item { EmptyNote("এখনো কোনো কল রেকর্ড নেই।") }
                             items(calls) { CallCard(it, leads) }
                         }
                         else -> {
@@ -975,11 +978,21 @@ private fun CallCard(call: CallRow, leads: List<Lead>) {
         Text(
             when (call.syncStatus) {
                 "failed" -> "সার্ভারে ওঠেনি"
-                "verified" -> "যাচাই হয়েছে"
-                else -> "আপলোড হয়েছে"
+                else -> "সার্ভারে উঠেছে"
             },
             fontSize = 12.sp,
-            color = if (call.syncStatus == "failed") WinRed else WinGreen,
+            color = if (call.syncStatus == "failed") WinRed else WinInkMuted,
+        )
+        // Phone call-log match decided by the server; never assumed on the phone.
+        Text(
+            call.logMatchLabel ?: "ফোন লগ যাচাই অজানা",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = when (call.logMatch) {
+                "log_talk" -> WinGreen
+                "not_matched" -> WinRed
+                else -> WinInkMuted
+            },
         )
         call.summary?.let { Text(it, fontSize = 13.sp) }
         call.sentiment?.let { Text("AI মনোভাব: $it", fontSize = 12.sp, color = WinInkMuted) }
@@ -1236,6 +1249,10 @@ data class ReportRow(
     val durationSeconds: Int,
     val status: String,
     val endedAt: String?,
+    /** Server evidence label (same rule as the web CRM); null when not submitted or older server. */
+    val evidenceLabel: String? = null,
+    val evidenceKind: String? = null,
+    val evidenceMismatch: Boolean = false,
 )
 
 @Composable
@@ -1296,6 +1313,18 @@ private fun ReportRowCard(row: ReportRow, onOpenLead: (String) -> Unit) {
                 fontSize = 12.sp,
                 color = if (row.status == "pending") WinRed else Color.Unspecified,
             )
+            row.evidenceLabel?.let { label ->
+                Text(
+                    "ফোন লগ যাচাই: $label",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = when {
+                        row.evidenceMismatch -> WinRed
+                        row.evidenceKind == "phone_verified" -> WinGreen
+                        else -> WinInkMuted
+                    },
+                )
+            }
             row.summary?.let {
                 Spacer(Modifier.height(4.dp))
                 Text(it, fontSize = 12.sp)

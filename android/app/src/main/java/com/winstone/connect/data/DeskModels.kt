@@ -25,6 +25,9 @@ data class CallRow(
     val summary: String?,
     val sentiment: String?,
     val createdAt: String,
+    /** Server's phone call-log match: log_talk | log_no_answer | not_matched | no_phone_log (null on older servers). */
+    val logMatch: String? = null,
+    val logMatchLabel: String? = null,
 )
 
 data class MessageRow(
@@ -102,6 +105,8 @@ fun parseCalls(arr: JSONArray): List<CallRow> = (0 until arr.length()).map { i -
         summary = o.str("ai_summary"),
         sentiment = o.str("sentiment"),
         createdAt = o.optString("created_at"),
+        logMatch = o.str("log_match"),
+        logMatchLabel = o.str("log_match_label"),
     )
 }
 
