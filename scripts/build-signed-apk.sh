@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Official company-signed Winstone Connect release build — no GitHub, no CI.
-# Runs on the key custodian's trusted computer (JDK 17 + Android SDK / Android Studio).
+# Official company-signed Winstone Connect release build.
+# Runs on the key custodian's trusted computer (JDK 17 + Android SDK / Android Studio)
+# or in the manual, approver-gated .github/workflows/android-release.yml.
 #
 # Fails closed. It never prints, copies or uploads passwords or the keystore; Gradle
 # reads them from android/local.properties (or WINSTONE_* env) itself. The only
