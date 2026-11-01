@@ -4,14 +4,37 @@
  */
 export const APPROVED_SIGNER_SHA256 = "2e6150e6065245c1b2b54137512d63ed400d229b881d1b915a2906174e1c7e6d";
 
+/** First version built from the latest code with scripts/build-signed-apk. */
+export const FIRST_OFFICIAL_VERSION_CODE = 33;
+
+export type ApkRelease = {
+  bucket: string;
+  file: string;
+  version: string;
+  versionCode: number;
+  packageName: string;
+  sizeBytes: number;
+  sha256: string;
+  signerSha256: string;
+  server: string;
+  companySigned: boolean;
+  /** True only when the file came out of scripts/build-signed-apk with its release record and .sha256 matching. */
+  builtByReleaseScript: boolean;
+  addedAt: string;
+};
+
 /**
  * The phone app file IT hands to agents (WhatsApp, pen drive, email or the
  * IT Console download). Facts below were read from the uploaded file itself
  * (v2 signature verified, one signer). Company-signed, but repackaged from the
  * 2.21-test code rather than built from the latest source with the release
  * script, so it is not yet the official release.
+ *
+ * When the key holder's 2.22 build arrives: verify the file (signer, package,
+ * version, sha256 vs .sha256 and release record), upload it to the bucket,
+ * then replace these facts and set builtByReleaseScript: true.
  */
-export const APK_RELEASE = {
+export const APK_RELEASE: ApkRelease = {
   bucket: "android-apk",
   file: "winstone-connect-2.21-release.apk",
   version: "2.21",
@@ -22,9 +45,23 @@ export const APK_RELEASE = {
   signerSha256: "2e6150e6065245c1b2b54137512d63ed400d229b881d1b915a2906174e1c7e6d",
   server: "https://crm.winstonebd.com",
   companySigned: true,
-  official: false,
+  builtByReleaseScript: false,
   addedAt: "2026-11-01T21:20:00Z",
-} as const;
+};
+
+export type ApkReleaseStatus = "official" | "company_signed_older_code" | "not_company_signed";
+
+/** Official = approved company key + company package + release-script build of 2.22 or later. */
+export function apkReleaseStatus(r: ApkRelease): ApkReleaseStatus {
+  const signed =
+    r.companySigned &&
+    r.signerSha256.toLowerCase() === APPROVED_SIGNER_SHA256 &&
+    r.packageName === "com.winstone.connect" &&
+    /^[a-f0-9]{64}$/.test(r.sha256);
+  if (!signed) return "not_company_signed";
+  if (r.builtByReleaseScript && r.versionCode >= FIRST_OFFICIAL_VERSION_CODE) return "official";
+  return "company_signed_older_code";
+}
 
 /** Minutes a signed IT Console download link stays valid. */
 export const APK_LINK_MINUTES = 60;

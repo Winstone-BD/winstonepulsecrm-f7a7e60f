@@ -37,7 +37,7 @@ export const listPhoneAcceptance = createServerFn({ method: "POST" })
     }
 
     const { evaluatePhoneAcceptance } = await import("@/lib/phone-acceptance");
-    const { APK_RELEASE } = await import("@/lib/apk-release");
+    const { APK_RELEASE, apkReleaseStatus } = await import("@/lib/apk-release");
     const now = Date.now();
     const names = new Map((agents.data ?? []).map((a) => [a.id, a.name as string]));
     const phones = (devices.data ?? [])
@@ -53,5 +53,5 @@ export const listPhoneAcceptance = createServerFn({ method: "POST" })
       }));
     const withPhone = new Set((devices.data ?? []).map((d) => d.profile_id));
     const noPhone = (agents.data ?? []).filter((a) => !withPhone.has(a.id)).map((a) => a.name as string);
-    return { checkedAt: new Date(now).toISOString(), expectedVersion: APK_RELEASE.version, official: APK_RELEASE.official, phones, noPhone };
+    return { checkedAt: new Date(now).toISOString(), expectedVersion: APK_RELEASE.version, official: apkReleaseStatus(APK_RELEASE) === "official", phones, noPhone };
   });
