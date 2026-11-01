@@ -10,7 +10,7 @@ import { unzipSync } from "fflate";
 import { checkContent, checkEnv, checkName, type Finding } from "./sensitive-scan-rules";
 
 const MAX_TEXT = 2_000_000;
-const SKIP = /(^|\/)(node_modules|\.git|dist|\.output|tests\/fixtures\/sensitive)\//;
+const SKIP = /(^|\/)(node_modules|\.git|dist|\.output|tests\/fixtures\/sensitive)\/|^tests\/sensitive-scan-rules\.test\.ts$/;
 const BINARY = /\.(png|jpe?g|gif|webp|avif|ico|woff2?|ttf|otf|mp[34]|webm|pdf|apk|aab|so|jar|class)$/i;
 
 function tracked(): string[] {
