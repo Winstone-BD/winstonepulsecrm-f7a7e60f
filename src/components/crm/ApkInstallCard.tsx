@@ -1,10 +1,12 @@
-import { Check, Copy, Download, QrCode, RefreshCw, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Check, Copy, Download, Link2, QrCode, RefreshCw, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
 import { useT, useLang } from "@/lib/i18n";
-
-const APK_PATH = "/api/public/download/apk";
+import { getAdminToken } from "@/lib/local-session";
+import { getApkDownloadLink } from "@/lib/apk-download.functions";
+import { APK_LINK_MINUTES, APK_RELEASE } from "@/lib/apk-release";
 
 type SmokeCheck = { name: string; ok: boolean; status: number | null; detail: string };
 type SmokeResult = {
@@ -16,42 +18,49 @@ type SmokeResult = {
   checks: SmokeCheck[];
 };
 
+const mb = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`;
+
 /**
- * IT Console card: QR code for fast phone install of the agent app plus the
- * automatic post-publish smoke test (APK availability + key CRM routes).
+ * IT Console card: PIN-gated private download of the agent phone app (link,
+ * QR, file facts) plus the automatic post-publish smoke test.
  */
 export function ApkInstallCard() {
   const t = useT();
   const lang = useLang();
-  const [origin, setOrigin] = useState("");
+  const loadLink = useServerFn(getApkDownloadLink);
+  const [link, setLink] = useState<{ url: string; expiresAt: string } | null>(null);
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<SmokeResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const apkUrl = origin ? `${origin}${APK_PATH}` : APK_PATH;
+  const makeLink = async () => {
+    setLinkBusy(true);
+    setLinkError(null);
+    try {
+      setLink(await loadLink({ data: { adminToken: getAdminToken() } }));
+    } catch {
+      setLinkError(t({ bn: "লিংক তৈরি হয়নি। IT PIN দিয়ে আবার চেষ্টা করুন।", en: "Could not create the link. Unlock with the IT PIN and try again." }));
+    } finally {
+      setLinkBusy(false);
+    }
+  };
 
   useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  useEffect(() => {
-    if (!origin) return;
+    if (!link) { setQr(null); return; }
     let cancelled = false;
     void (async () => {
       const { default: QRCode } = await import("qrcode");
-      const dataUrl = await QRCode.toDataURL(`${origin}${APK_PATH}`, {
-        width: 320,
-        margin: 1,
-        errorCorrectionLevel: "M",
-      });
+      const dataUrl = await QRCode.toDataURL(link.url, { width: 320, margin: 1, errorCorrectionLevel: "M" });
       if (!cancelled) setQr(dataUrl);
     })().catch(() => setQr(null));
     return () => {
       cancelled = true;
     };
-  }, [origin]);
+  }, [link]);
 
   const runSmoke = useCallback(async () => {
     setRunning(true);
@@ -72,10 +81,12 @@ export function ApkInstallCard() {
   }, [runSmoke]);
 
   const copy = async () => {
-    await navigator.clipboard.writeText(apkUrl);
+    if (!link) return;
+    await navigator.clipboard.writeText(link.url);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
+  const expires = link ? new Date(link.expiresAt).toLocaleTimeString("en-GB", { timeZone: "Asia/Dhaka", hour: "2-digit", minute: "2-digit" }) : "";
 
   return (
     <section className="space-y-3">
@@ -94,8 +105,10 @@ export function ApkInstallCard() {
               height={160}
             />
           ) : (
-            <div className="flex size-40 items-center justify-center rounded-lg border text-xs text-muted-foreground">
-              {t({ bn: "QR তৈরি হচ্ছে…", en: "Generating QR…" })}
+            <div className="flex size-40 items-center justify-center rounded-lg border p-2 text-center text-xs text-muted-foreground">
+              {link
+                ? t({ bn: "QR তৈরি হচ্ছে…", en: "Generating QR…" })
+                : t({ bn: "লিংক তৈরি করলে QR দেখাবে", en: "Create a link to show the QR" })}
             </div>
           )}
           <p className="text-center text-xs text-muted-foreground">
@@ -104,23 +117,46 @@ export function ApkInstallCard() {
         </div>
 
         <div className="min-w-0 space-y-3">
-          <p className="text-sm text-muted-foreground">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+            <dt className="text-muted-foreground">{t({ bn: "ফাইল", en: "File" })}</dt>
+            <dd className="break-all font-mono">{APK_RELEASE.file}</dd>
+            <dt className="text-muted-foreground">{t({ bn: "সংস্করণ", en: "Version" })}</dt>
+            <dd>{APK_RELEASE.version} ({APK_RELEASE.versionCode}) · {mb(APK_RELEASE.sizeBytes)}</dd>
+            <dt className="text-muted-foreground">{t({ bn: "সার্ভার", en: "Connects to" })}</dt>
+            <dd>{APK_RELEASE.server}</dd>
+            <dt className="text-muted-foreground">SHA-256</dt>
+            <dd className="break-all font-mono">{APK_RELEASE.sha256}</dd>
+          </dl>
+          <p className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
             {t({
-              bn: "QR স্ক্যান করলে সরাসরি এজেন্ট অ্যাপ ডাউনলোড শুরু হবে। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
-              en: "Scanning the QR starts the agent app download right away. After installing, sign in with your CRM email and password.",
+              bn: "এটি টেস্ট সংস্করণ, কোম্পানির অফিসিয়াল সাইন করা নয়। IT সরাসরি WhatsApp, পেনড্রাইভ বা ইমেইলে দিন। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
+              en: "This is a test build, not the official company-signed app. IT shares it directly by WhatsApp, pen drive or email. After installing, sign in with the CRM email and password.",
             })}
           </p>
-          <code className="block truncate rounded-md bg-muted px-3 py-2 text-xs">{apkUrl}</code>
+          {linkError ? <p className="text-xs text-destructive">{linkError}</p> : null}
+          {link ? (
+            <p className="text-xs text-muted-foreground">
+              {t({ bn: `লিংক ${APK_LINK_MINUTES} মিনিট চলবে (ঢাকা ${expires} পর্যন্ত)।`, en: `Link works for ${APK_LINK_MINUTES} minutes (until ${expires} Dhaka).` })}
+            </p>
+          ) : null}
           <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <a href={APK_PATH}>
-                <Download className="size-4" /> {t({ bn: "ডাউনলোড", en: "Download" })}
-              </a>
+            {link ? (
+              <Button asChild size="sm">
+                <a href={link.url} download={APK_RELEASE.file}>
+                  <Download className="size-4" /> {t({ bn: "ডাউনলোড", en: "Download" })}
+                </a>
+              </Button>
+            ) : null}
+            <Button size="sm" variant={link ? "outline" : "default"} onClick={() => void makeLink()} disabled={linkBusy}>
+              <Link2 className={`size-4 ${linkBusy ? "animate-pulse" : ""}`} />
+              {link ? t({ bn: "নতুন লিংক", en: "New link" }) : t({ bn: "ডাউনলোড লিংক তৈরি", en: "Create download link" })}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => void copy()}>
-              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-              {copied ? t({ bn: "কপি হয়েছে", en: "Copied" }) : t({ bn: "লিংক কপি", en: "Copy link" })}
-            </Button>
+            {link ? (
+              <Button size="sm" variant="outline" onClick={() => void copy()}>
+                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                {copied ? t({ bn: "কপি হয়েছে", en: "Copied" }) : t({ bn: "লিংক কপি", en: "Copy link" })}
+              </Button>
+            ) : null}
             <Button size="sm" variant="outline" onClick={() => void runSmoke()} disabled={running}>
               <RefreshCw className={`size-4 ${running ? "animate-spin" : ""}`} /> {t({ bn: "আবার পরীক্ষা", en: "Re-check" })}
             </Button>

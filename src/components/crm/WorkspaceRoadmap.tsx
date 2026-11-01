@@ -21,7 +21,6 @@ export const WORKSPACE_ROADMAP: Item[] = [
   { name: "Firecrawl", stage: "planned", status: L("পরিকল্পিত", "Planned"), next: L("কোন ওয়েবসাইট পড়া হবে ঠিক করা", "Choose which websites to read") },
   { name: "Google Search Console", stage: "planned", status: L("পরিকল্পিত", "Planned"), next: L("winstonebd.com মালিকানা যাচাই", "Verify winstonebd.com ownership") },
   { name: "Slack", stage: "planned", status: L("পরিকল্পিত", "Planned"), next: L("নোটিশ যাওয়ার চ্যানেল বেছে নেওয়া", "Choose the alert channel") },
-  { name: "GitHub", stage: "planned", status: L("পরিকল্পিত", "Planned"), next: L("কোড ব্যাকআপ রিপোজিটরি সংযোগ", "Connect a code backup repository") },
 ];
 
 const STAGE = {

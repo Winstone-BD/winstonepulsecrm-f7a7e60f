@@ -2,12 +2,6 @@ import { HubSyncStatusPanel } from "@/components/crm/HubAlerts";
 import { DistributionFailurePanel } from "@/components/crm/DistributionFailurePanel";
 import { SystemManualCard } from "@/components/crm/SystemManualCard";
 import { DeploymentStatusPanel } from "@/components/crm/DeploymentStatusPanel";
-import { GitRepositoryStatusPanel } from "@/components/crm/GitRepositoryStatusPanel";
-import { GitHubActivityDashboard } from "@/components/crm/GitHubActivityDashboard";
-import { GitSyncComparisonPanel } from "@/components/crm/GitSyncComparisonPanel";
-import { GitHubAccessPanel } from "@/components/crm/GitHubAccessPanel";
-import { AndroidBuildStatus } from "@/components/crm/AndroidBuildStatus";
-import { BuildEfficiencyDashboard } from "@/components/crm/BuildEfficiencyDashboard";
 import { ItPhoneTestReports } from "@/components/crm/ItPhoneTestReports";
 import { SearchConsoleDashboard } from "@/components/crm/SearchConsoleDashboard";
 import { AgentWhatsAppAlertsPanel } from "@/components/crm/AgentWhatsAppAlertsPanel";
@@ -171,12 +165,6 @@ function SystemBoard() {
       {sec === "health" && (
         <div className="space-y-6">
           <DeploymentStatusPanel />
-          <GitRepositoryStatusPanel />
-          <GitSyncComparisonPanel />
-          <GitHubAccessPanel />
-          <GitHubActivityDashboard />
-          <AndroidBuildStatus />
-          <BuildEfficiencyDashboard />
           <ItPhoneTestReports />
           <SearchConsoleDashboard />
           <AgentWhatsAppAlertsPanel />
