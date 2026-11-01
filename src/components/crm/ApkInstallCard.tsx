@@ -105,8 +105,10 @@ export function ApkInstallCard() {
               height={160}
             />
           ) : (
-            <div className="flex size-40 items-center justify-center rounded-lg border text-xs text-muted-foreground">
-              {t({ bn: "QR তৈরি হচ্ছে…", en: "Generating QR…" })}
+            <div className="flex size-40 items-center justify-center rounded-lg border p-2 text-center text-xs text-muted-foreground">
+              {link
+                ? t({ bn: "QR তৈরি হচ্ছে…", en: "Generating QR…" })
+                : t({ bn: "লিংক তৈরি করলে QR দেখাবে", en: "Create a link to show the QR" })}
             </div>
           )}
           <p className="text-center text-xs text-muted-foreground">
@@ -115,23 +117,46 @@ export function ApkInstallCard() {
         </div>
 
         <div className="min-w-0 space-y-3">
-          <p className="text-sm text-muted-foreground">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+            <dt className="text-muted-foreground">{t({ bn: "ফাইল", en: "File" })}</dt>
+            <dd className="break-all font-mono">{APK_RELEASE.file}</dd>
+            <dt className="text-muted-foreground">{t({ bn: "সংস্করণ", en: "Version" })}</dt>
+            <dd>{APK_RELEASE.version} ({APK_RELEASE.versionCode}) · {mb(APK_RELEASE.sizeBytes)}</dd>
+            <dt className="text-muted-foreground">{t({ bn: "সার্ভার", en: "Connects to" })}</dt>
+            <dd>{APK_RELEASE.server}</dd>
+            <dt className="text-muted-foreground">SHA-256</dt>
+            <dd className="break-all font-mono">{APK_RELEASE.sha256}</dd>
+          </dl>
+          <p className="rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-xs">
             {t({
-              bn: "QR স্ক্যান করলে সরাসরি এজেন্ট অ্যাপ ডাউনলোড শুরু হবে। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
-              en: "Scanning the QR starts the agent app download right away. After installing, sign in with your CRM email and password.",
+              bn: "এটি টেস্ট সংস্করণ, কোম্পানির অফিসিয়াল সাইন করা নয়। IT সরাসরি WhatsApp, পেনড্রাইভ বা ইমেইলে দিন। ইনস্টলের পর CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।",
+              en: "This is a test build, not the official company-signed app. IT shares it directly by WhatsApp, pen drive or email. After installing, sign in with the CRM email and password.",
             })}
           </p>
-          <code className="block truncate rounded-md bg-muted px-3 py-2 text-xs">{apkUrl}</code>
+          {linkError ? <p className="text-xs text-destructive">{linkError}</p> : null}
+          {link ? (
+            <p className="text-xs text-muted-foreground">
+              {t({ bn: `লিংক ${APK_LINK_MINUTES} মিনিট চলবে (ঢাকা ${expires} পর্যন্ত)।`, en: `Link works for ${APK_LINK_MINUTES} minutes (until ${expires} Dhaka).` })}
+            </p>
+          ) : null}
           <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <a href={APK_PATH}>
-                <Download className="size-4" /> {t({ bn: "ডাউনলোড", en: "Download" })}
-              </a>
+            {link ? (
+              <Button asChild size="sm">
+                <a href={link.url} download={APK_RELEASE.file}>
+                  <Download className="size-4" /> {t({ bn: "ডাউনলোড", en: "Download" })}
+                </a>
+              </Button>
+            ) : null}
+            <Button size="sm" variant={link ? "outline" : "default"} onClick={() => void makeLink()} disabled={linkBusy}>
+              <Link2 className={`size-4 ${linkBusy ? "animate-pulse" : ""}`} />
+              {link ? t({ bn: "নতুন লিংক", en: "New link" }) : t({ bn: "ডাউনলোড লিংক তৈরি", en: "Create download link" })}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => void copy()}>
-              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-              {copied ? t({ bn: "কপি হয়েছে", en: "Copied" }) : t({ bn: "লিংক কপি", en: "Copy link" })}
-            </Button>
+            {link ? (
+              <Button size="sm" variant="outline" onClick={() => void copy()}>
+                {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                {copied ? t({ bn: "কপি হয়েছে", en: "Copied" }) : t({ bn: "লিংক কপি", en: "Copy link" })}
+              </Button>
+            ) : null}
             <Button size="sm" variant="outline" onClick={() => void runSmoke()} disabled={running}>
               <RefreshCw className={`size-4 ${running ? "animate-spin" : ""}`} /> {t({ bn: "আবার পরীক্ষা", en: "Re-check" })}
             </Button>
