@@ -683,7 +683,9 @@ private fun WelcomeCard(
     targetLine: String,
 ) {
     val today = remember {
+        // CRM days are Dhaka days, whatever time zone the phone is set to.
         java.text.SimpleDateFormat("EEEE, dd MMMM yyyy", java.util.Locale("bn", "BD"))
+            .apply { timeZone = java.util.TimeZone.getTimeZone("Asia/Dhaka") }
             .format(java.util.Date())
     }
     WinCard {
