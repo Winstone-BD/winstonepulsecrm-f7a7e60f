@@ -274,7 +274,7 @@ export async function dailyTopPerformer(at: Date = new Date(), selectedDate?: st
       .gte("completed_at", startIso)
       .lte("completed_at", endIso).order("id").range(from, to)),
     pageAllParallel((from, to) => supabaseAdmin.from("call_recordings")
-      .select("id, agent_id, lead_id, created_at, started_at, external_call_id, call_status, call_source, duration_seconds, device_reported_duration_seconds")
+      .select("id, agent_id, lead_id, created_at, started_at, external_call_id, call_status, call_source, talk_time_source, duration_seconds, device_reported_duration_seconds")
       .gte("created_at", startIso).lte("created_at", endIso).order("id").range(from, to)),
   ]);
   if (agentsRes.error) throw new Error(agentsRes.error.message);

@@ -20,7 +20,7 @@ export type CcLead = {
   work_date?: string | null;
   work_state?: string | null;
 };
-export type CcCall = { id: string; lead_id: string | null; agent_id: string | null; created_at: string; duration_seconds: number; started_at?: string | null; external_call_id?: string | null; call_status?: string; call_source?: string; device_reported_duration_seconds?: number | null; upload_status?: string; sync_status?: string; analysis_status?: string; storage_path?: string | null; checksum?: string | null; file_size_bytes?: number | null };
+export type CcCall = { id: string; lead_id: string | null; agent_id: string | null; created_at: string; duration_seconds: number; started_at?: string | null; external_call_id?: string | null; call_status?: string; call_source?: string; talk_time_source?: string | null; device_reported_duration_seconds?: number | null; upload_status?: string; sync_status?: string; analysis_status?: string; storage_path?: string | null; checksum?: string | null; file_size_bytes?: number | null };
 export type CcReport = {
   id: string;
   lead_id: string | null;
