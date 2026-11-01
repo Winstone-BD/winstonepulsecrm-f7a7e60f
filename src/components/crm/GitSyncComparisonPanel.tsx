@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getAdminToken } from "@/lib/local-session";
 import { getGithubSyncComparison } from "@/lib/github-status.functions";
 import { githubCheckInput } from "@/lib/github-status-shared";
-import { CRM_BRANCH, CRM_REPOSITORY } from "@/lib/github-access";
+import { CRM_BRANCH, CRM_REPOSITORY, LOVABLE_SYNC_LINK, syncLinkMismatch } from "@/lib/github-access";
 import { checkAge, secondsUntilStale, SYNC_STALE_MINUTES, type SyncCommit, type SyncState } from "@/lib/github-sync-compare";
 import { useT } from "@/lib/i18n";
 
@@ -96,6 +96,17 @@ export function GitSyncComparisonPanel() {
           <RefreshCw className={`size-4 ${check.isPending ? "animate-spin motion-reduce:animate-none" : ""}`} />
           {check.isPending ? t({ en: "Comparing…", bn: "তুলনা হচ্ছে…" }) : t({ en: "Compare now", bn: "এখন তুলনা করুন" })}
         </Button>
+      </div>
+      <div className="space-y-2 rounded-md border border-border p-3 text-sm" aria-label="Lovable Git sync link">
+        <p className="font-medium">{t({ en: "Lovable sync link (Project settings → Git)", bn: "Lovable সিঙ্ক লিংক (Project settings → Git)" })}</p>
+        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+          <dt className="text-muted-foreground">{t({ en: "Repository", bn: "রিপোজিটরি" })}</dt><dd className="break-all font-medium">{LOVABLE_SYNC_LINK.repository}</dd>
+          <dt className="text-muted-foreground">{t({ en: "Branch", bn: "ব্রাঞ্চ" })}</dt><dd className="font-medium">{LOVABLE_SYNC_LINK.branch}</dd>
+          <dt className="text-muted-foreground">{t({ en: "Sync status", bn: "সিঙ্ক অবস্থা" })}</dt><dd className="font-medium">{LOVABLE_SYNC_LINK.status}</dd>
+          <dt className="text-muted-foreground">{t({ en: "Last confirmed", bn: "সর্বশেষ নিশ্চিত" })}</dt><dd><time dateTime={LOVABLE_SYNC_LINK.confirmedAt}>{dhaka(LOVABLE_SYNC_LINK.confirmedAt)}</time></dd>
+        </dl>
+        <p className="text-xs text-muted-foreground">{t({ en: "Recorded from the owner's Project settings screenshot — not a live reading. This app cannot read Lovable's Git settings; re-check there before relying on it.", bn: "মালিকের Project settings স্ক্রিনশট থেকে লেখা — লাইভ নয়। এই অ্যাপ Lovable-এর Git সেটিংস পড়তে পারে না; ভরসার আগে সেখানে আবার দেখুন।" })}</p>
+        {syncLinkMismatch(CRM_REPOSITORY) && <p role="note" className="text-xs text-warning">{t({ en: `The comparison below reads ${CRM_REPOSITORY}, which is not the repository Lovable syncs with. Its result does not describe the Lovable sync.`, bn: `নিচের তুলনা ${CRM_REPOSITORY} পড়ে, যা Lovable-এর সিঙ্ক করা রিপোজিটরি নয়। এর ফল Lovable সিঙ্ক বোঝায় না।` })}</p>}
       </div>
       <p className="text-xs text-muted-foreground">{t({ en: "Read-only. Matches exact change IDs; nothing is pushed or changed. The project list is the one saved when this version was built.", bn: "শুধু দেখা। পরিবর্তনের ID হুবহু মেলানো হয়; কিছু পাঠানো বা বদলানো হয় না। প্রজেক্টের তালিকাটি এই ভার্সন তৈরির সময়ের।" })}</p>
 

@@ -18,6 +18,23 @@ export const CRM_BRANCH = "main";
 /** Repository the automatic access watch checks. */
 export const WATCHED_REPOSITORY = CRM_REPOSITORY;
 
+/**
+ * Lovable's own Git sync link, as shown in Project settings → Git. The app cannot
+ * read those settings at runtime, so this is an owner-confirmed record with the
+ * time it was confirmed — never a live status. Update it from a fresh screenshot.
+ */
+export const LOVABLE_SYNC_LINK = {
+  repository: "Winstone-Properties-Ltd/winstonepulsecrm",
+  branch: "main",
+  status: "In sync with GitHub",
+  confirmedAt: "2026-11-01T16:10:00Z",
+} as const;
+
+/** True when the live comparison reads a different repository than Lovable syncs with. */
+export function syncLinkMismatch(compared: string, linked: string = LOVABLE_SYNC_LINK.repository): boolean {
+  return compared.trim().toLowerCase() !== linked.trim().toLowerCase();
+}
+
 export type AccessSnapshot = { key: string; login: string | null; verdict: AccessVerdict; canPush: boolean | null };
 export type AccessChange = { kind: "revoked" | "write_lost" | "account_changed" | "connection_removed" | "restored"; key: string; login: string | null; previousLogin: string | null };
 
