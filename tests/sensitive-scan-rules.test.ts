@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkContent, checkName } from "../scripts/sensitive-scan-rules";
+import { checkContent, checkEnv, checkName } from "../scripts/sensitive-scan-rules";
 
 describe("sensitive file scan rules", () => {
   it("flags keystores, including inside a ZIP path", () => {
@@ -11,11 +11,19 @@ describe("sensitive file scan rules", () => {
     expect(checkContent("x.example", "storePassword=realvalue123")).toEqual([]);
   });
   it("flags a private key block and a hardcoded signing password", () => {
-    expect(checkContent("a.txt", "-----BEGIN PRIVATE KEY-----\nabc")).toHaveLength(1);
+    expect(checkContent("a.txt", `-----BEGIN PRIVATE KEY-----\n${"A".repeat(64)}`)).toHaveLength(1);
     expect(checkContent("build.gradle", 'storePassword = "hunter2secret"')).toHaveLength(1);
   });
   it("does not flag passwords read from the environment", () => {
     expect(checkContent("build.gradle", 'storePassword = System.getenv("X")')).toEqual([]);
     expect(checkContent("ci.yml", "KEY_PASSWORD: ${{ secrets.WINSTONE_KEY_PASSWORD }}")).toEqual([]);
+  });
+});
+  it("allows variables but flags quoted literal passwords", () => {
+    expect(checkContent("b.kts", "storePassword = storePass")).toEqual([]);
+  });
+  it("allows only browser-safe names in .env files", () => {
+    expect(checkEnv(".env", "VITE_SUPABASE_URL=x\nSUPABASE_PUBLISHABLE_KEY=y")).toEqual([]);
+    expect(checkEnv(".env", "SUPABASE_SERVICE_ROLE_KEY=z")).toHaveLength(1);
   });
 });

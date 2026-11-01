@@ -7,7 +7,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { unzipSync } from "fflate";
-import { checkContent, checkName, type Finding } from "./sensitive-scan-rules";
+import { checkContent, checkEnv, checkName, type Finding } from "./sensitive-scan-rules";
 
 const MAX_TEXT = 2_000_000;
 const SKIP = /(^|\/)(node_modules|\.git|dist|\.output|tests\/fixtures\/sensitive)\//;
@@ -41,7 +41,8 @@ function scanBytes(label: string, bytes: Uint8Array, out: Finding[]) {
     return;
   }
   if (BINARY.test(label) || bytes.length > MAX_TEXT) return;
-  out.push(...checkContent(label, new TextDecoder().decode(bytes)));
+  const text = new TextDecoder().decode(bytes);
+  out.push(...checkContent(label, text), ...checkEnv(label, text));
 }
 
 const files = new Set([...tracked(), ...walk("public")]);
