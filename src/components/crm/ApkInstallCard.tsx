@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useT, useLang } from "@/lib/i18n";
 import { getAdminToken } from "@/lib/local-session";
 import { getApkDownloadLink } from "@/lib/apk-download.functions";
-import { APK_LINK_MINUTES, APK_RELEASE } from "@/lib/apk-release";
+import { APK_LINK_MINUTES, APK_RELEASE, apkReleaseStatus } from "@/lib/apk-release";
+
+const releaseStatus = apkReleaseStatus(APK_RELEASE);
 
 type SmokeCheck = { name: string; ok: boolean; status: number | null; detail: string };
 type SmokeResult = {
