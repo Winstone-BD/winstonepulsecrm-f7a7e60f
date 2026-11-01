@@ -7,7 +7,7 @@ import { getAdminToken } from "@/lib/local-session";
 import { getGithubSyncComparison } from "@/lib/github-status.functions";
 import { githubCheckInput } from "@/lib/github-status-shared";
 import { CRM_BRANCH, CRM_REPOSITORY } from "@/lib/github-access";
-import { checkAge, SYNC_STALE_MINUTES, type SyncCommit, type SyncState } from "@/lib/github-sync-compare";
+import { checkAge, secondsUntilStale, SYNC_STALE_MINUTES, type SyncCommit, type SyncState } from "@/lib/github-sync-compare";
 import { useT } from "@/lib/i18n";
 
 const dhaka = (iso: string | null) =>
@@ -44,7 +44,7 @@ export function GitSyncComparisonPanel() {
   const [last, setLast] = useState<Result | null>(null);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 30_000);
+    const id = window.setInterval(() => setNow(Date.now()), 1_000);
     return () => window.clearInterval(id);
   }, []);
   const check = useMutation({
@@ -54,6 +54,8 @@ export function GitSyncComparisonPanel() {
   const r = last;
   const refreshing = check.isPending;
   const age = checkAge(r?.checkedAt ?? null, now);
+  const left = secondsUntilStale(r?.checkedAt ?? null, now);
+  const countdown = left === null || left === 0 ? "" : `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
   const ageText = age.minutes === null ? "" : age.minutes === 0 ? t({ en: "just now", bn: "এইমাত্র" }) : t({ en: `${age.minutes} min ago`, bn: `${age.minutes} মিনিট আগে` });
 
   const verdict: Record<SyncState, { tone: "ok" | "warn" | "bad" | "unknown"; en: string; bn: string }> = {
@@ -91,6 +93,7 @@ export function GitSyncComparisonPanel() {
           <span className="text-muted-foreground">{t({ en: "Not checked yet — tap Compare now", bn: "এখনও যাচাই হয়নি — এখন তুলনা করুন চাপুন" })}</span>
         )}
         {r && <span>{t({ en: "Last checked", bn: "সর্বশেষ যাচাই" })}: <time className="font-medium" dateTime={r.checkedAt}>{dhaka(r.checkedAt)}</time>{ageText && <span className="text-muted-foreground"> · {ageText}</span>}</span>}
+        {r && !refreshing && countdown && <span className="text-muted-foreground">{t({ en: "Stale in", bn: "পুরনো হবে" })} <span className="font-mono font-medium tabular-nums text-foreground" aria-hidden="true">{countdown}</span><span className="sr-only">{t({ en: `${Math.ceil((left ?? 0) / 60)} minutes`, bn: `${Math.ceil((left ?? 0) / 60)} মিনিট` })}</span></span>}
         {r && age.stale && !refreshing && <span className="w-full text-xs text-muted-foreground">{t({ en: `Older than ${SYNC_STALE_MINUTES} minutes — compare again before relying on it.`, bn: `${SYNC_STALE_MINUTES} মিনিটের বেশি পুরনো — ভরসা করার আগে আবার তুলনা করুন।` })}</span>}
       </div>
 
