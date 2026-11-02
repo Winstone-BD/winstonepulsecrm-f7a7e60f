@@ -279,6 +279,7 @@ export async function callLogMatchInsights(day: string, lang: "bn" | "en"): Prom
 Task: explain a day's phone call-log match counts to the CRM's IT / HQ team in plain words.
 Meaning of counts: matched = phone call log proved real talk; noAnswer = call log shows the call but nobody talked; notMatched = phone call not yet confirmed by the call log (often an old app or missing call-log permission); noPhoneLog = web-dialled call, no phone proof possible; failures = phone could not send data, by reason.
 - Language: ${lang === "bn" ? "Bengali" : "English"}.
+- Write agent names exactly as given (do not translate them or add titles such as Md/Mst/মোঃ/মোসাঃ).
 - Use only the numbers given. Do not blame anyone; describe patterns and likely technical causes.
 - summary: at most 3 sentences. actions: at most 3 short practical checks (e.g. update the app, check call-log permission, check internet).
 Return: {"summary":"...","actions":["..."]}`,
