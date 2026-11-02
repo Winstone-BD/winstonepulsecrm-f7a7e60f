@@ -69,7 +69,14 @@ export function ApkInstallCard() {
     setError(null);
     try {
       const res = await fetch("/api/public/smoke", { headers: { accept: "application/json" } });
-      setResult((await res.json()) as SmokeResult);
+      const body = (await res.json().catch(() => null)) as Partial<SmokeResult> | null;
+      // The check endpoint can answer with an error shape (e.g. rate limit or server error) that has no checks list.
+      if (!body || !Array.isArray(body.checks)) {
+        setResult(null);
+        setError(t({ bn: `পরীক্ষা চালানো যায়নি (${res.status})`, en: `Could not run the check (${res.status})` }));
+        return;
+      }
+      setResult({ ...body, checks: body.checks } as SmokeResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : t({ bn: "পরীক্ষা চালানো যায়নি", en: "Could not run the check" }));
     } finally {
