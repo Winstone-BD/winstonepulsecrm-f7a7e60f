@@ -212,3 +212,79 @@ Return: {"summary":"..."}`,
   if (!summary) throw new Error("The AI could not summarise today — please retry");
   return { summary, stats };
 }
+
+const clip = (s: string | null | undefined, n: number) => String(s ?? "").replace(/\s+/g, " ").trim().slice(0, n);
+
+/** Call report assistant: turns the agent's rough note into a clean short note. Agent reviews before saving. */
+export async function tidyReportNote(raw: string, lang: "bn" | "en"): Promise<{ note: string }> {
+  const text = clip(raw, 1500);
+  if (text.length < 5) throw new Error(lang === "bn" ? "আগে কয়েকটি কথা লিখুন বা বলুন" : "Write or speak a few words first");
+  const out = await aiChatJson<{ note?: string }>({
+    system: `${COMMON}
+Task: rewrite the sales agent's rough call note into a clean, short call note.
+- Language: ${lang === "bn" ? "Bengali" : "English"}.
+- Keep only what the agent wrote. Do not add budgets, projects, dates, promises or customer feelings that are not in the note.
+- Remove filler words and repetition. At most 3 short sentences.
+- Never include phone numbers.
+Return: {"note":"..."}`,
+    user: JSON.stringify({ rough_note: text }),
+  });
+  const note = clip(out.note, 600).replace(/\+?\d[\d\s-]{8,}\d/g, "").trim();
+  if (!note) throw new Error(lang === "bn" ? "নোট সাজানো যায়নি — আবার চেষ্টা করুন" : "Could not tidy the note — please retry");
+  return { note };
+}
+
+/** Next-step suggestion for one owned lead, from its own saved history only. */
+export async function leadNextStep(leadId: string, agentId: string, lang: "bn" | "en"): Promise<{ nextStep: string; opener: string; basedOn: number }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: lead, error } = await supabaseAdmin
+    .from("leads").select("id, status, notes, assigned_to").eq("id", leadId).maybeSingle();
+  if (error) throw new Error("Lead unavailable");
+  if (!lead || lead.assigned_to !== agentId) throw new Error("This lead is not assigned to you");
+  const { data: reports, error: rErr } = await supabaseAdmin
+    .from("call_reports").select("summary, note, category, connected, created_at")
+    .eq("lead_id", leadId).not("submitted_at", "is", null)
+    .order("created_at", { ascending: false }).limit(3);
+  if (rErr) throw new Error("Lead history unavailable");
+  const history = (reports ?? []).map((r) => ({
+    at: r.created_at, category: r.category, connected: r.connected,
+    summary: clip(r.summary, 300), note: clip(r.note, 300),
+  }));
+  const out = await aiChatJson<{ next_step?: string; opener?: string }>({
+    system: `${COMMON}
+Task: suggest the single best next action for this property lead and one opening line for the next call.
+- Language: ${lang === "bn" ? "Bengali" : "English"}.
+- Base it only on the lead status, notes and past call reports given. If there is no history, suggest a polite first call.
+- No invented projects, prices, offers or deadlines. No pressure tactics.
+- next_step: one sentence. opener: one friendly sentence the agent can say.
+Return: {"next_step":"...","opener":"..."}`,
+    user: JSON.stringify({ status: lead.status, notes: clip(lead.notes, 400), past_calls: history }),
+  });
+  const nextStep = clip(out.next_step, 300);
+  const opener = clip(out.opener, 300);
+  if (!nextStep) throw new Error(lang === "bn" ? "পরামর্শ পাওয়া যায়নি — আবার চেষ্টা করুন" : "No suggestion — please retry");
+  return { nextStep, opener, basedOn: history.length };
+}
+
+/** Plain-words explanation of one day's call-log match counts (aggregates only) for HQ / IT. */
+export async function callLogMatchInsights(day: string, lang: "bn" | "en"): Promise<{ summary: string; actions: string[] }> {
+  const { readCallLogMatchSummary } = await import("@/lib/call-log-match-summary.server");
+  const { team, agents } = await readCallLogMatchSummary(day);
+  const active = agents.filter((a) => a.matched + a.noAnswer + a.notMatched + a.noPhoneLog + a.failureTotal > 0);
+  if (!active.length) {
+    return { summary: lang === "bn" ? "এই দিনে কোনো কল সেভ হয়নি, তাই ব্যাখ্যা করার কিছু নেই।" : "No calls were saved on this day, so there is nothing to explain.", actions: [] };
+  }
+  const out = await aiChatJson<{ summary?: string; actions?: string[] }>({
+    system: `${COMMON}
+Task: explain a day's phone call-log match counts to the CRM's IT / HQ team in plain words.
+Meaning of counts: matched = phone call log proved real talk; noAnswer = call log shows the call but nobody talked; notMatched = phone call not yet confirmed by the call log (often an old app or missing call-log permission); noPhoneLog = web-dialled call, no phone proof possible; failures = phone could not send data, by reason.
+- Language: ${lang === "bn" ? "Bengali" : "English"}.
+- Use only the numbers given. Do not blame anyone; describe patterns and likely technical causes.
+- summary: at most 3 sentences. actions: at most 3 short practical checks (e.g. update the app, check call-log permission, check internet).
+Return: {"summary":"...","actions":["..."]}`,
+    user: JSON.stringify({ day, team, agents: active.map(({ agentId: _id, ...rest }) => rest) }),
+  });
+  const summary = clip(out.summary, 700);
+  if (!summary) throw new Error(lang === "bn" ? "ব্যাখ্যা পাওয়া যায়নি — আবার চেষ্টা করুন" : "No explanation — please retry");
+  return { summary, actions: (Array.isArray(out.actions) ? out.actions : []).map((a) => clip(String(a), 200)).filter(Boolean).slice(0, 3) };
+}
