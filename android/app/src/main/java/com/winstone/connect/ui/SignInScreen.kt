@@ -155,6 +155,9 @@ fun SignInScreen(
             Text("Forgot Password?", color = WinInkMuted, fontSize = 13.sp)
         }
 
+        // Independent Appwrite connectivity check; does not touch CRM sign-in.
+        AppwriteConnectionTest(Modifier.padding(top = 4.dp))
+
         Spacer(Modifier.weight(1f))
 
         Text(
