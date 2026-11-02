@@ -16,6 +16,7 @@ import { createSaveLatch, matchCallShortcut, SHORTCUT_LABELS } from "@/lib/call-
 import { useLang, useT, type Lang } from "@/lib/i18n";
 import { Bi } from "@/components/crm/Bi";
 import { DictateButton } from "@/components/crm/DictateButton";
+import { TidyNoteButton } from "@/components/crm/TidyNoteButton";
 import { DEFAULT_RETRY_PICK, NoAnswerRetryPicker, type RetryPick } from "@/components/crm/NoAnswerRetryPicker";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
