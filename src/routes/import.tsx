@@ -98,6 +98,12 @@ function ImportScreen() {
   const mutation = useMutation({
     mutationFn: () => run({ data: { adminToken: getAdminToken() ?? "", rows, autoAssign } }),
     onSuccess: (result) => {
+      window.__lovableEvents?.track?.("project.lead_import_completed", {
+        source: "csv",
+        rows_received: result.incoming,
+        rows_accepted: result.eligibleNew,
+        rows_rejected: Math.max(0, result.incoming - result.eligibleNew),
+      });
       toast.success(`${result.eligibleNew}টি eligible new lead যোগ হলো`, {
         description: `Incoming ${result.incoming} · আগে worked/assigned ${result.excludedAlreadyWorkedOrAssigned} · duplicate/invalid ${result.excludedDuplicate}`,
       });

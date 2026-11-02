@@ -30,6 +30,12 @@ export function CsvImportDialog() {
   const mutation = useMutation({
     mutationFn: () => run({ data: { adminToken: getAdminToken() ?? "", rows, autoAssign } }),
     onSuccess: (r) => {
+      window.__lovableEvents?.track?.("project.lead_import_completed", {
+        source: "csv",
+        rows_received: r.incoming,
+        rows_accepted: r.eligibleNew,
+        rows_rejected: Math.max(0, r.incoming - r.eligibleNew),
+      });
       toast.success(`${r.eligibleNew} eligible new / নতুন লিড imported`, {
         description: `Incoming ${r.incoming} · worked/assigned ${r.excludedAlreadyWorkedOrAssigned} · duplicate/invalid ${r.excludedDuplicate}`,
       });

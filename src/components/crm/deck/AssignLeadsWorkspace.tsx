@@ -122,6 +122,11 @@ export function AssignLeadsWorkspace({ initialAgentId, initialCount }: { initial
     mutationFn: () => assignFn({ data: { adminToken, requestId, rows: valid, reviewedLeadIds: preview.data?.proposals.flatMap(p => p.leads.map(l => l.id)) } }),
     onSuccess: (res) => {
       const total = res.results.reduce((s, r) => s + r.assigned, 0);
+      window.__lovableEvents?.track?.("project.lead_allocation_completed", {
+        lead_count: total,
+        leads_requested: res.results.reduce((s, r) => s + r.requested, 0),
+        agent_count: res.results.filter((r) => r.assigned > 0).length,
+      });
       setLast(res.results);
       toast.success(`${total} লিড অ্যাসাইন হয়েছে · Canonical database-এ বাকি ${res.available}`);
       setRows([newRow()]);
