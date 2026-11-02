@@ -215,7 +215,7 @@ export function ApkInstallCard() {
         ) : null}
 
         <ul className="mt-3 space-y-1.5">
-          {result?.checks.map((check) => (
+          {(result?.checks ?? []).map((check) => (
             <li
               key={check.name}
               className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-muted/50 px-3 py-2 text-xs"
