@@ -43,6 +43,7 @@ import { AccountabilityReviewPanel } from "@/components/crm/AccountabilityReview
 import { NeglectDisputePanel } from "@/components/crm/LeadNeglectPanel";
 import { SocialHqPanel } from "@/components/crm/social/SocialHqPanel";
 import { ReportsBoard } from "@/components/crm/reports/ReportsBoard";
+import { ConversationOutcomesPanel } from "@/components/crm/hq/ConversationOutcomesPanel";
 import { WhatsappAgentSummary } from "@/components/crm/hq/WhatsappAgentSummary";
 
 import { buildAgentStats, buildTimeline, useSnapshot } from "@/lib/crm-data";
@@ -300,7 +301,7 @@ function ControlBoard() {
               </div>
             )}
 
-            {tab === "followups" && <ReportsBoard />}
+            {tab === "followups" && <div className="space-y-4"><ConversationOutcomesPanel /><ReportsBoard /></div>}
 
             {tab === "lead360" && <Lead360Workspace />}
 
