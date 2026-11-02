@@ -53,3 +53,4 @@
 - Website enquiries sync to their own 'Website Enquiries' tab via website-enquiry-sheet.ts (ID-matched, append-only, HQ notes kept; failure never blocks the day tab) — why: separate from agent rows.
 - Call-evidence labels come only from call-evidence.ts over submitted reports, display-only; connection_verified stays the sole scoring signal — why: one explanation, unchanged KPIs.
 - Server `fetch` uses `redirect: "manual"` (or default), never `"error"` — why: the live Worker throws on `"error"`.
+- Call-log match summary (IT Console + 17:40 HQ WhatsApp) uses call-log-match-summary.ts over callLogMatch/hasProvenTalkTime and android_sync_failure rows, counts only — why: one match rule, no numbers or call content.
