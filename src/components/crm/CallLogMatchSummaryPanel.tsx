@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { AiLangToggle, useAiSuggestionLang } from "@/components/crm/AiLangToggle";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,8 +44,9 @@ export function CallLogMatchSummaryPanel() {
     { label: { en: "Phone send failures", bn: "ফোন থেকে পাঠাতে ব্যর্থ" }, value: team?.failureTotal },
   ];
   const lang = useLang();
+  const [aiLang] = useAiSuggestionLang();
   const explainFn = useServerFn(getAiCallLogInsights);
-  const explain = useMutation({ mutationFn: () => explainFn({ data: { adminToken, day, lang } }) });
+  const explain = useMutation({ mutationFn: () => explainFn({ data: { adminToken, day, lang: aiLang } }) });
   const agents = (q.data?.agents ?? []).filter((a) => a.matched + a.noAnswer + a.notMatched + a.noPhoneLog + a.failureTotal > 0);
 
   return (
@@ -78,6 +80,7 @@ export function CallLogMatchSummaryPanel() {
             ))}
           </div>
           <div className="space-y-2 rounded-lg border border-dashed border-border p-3">
+            <AiLangToggle />
             <Button size="sm" variant="outline" disabled={explain.isPending} onClick={() => explain.mutate()}>
               {explain.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
               {t({ en: "Explain with Winstone AI", bn: "Winstone AI দিয়ে ব্যাখ্যা" })}

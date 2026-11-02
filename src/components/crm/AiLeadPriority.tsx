@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { AiLangToggle, useAiSuggestionLang } from "@/components/crm/AiLangToggle";
 import { draftAiMessage, getAiLeadNextStep, getAiLeadPriority } from "@/lib/ai-features.functions";
 import { useLang, useT } from "@/lib/i18n";
 
@@ -23,7 +24,7 @@ import { useLang, useT } from "@/lib/i18n";
  */
 export function AiLeadPriority() {
   const t = useT();
-  const lang = useLang();
+  const [lang] = useAiSuggestionLang();
   const priority = useServerFn(getAiLeadPriority);
   const [draftLead, setDraftLead] = useState<{ id: string; name: string } | null>(null);
 
@@ -39,10 +40,13 @@ export function AiLeadPriority() {
           <Sparkles className="size-4 text-primary" aria-hidden />
           {t({ bn: "Winstone AI — কাকে আগে ডাকবেন", en: "Winstone AI — who to call first" })}
         </h2>
+        <div className="flex items-center gap-2">
+        <AiLangToggle />
         <Button size="sm" variant="outline" disabled={run.isPending} onClick={() => run.mutate()}>
           {run.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
           {t({ bn: "কলের ক্রম বলুন", en: "Suggest call order" })}
         </Button>
+        </div>
       </div>
 
       {run.data?.items.length === 0 && (
