@@ -18,8 +18,8 @@ const PROJECT_ID_RE = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}$/;
 
 /** Validate a candidate override; anything malformed falls back to the default. */
 export function resolveAppwriteConfig(env: {
-  VITE_APPWRITE_ENDPOINT?: string;
-  VITE_APPWRITE_PROJECT_ID?: string;
+  VITE_APPWRITE_ENDPOINT?: string | undefined;
+  VITE_APPWRITE_PROJECT_ID?: string | undefined;
 }): AppwriteConfig {
   const rawEndpoint = env.VITE_APPWRITE_ENDPOINT?.trim();
   const rawProject = env.VITE_APPWRITE_PROJECT_ID?.trim();
@@ -38,7 +38,7 @@ export function resolveAppwriteConfig(env: {
 
 export function getAppwriteConfig(): AppwriteConfig {
   return resolveAppwriteConfig({
-    VITE_APPWRITE_ENDPOINT: import.meta.env.VITE_APPWRITE_ENDPOINT as string | undefined,
-    VITE_APPWRITE_PROJECT_ID: import.meta.env.VITE_APPWRITE_PROJECT_ID as string | undefined,
+    VITE_APPWRITE_ENDPOINT: import.meta.env["VITE_APPWRITE_ENDPOINT"] as string | undefined,
+    VITE_APPWRITE_PROJECT_ID: import.meta.env["VITE_APPWRITE_PROJECT_ID"] as string | undefined,
   });
 }
