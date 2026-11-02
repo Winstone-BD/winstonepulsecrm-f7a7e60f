@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getCallLogMatchSummary } from "@/lib/call-log-match-summary.functions";
+import { getAiCallLogInsights } from "@/lib/ai-features.functions";
 import { NEXT_STEP, type SyncErrorKind } from "@/lib/android-sync-failures";
 import { dhakaDateOf } from "@/lib/business-day";
 import { useAdminToken } from "@/lib/local-session";
-import { useT } from "@/lib/i18n";
+import { useLang, useT } from "@/lib/i18n";
 
 type Counts = {
   matched: number; noAnswer: number; notMatched: number; noPhoneLog: number;
@@ -41,6 +42,9 @@ export function CallLogMatchSummaryPanel() {
     { label: { en: "No phone log (web)", bn: "ফোন লগ নেই (ওয়েব)" }, value: team?.noPhoneLog },
     { label: { en: "Phone send failures", bn: "ফোন থেকে পাঠাতে ব্যর্থ" }, value: team?.failureTotal },
   ];
+  const lang = useLang();
+  const explainFn = useServerFn(getAiCallLogInsights);
+  const explain = useMutation({ mutationFn: () => explainFn({ data: { adminToken, day, lang } }) });
   const agents = (q.data?.agents ?? []).filter((a) => a.matched + a.noAnswer + a.notMatched + a.noPhoneLog + a.failureTotal > 0);
 
   return (
@@ -72,6 +76,22 @@ export function CallLogMatchSummaryPanel() {
                 <div className="text-xs text-muted-foreground">{t(s.label)}</div>
               </div>
             ))}
+          </div>
+          <div className="space-y-2 rounded-lg border border-dashed border-border p-3">
+            <Button size="sm" variant="outline" disabled={explain.isPending} onClick={() => explain.mutate()}>
+              {explain.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+              {t({ en: "Explain with Winstone AI", bn: "Winstone AI দিয়ে ব্যাখ্যা" })}
+            </Button>
+            {explain.isError && <p role="alert" className="text-sm text-destructive">{explain.error.message}</p>}
+            {explain.data && (
+              <div className="space-y-1 text-sm">
+                <p>{explain.data.summary}</p>
+                {explain.data.actions.length > 0 && (
+                  <ul className="list-disc pl-5 text-muted-foreground">{explain.data.actions.map((a) => <li key={a}>{a}</li>)}</ul>
+                )}
+                <p className="text-xs text-muted-foreground">{t({ en: "Built from the counts above only. Suggestion — nothing is changed.", bn: "শুধু উপরের সংখ্যা থেকে তৈরি। পরামর্শ মাত্র — কিছু বদলানো হয় না।" })}</p>
+              </div>
+            )}
           </div>
           {team.failureTotal > 0 && (
             <p className="text-sm"><span className="font-medium">{t({ en: "Failure reasons", bn: "ব্যর্থতার কারণ" })}:</span> {failureText(team.failures)}</p>

@@ -16,6 +16,7 @@ import { createSaveLatch, matchCallShortcut, SHORTCUT_LABELS } from "@/lib/call-
 import { useLang, useT, type Lang } from "@/lib/i18n";
 import { Bi } from "@/components/crm/Bi";
 import { DictateButton } from "@/components/crm/DictateButton";
+import { TidyNoteButton } from "@/components/crm/TidyNoteButton";
 import { DEFAULT_RETRY_PICK, NoAnswerRetryPicker, type RetryPick } from "@/components/crm/NoAnswerRetryPicker";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
@@ -924,7 +925,10 @@ export function PostCallReportGate() {
       <div className="space-y-1.5 rounded-lg border border-dashed border-border p-2.5">
         <div className="flex items-center justify-between gap-2">
           <Label htmlFor="sr-voice" className="text-xs">{t({ bn: "Voice Note (ঐচ্ছিক)", en: "Voice Note (optional)" })}</Label>
-          <DictateButton onAppend={(text) => setVoiceNote((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text))} />
+          <div className="flex items-center gap-1">
+            <TidyNoteButton text={voiceNote} onTidy={setVoiceNote} />
+            <DictateButton onAppend={(text) => setVoiceNote((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text))} />
+          </div>
         </div>
         <Textarea id="sr-voice" rows={2} value={voiceNote} onChange={(e) => setVoiceNote(e.target.value)} placeholder={t({ bn: "চাইলে মুখে ১০–২০ সেকেন্ড বলুন — ছোট নোট হয়ে যাবে", en: "Optionally speak for 10–20 seconds — it will become a short note" })} />
       </div>

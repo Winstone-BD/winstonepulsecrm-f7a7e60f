@@ -79,3 +79,38 @@ export const setAiModel = createServerFn({ method: "POST" })
     await m.setAiModelChoice(data.model);
     return { ok: true as const, model: data.model };
   });
+
+export const tidyAiReportNote = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z.object({ adminToken: z.string().nullable().optional(), text: z.string().max(4000), lang: Lang }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    await agentScope(data.adminToken);
+    const m = await import("@/lib/ai-features.server");
+    return m.tidyReportNote(data.text, data.lang);
+  });
+
+export const getAiLeadNextStep = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z.object({ adminToken: z.string().nullable().optional(), leadId: z.string().uuid(), lang: Lang }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const agentId = await agentScope(data.adminToken);
+    const m = await import("@/lib/ai-features.server");
+    return m.leadNextStep(data.leadId, agentId, data.lang);
+  });
+
+export const getAiCallLogInsights = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) =>
+    z.object({
+      adminToken: z.string().nullable().optional(),
+      day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      lang: Lang,
+    }).parse(i),
+  )
+  .handler(async ({ data }) => {
+    const { resolveCaller, requireAuthority } = await import("@/lib/access.server");
+    requireAuthority(await resolveCaller(data.adminToken ?? null));
+    const m = await import("@/lib/ai-features.server");
+    return m.callLogMatchInsights(data.day, data.lang);
+  });
