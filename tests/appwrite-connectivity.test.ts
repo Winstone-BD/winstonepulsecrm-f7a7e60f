@@ -34,6 +34,7 @@ describe("Appwrite connectivity config", () => {
 describe("Appwrite ping result", () => {
   it("only Appwrite's actual pong counts as success", () => {
     expect(isPongResponse("Pong!")).toBe(true);
+    expect(isPongResponse({ message: "Pong!" })).toBe(true);
     expect(isPongResponse("")).toBe(false);
     expect(isPongResponse(undefined)).toBe(false);
     expect(isPongResponse({ ok: true })).toBe(false);

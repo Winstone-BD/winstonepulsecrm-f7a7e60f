@@ -53,10 +53,17 @@ export function classifyAppwriteError(err: unknown): {
   return { kind: "unexpected", code: null, type, message };
 }
 
-/** A successful ping must be an actual response body from Appwrite ("Pong!"). */
+export function pingText(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (value && typeof value === "object" && typeof (value as { message?: unknown }).message === "string") {
+    return (value as { message: string }).message;
+  }
+  return "";
+}
+
+/** A successful ping must be an actual reply from Appwrite ("Pong!"). */
 export function isPongResponse(value: unknown): boolean {
-  const text = typeof value === "string" ? value : value == null ? "" : JSON.stringify(value);
-  return /pong/i.test(text);
+  return /pong/i.test(pingText(value));
 }
 
 export async function pingAppwrite(): Promise<AppwritePingResult> {
@@ -89,8 +96,7 @@ export async function pingAppwrite(): Promise<AppwritePingResult> {
         config,
       };
     }
-    const text = typeof response === "string" ? response : JSON.stringify(response);
-    return { ok: true, latencyMs, response: text.slice(0, 80), checkedAt, config };
+    return { ok: true, latencyMs, response: pingText(response).slice(0, 80), checkedAt, config };
   } catch (err) {
     return { ok: false, latencyMs: done(), ...classifyAppwriteError(err), checkedAt: new Date().toISOString(), config };
   }
