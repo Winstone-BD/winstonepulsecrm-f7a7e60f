@@ -67,7 +67,7 @@ export const leadImportFunnel = createServerFn({ method: "POST" })
     let rowsReceived = 0, rowsTurnedAway = 0, batches = 0;
     for (const r of audits ?? []) {
       const m = (r.metadata && typeof r.metadata === "object" && !Array.isArray(r.metadata) ? r.metadata : {}) as Record<string, unknown>;
-      const inc = Number(m.incoming), ok = Number(m.eligibleNew);
+      const inc = Number(m["incoming"]), ok = Number(m["eligibleNew"]);
       if (!Number.isFinite(inc) || !Number.isFinite(ok)) continue;
       batches += 1;
       rowsReceived += inc;

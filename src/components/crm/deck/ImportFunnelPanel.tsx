@@ -103,7 +103,7 @@ export function ImportFunnelPanel() {
   );
 }
 
-function Stage({ label, value, note, tone }: { label: string; value: number; note?: string; tone?: "warn" | "good" }) {
+function Stage({ label, value, note, tone }: { label: string; value: number; note?: string | undefined; tone?: "warn" | "good" }) {
   const color = tone === "warn" ? "text-warning" : tone === "good" ? "text-success" : "";
   return (
     <li className="rounded-lg border bg-card p-3">
@@ -114,7 +114,7 @@ function Stage({ label, value, note, tone }: { label: string; value: number; not
   );
 }
 
-function Delay({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Delay({ label, value, sub }: { label: string; value: string; sub?: string | undefined }) {
   return (
     <div className="rounded-lg border bg-muted/30 p-3">
       <div className="text-muted-foreground">{label}</div>
