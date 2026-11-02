@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, Loader2, MessageSquareText, Sparkles } from "lucide-react";
+import { Compass, Copy, Loader2, MessageSquareText, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { draftAiMessage, getAiLeadPriority } from "@/lib/ai-features.functions";
+import { draftAiMessage, getAiLeadNextStep, getAiLeadPriority } from "@/lib/ai-features.functions";
 import { useLang, useT } from "@/lib/i18n";
 
 /**
@@ -64,6 +64,7 @@ export function AiLeadPriority() {
                   {item.name}
                 </p>
                 <p className="text-xs text-muted-foreground">{item.reason}</p>
+                <NextStep leadId={item.leadId} lang={lang} />
               </div>
               <Button
                 size="sm"
@@ -149,5 +150,34 @@ function MessageDraftDialog(props: {
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Per-lead next-step suggestion from that lead's own saved history. Suggestion only. */
+function NextStep({ leadId, lang }: { leadId: string; lang: "bn" | "en" }) {
+  const t = useT();
+  const ask = useServerFn(getAiLeadNextStep);
+  const run = useMutation({
+    mutationFn: () => ask({ data: { leadId, lang } }),
+    onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
+  });
+  if (!run.data) {
+    return (
+      <Button size="sm" variant="link" className="h-auto px-0 text-xs" disabled={run.isPending} onClick={() => run.mutate()}>
+        {run.isPending ? <Loader2 className="size-3 animate-spin" /> : <Compass className="size-3" />}
+        {t({ bn: "পরের পদক্ষেপ বলুন", en: "Suggest next step" })}
+      </Button>
+    );
+  }
+  return (
+    <div className="mt-1.5 space-y-1 rounded-md bg-muted/50 p-2 text-xs">
+      <p><span className="font-medium">{t({ bn: "পরের পদক্ষেপ", en: "Next step" })}:</span> {run.data.nextStep}</p>
+      {run.data.opener && <p><span className="font-medium">{t({ bn: "শুরু করতে বলুন", en: "Opening line" })}:</span> {run.data.opener}</p>}
+      <p className="text-muted-foreground">
+        {run.data.basedOn
+          ? t({ bn: `এই লিডের শেষ ${run.data.basedOn}টি রিপোর্ট থেকে — শুধু পরামর্শ`, en: `From this lead's last ${run.data.basedOn} report(s) — suggestion only` })
+          : t({ bn: "এই লিডের আগের কোনো রিপোর্ট নেই — শুধু পরামর্শ", en: "No earlier reports for this lead — suggestion only" })}
+      </p>
+    </div>
   );
 }
