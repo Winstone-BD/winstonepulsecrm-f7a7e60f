@@ -54,3 +54,4 @@
 - Call-evidence labels come only from call-evidence.ts over submitted reports, display-only; connection_verified stays the sole scoring signal — why: one explanation, unchanged KPIs.
 - Server `fetch` uses `redirect: "manual"` (or default), never `"error"` — why: the live Worker throws on `"error"`.
 - Call-log match summary (IT Console + 17:40 HQ WhatsApp) uses call-log-match-summary.ts over callLogMatch/hasProvenTalkTime and android_sync_failure rows, counts only — why: one match rule, no numbers or call content.
+- Import→assignment completion is computed only in import-funnel.ts (IMPORT_SOURCES, first from-pool lead_assignments row) behind LeadHub PIN; cleanup has no saved timestamp so its delay is never shown, and assigned-without-history leads count with unknown delay — why: delays come only from saved timestamps, never guesses.
