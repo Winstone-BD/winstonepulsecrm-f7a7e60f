@@ -6,6 +6,7 @@ import { CheckCircle2, ClipboardCheck, Loader2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/crm/AppShell";
+import { BookingPipelinePanel } from "@/components/crm/hq/BookingPipelinePanel";
 import { RoleGate } from "@/components/crm/RoleGate";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -73,6 +74,7 @@ function Queue() {
     onSuccess: (_r, v) => {
       toast.success(v.decision === "approved" ? "অনুমোদিত — Winstone OS-এ পাঠানো হচ্ছে" : "বুকিং বাতিল করা হয়েছে");
       void qc.invalidateQueries({ queryKey: ["booking-reviews"] });
+      void qc.invalidateQueries({ queryKey: ["booking-pipeline"] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -90,6 +92,7 @@ function Queue() {
           এজেন্টের বুকিং অনুরোধ এখানে আসে। অনুমোদন দিলে তবেই Winstone OS-এ যায়। সিদ্ধান্ত চূড়ান্ত, সব রেকর্ড থাকে। এখানে কোনো পেমেন্ট হয় না।
         </p>
       </header>
+      <BookingPipelinePanel />
       <div className="flex gap-2">
         {TABS.map((t) => (
           <Button key={t.key} size="sm" variant={tab === t.key ? "default" : "outline"} onClick={() => setTab(t.key)}>

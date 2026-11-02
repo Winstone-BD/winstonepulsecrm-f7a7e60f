@@ -283,3 +283,46 @@ export const reviewBooking = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/**
+ * Read-only booking pipeline: current stage and age of every booking request,
+ * from review through Winstone OS confirmation. HQ/IT only; counts and agent
+ * display names only — no customer names, phones, amounts or notes.
+ */
+export const bookingPipeline = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => z.object({ adminToken: Token }).parse(i ?? {}))
+  .handler(async ({ data }) => {
+    const { resolveCaller, requireAuthority } = await import("@/lib/access.server");
+    requireAuthority(await resolveCaller(data.adminToken ?? null));
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { pageAllParallel } = await import("@/lib/page-all");
+    const { computeBookingPipeline } = await import("@/lib/booking-pipeline");
+    const rows = await pageAllParallel((a, b) =>
+      supabaseAdmin
+        .from("bookings")
+        .select("id, agent_id, status, approval_status, created_at, reviewed_at")
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(a, b),
+    );
+    if (rows.error) throw new Error("বুকিং পড়া যায়নি");
+    const approved = (rows.data ?? []).filter((r) => r.approval_status === "approved").map((r) => r.id);
+    const relay = new Map<string, string>();
+    for (let i = 0; i < approved.length; i += 200) {
+      const { data: ev, error } = await supabaseAdmin
+        .from("sync_events")
+        .select("entity_id, status")
+        .eq("entity_type", "booking")
+        .eq("event_type", "crm_to_os_booking.created")
+        .in("entity_id", approved.slice(i, i + 200));
+      if (error) throw new Error("Winstone OS পাঠানোর অবস্থা পড়া যায়নি");
+      for (const e of ev ?? []) if (e.entity_id) relay.set(e.entity_id, e.status);
+    }
+    const p = computeBookingPipeline(rows.data ?? [], relay, Date.now());
+    const ids = p.pendingByAgent.map((a) => a.agentId).filter((id) => id !== "unknown");
+    const { data: profs } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, name").in("id", ids)
+      : { data: [] as { id: string; name: string | null }[] };
+    const names = new Map((profs ?? []).map((x) => [x.id, x.name]));
+    return { ...p, pendingByAgent: p.pendingByAgent.map((a) => ({ ...a, name: names.get(a.agentId) ?? "Unknown agent" })) };
+  });
