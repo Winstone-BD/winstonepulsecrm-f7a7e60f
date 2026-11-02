@@ -32,6 +32,7 @@ import { OfflineAlertSettingsPanel } from "@/components/crm/OfflineAlertSettings
 import { ReportSheetPanel } from "@/components/crm/ReportSheetPanel";
 import { SheetSyncHealthPanel } from "@/components/crm/SheetSyncHealthPanel";
 import { BackendHealthPanel } from "@/components/crm/BackendHealthPanel";
+import { AppwriteConnectionTest } from "@/components/crm/AppwriteConnectionTest";
 import { WebsiteKnowledgePanel } from "@/components/crm/WebsiteKnowledgePanel";
 import { DriveKnowledgePanel } from "@/components/crm/DriveKnowledgePanel";
 import { VersionDataPanel } from "@/components/crm/VersionDataPanel";
@@ -174,6 +175,7 @@ function SystemBoard() {
           <SystemManualCard />
           <SystemUpdateReport />
           <BackendHealthPanel />
+          <AppwriteConnectionTest />
           <SheetSyncHealthPanel />
           <VersionDataPanel />
           <CommandAgentPanel surface="system" />
