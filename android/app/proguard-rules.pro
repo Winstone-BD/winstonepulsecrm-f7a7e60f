@@ -9,3 +9,8 @@
 # Tink (used by androidx.security-crypto for the Keystore-backed token store) references
 # compile-time-only Error Prone annotations; they are not needed at runtime.
 -dontwarn com.google.errorprone.annotations.**
+# Appwrite Android SDK (connectivity test): Gson parses its error/JSON replies via reified
+# TypeToken generics, which R8 would otherwise strip.
+-keep class io.appwrite.** { *; }
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
