@@ -3046,6 +3046,32 @@ export type Database = {
           },
         ]
       }
+      lead_phone_legacy_aliases: {
+        Row: {
+          canonical_phone: string
+          created_at: string
+          lead_id: string
+        }
+        Insert: {
+          canonical_phone: string
+          created_at?: string
+          lead_id: string
+        }
+        Update: {
+          canonical_phone?: string
+          created_at?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_phone_legacy_aliases_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_state_changes: {
         Row: {
           changed_at: string
