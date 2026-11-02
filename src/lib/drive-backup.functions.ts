@@ -24,6 +24,14 @@ async function authority(adminToken?: string | null) {
   return caller;
 }
 
+/** Anything that creates, changes or moves Drive files rejects read-only HQ viewers. */
+async function writeAuthority(adminToken?: string | null) {
+  const { requireWrite } = await import("./access.server");
+  const caller = await authority(adminToken);
+  requireWrite(caller);
+  return caller;
+}
+
 export const getDriveBackupSettingsFn = createServerFn({ method: "POST" })
   .inputValidator((input: WithToken) => input)
   .handler(async ({ data }) => {
@@ -56,7 +64,7 @@ export const initializeDriveBackupFolderFn = createServerFn({ method: "POST" })
 export const syncRecordingsToDriveFn = createServerFn({ method: "POST" })
   .inputValidator((input: WithToken & { dateKey: string }) => input)
   .handler(async ({ data }) => {
-    await authority(data.adminToken);
+    await writeAuthority(data.adminToken);
     const result = await syncDayRecordingsToDrive(data.dateKey);
     return { dateKey: data.dateKey, ...result };
   });
@@ -64,7 +72,7 @@ export const syncRecordingsToDriveFn = createServerFn({ method: "POST" })
 export const syncRecordingDocToDriveFn = createServerFn({ method: "POST" })
   .inputValidator((input: WithToken & { dateKey: string }) => input)
   .handler(async ({ data }) => {
-    await authority(data.adminToken);
+    await writeAuthority(data.adminToken);
     return backupRecordingDocToDrive(data.dateKey);
   });
 
@@ -75,7 +83,7 @@ export const backupSingleRecordingToDriveFn = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
-    await authority(data.adminToken);
+    await writeAuthority(data.adminToken);
     return backupRecordingToDrive(data.recordingId);
   });
 
@@ -83,7 +91,7 @@ export const backupSingleRecordingToDriveFn = createServerFn({ method: "POST" })
 export const syncAgentDriveFoldersFn = createServerFn({ method: "POST" })
   .inputValidator((input: WithToken) => input)
   .handler(async ({ data }) => {
-    await authority(data.adminToken);
+    await writeAuthority(data.adminToken);
     const settings = await getDriveBackupSettings();
     if (!settings.enabled) throw new Error("Google Drive ব্যাকআপ বন্ধ আছে");
     if (!settings.folderId) throw new Error("Google Drive ফোল্ডার আইডি দেওয়া হয়নি");

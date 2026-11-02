@@ -397,11 +397,18 @@ export function summarize(events: LoadEvent[], unit: "day" | "hour" = "day"): Lo
   };
 }
 
-function csvCell(v: unknown) {
+/**
+ * Public telemetry text is attacker-controlled. A cell that starts (after any
+ * whitespace/control chars) with a formula trigger — ASCII or full-width
+ * = + - @ — or with a tab/CR/LF is prefixed with ' so spreadsheets show text.
+ */
+const CSV_FORMULA_START = /^[\s\u0000-\u001f]*[=+\-@\uFF1D\uFF0B\uFF0D\uFF20]|^[\t\r\n]/;
+export function diagnosticsCsvCell(v: unknown) {
   let t = v == null ? "" : String(v);
-  if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`;
+  if (CSV_FORMULA_START.test(t)) t = `'${t}`;
   return `"${t.replace(/"/g, '""')}"`;
 }
+const csvCell = diagnosticsCsvCell;
 
 /** CSV of the filtered events (already redacted DTOs; formulas neutralised). */
 export function eventsToCsv(events: LoadEvent[]): string {
