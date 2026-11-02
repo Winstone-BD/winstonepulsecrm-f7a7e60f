@@ -69,6 +69,12 @@ export function LeadImportDialog() {
   const saveMutation = useMutation({
     mutationFn: () => save({ data: { adminToken, rows } }),
     onSuccess: (result) => {
+      window.__lovableEvents?.track?.("project.lead_import_completed", {
+        source: "file_review",
+        rows_received: rows.length,
+        rows_accepted: result.added,
+        rows_rejected: (result.duplicate ?? 0) + result.failed.length,
+      });
       toast.success(
         `${result.added}টি নতুন লিড যোগ হয়েছে${result.duplicate ? ` · ${result.duplicate}টি আগেই ছিল` : ""}`,
       );

@@ -99,6 +99,45 @@
         }
       }
     },
+    "project.lead_import_completed": {
+      "event_schema_version": 1,
+      "description": "A lead import (CSV or reviewed file) saved successfully; leads land unassigned. Counts only, no lead IDs or contact details.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "rows_received",
+          "rows_accepted",
+          "rows_rejected"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "file_review"
+            ]
+          },
+          "rows_received": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rows_accepted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rows_rejected": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
     "project.offline_sync_finished": {
       "event_schema_version": 1,
       "description": "A run that re-sends offline calls and reports finished, with counts of items that synced and failed.",
