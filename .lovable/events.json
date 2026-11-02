@@ -99,6 +99,37 @@
         }
       }
     },
+    "project.lead_allocation_completed": {
+      "event_schema_version": 1,
+      "description": "A LeadHub allocation was confirmed and saved; counts of leads assigned/requested and agents receiving leads only.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "lead_count",
+          "leads_requested",
+          "agent_count"
+        ],
+        "properties": {
+          "lead_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "leads_requested": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "agent_count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
     "project.lead_import_completed": {
       "event_schema_version": 1,
       "description": "A lead import (CSV or reviewed file) saved successfully; leads land unassigned. Counts only, no lead IDs or contact details.",
