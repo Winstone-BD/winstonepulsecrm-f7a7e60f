@@ -925,10 +925,10 @@ export function PostCallReportGate() {
       <div className="space-y-1.5 rounded-lg border border-dashed border-border p-2.5">
         <div className="flex items-center justify-between gap-2">
           <Label htmlFor="sr-voice" className="text-xs">{t({ bn: "Voice Note (ঐচ্ছিক)", en: "Voice Note (optional)" })}</Label>
-          <div className="flex items-center gap-1">
-            <TidyNoteButton text={voiceNote} onTidy={setVoiceNote} />
-            <DictateButton onAppend={(text) => setVoiceNote((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text))} />
-          </div>
+          <DictateButton onAppend={(text) => setVoiceNote((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text))} />
+        </div>
+        <div>
+          <TidyNoteButton text={voiceNote} onTidy={setVoiceNote} />
         </div>
         <Textarea id="sr-voice" rows={2} value={voiceNote} onChange={(e) => setVoiceNote(e.target.value)} placeholder={t({ bn: "চাইলে মুখে ১০–২০ সেকেন্ড বলুন — ছোট নোট হয়ে যাবে", en: "Optionally speak for 10–20 seconds — it will become a short note" })} />
       </div>
