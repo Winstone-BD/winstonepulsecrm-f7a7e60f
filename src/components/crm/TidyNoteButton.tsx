@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Loader2, Sparkles, X } from "lucide-react";
@@ -6,25 +6,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { tidyAiReportNote } from "@/lib/ai-features.functions";
 import { useAdminToken } from "@/lib/local-session";
-import { useLang, useT } from "@/lib/i18n";
-
-type AiLang = "bn" | "en";
-const AI_LANG_KEY = "winstone.aiSuggestionLang";
-
-/** Saved Bangla/English choice for AI suggestions; falls back to the UI language. */
-export function useAiSuggestionLang(): [AiLang, (l: AiLang) => void] {
-  const uiLang = useLang();
-  const [lang, setLang] = useState<AiLang>(uiLang === "en" ? "en" : "bn");
-  useEffect(() => {
-    const saved = window.localStorage.getItem(AI_LANG_KEY);
-    if (saved === "bn" || saved === "en") setLang(saved);
-  }, []);
-  const update = (l: AiLang) => {
-    setLang(l);
-    window.localStorage.setItem(AI_LANG_KEY, l);
-  };
-  return [lang, update];
-}
+import { useT } from "@/lib/i18n";
+import { AiLangToggle, useAiSuggestionLang } from "@/components/crm/AiLangToggle";
 
 /**
  * Call report assistant: Winstone AI suggests a tidier note. The agent sees
@@ -35,7 +18,7 @@ export function TidyNoteButton({ text, onTidy }: { text: string; onTidy: (note: 
   const t = useT();
   const adminToken = useAdminToken();
   const tidy = useServerFn(tidyAiReportNote);
-  const [aiLang, setAiLang] = useAiSuggestionLang();
+  const [aiLang] = useAiSuggestionLang();
   const [preview, setPreview] = useState<{ before: string; after: string } | null>(null);
 
   const run = useMutation({
@@ -54,15 +37,7 @@ export function TidyNoteButton({ text, onTidy }: { text: string; onTidy: (note: 
   return (
     <div className="w-full space-y-2">
       <div className="flex flex-wrap items-center justify-end gap-1">
-        <div role="group" aria-label={t({ bn: "AI ভাষা", en: "AI language" })}
-          className="flex overflow-hidden rounded-md border border-border text-xs">
-          {(["bn", "en"] as const).map((l) => (
-            <button key={l} type="button" aria-pressed={aiLang === l} onClick={() => setAiLang(l)}
-              className={`px-2 py-1 ${aiLang === l ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}>
-              {l === "bn" ? "বাংলা" : "English"}
-            </button>
-          ))}
-        </div>
+        <AiLangToggle />
         <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs"
           disabled={run.isPending || text.trim().length < 5} onClick={() => run.mutate(text)}>
           {run.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}

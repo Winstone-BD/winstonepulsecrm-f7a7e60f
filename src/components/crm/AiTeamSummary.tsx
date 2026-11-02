@@ -4,6 +4,7 @@ import { Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { AiLangToggle, useAiSuggestionLang } from "@/components/crm/AiLangToggle";
 import { getAiModel, getAiTeamSummary, setAiModel } from "@/lib/ai-features.functions";
 import { aiFailureLabel } from "@/lib/ai-providers";
 
@@ -19,6 +20,7 @@ import { useAdminToken } from "@/lib/local-session";
 export function AiTeamSummary() {
   const t = useT();
   const lang = useLang();
+  const [aiLang] = useAiSuggestionLang();
   const adminToken = useAdminToken();
   const queryClient = useQueryClient();
   const summary = useServerFn(getAiTeamSummary);
@@ -36,7 +38,7 @@ export function AiTeamSummary() {
   });
 
   const run = useMutation({
-    mutationFn: () => summary({ data: { adminToken, lang } }),
+    mutationFn: () => summary({ data: { adminToken, lang: aiLang } }),
     onError: (e) => toast.error(e instanceof Error ? e.message : String(e)),
   });
 
@@ -212,10 +214,13 @@ export function AiTeamSummary() {
         </p>
       )}
 
-      <Button size="sm" variant="outline" disabled={run.isPending} onClick={() => run.mutate()}>
-        {run.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-        {t({ bn: "আজকের সারাংশ বানান", en: "Generate today's summary" })}
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <AiLangToggle />
+        <Button size="sm" variant="outline" disabled={run.isPending} onClick={() => run.mutate()}>
+          {run.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+          {t({ bn: "আজকের সারাংশ বানান", en: "Generate today's summary" })}
+        </Button>
+      </div>
 
       {run.isError && (
         <div
