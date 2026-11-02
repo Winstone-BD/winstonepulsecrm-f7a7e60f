@@ -214,6 +214,7 @@ export function AiTeamSummary() {
         </p>
       )}
 
+      <AiLangToggle />
       <Button size="sm" variant="outline" disabled={run.isPending} onClick={() => run.mutate()}>
         {run.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
         {t({ bn: "আজকের সারাংশ বানান", en: "Generate today's summary" })}

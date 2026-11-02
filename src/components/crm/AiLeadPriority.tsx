@@ -15,7 +15,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { AiLangToggle, useAiSuggestionLang } from "@/components/crm/AiLangToggle";
 import { draftAiMessage, getAiLeadNextStep, getAiLeadPriority } from "@/lib/ai-features.functions";
-import { useLang, useT } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
 
 /**
  * Winstone AI on the agent desk: suggests which of the agent's own leads to
