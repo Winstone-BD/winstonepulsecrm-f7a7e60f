@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "events": {
+    "project.call_captured": {
+      "event_schema_version": 1,
+      "description": "An agent ended a web-dialled call and the CRM saved the call; no number, name or call content.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "lead_linked",
+          "connected_claim",
+          "duration_bucket"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "web_dialer"
+            ]
+          },
+          "lead_linked": {
+            "type": "boolean"
+          },
+          "connected_claim": {
+            "type": "boolean"
+          },
+          "duration_bucket": {
+            "type": "string",
+            "enum": [
+              "under_10s",
+              "10_59s",
+              "1_5m",
+              "over_5m"
+            ]
+          }
+        }
+      }
+    },
+    "project.call_report_save_failed": {
+      "event_schema_version": 1,
+      "description": "Saving a call report failed; only the failure category is recorded.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "retryable"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "network",
+              "server",
+              "validation"
+            ]
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "project.call_report_saved": {
+      "event_schema_version": 1,
+      "description": "A call report was saved to the CRM, or queued on the device while offline.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "reassigned"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "synced",
+              "queued_offline"
+            ]
+          },
+          "reassigned": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "project.offline_sync_finished": {
+      "event_schema_version": 1,
+      "description": "A run that re-sends offline calls and reports finished, with counts of items that synced and failed.",
+      "privacy": {
+        "contains_pii": false,
+        "purpose": "product_analytics"
+      },
+      "properties_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "synced",
+          "failed"
+        ],
+        "properties": {
+          "synced": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}
