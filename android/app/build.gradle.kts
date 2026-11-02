@@ -26,6 +26,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val crmUrl = (localProps.getProperty("CRM_BASE_URL") ?: "https://crm.winstonebd.com").trimEnd('/')
         buildConfigField("String", "CRM_BASE_URL", "\"$crmUrl\"")
+        // Appwrite connectivity test (public project config only; never an API key).
+        val appwriteEndpoint = (localProps.getProperty("APPWRITE_ENDPOINT") ?: "https://sgp.cloud.appwrite.io/v1").trimEnd('/')
+        val appwriteProject = localProps.getProperty("APPWRITE_PROJECT_ID") ?: "6ae900580021177f0b22"
+        buildConfigField("String", "APPWRITE_ENDPOINT", "\"$appwriteEndpoint\"")
+        buildConfigField("String", "APPWRITE_PROJECT_ID", "\"$appwriteProject\"")
     }
 
     buildFeatures {
@@ -61,6 +66,7 @@ android {
             versionNameSuffix = "-sandbox"
             matchingFallbacks += listOf("debug")
             buildConfigField("String", "CRM_BASE_URL", "\"https://invalid.invalid\"")
+            buildConfigField("String", "APPWRITE_ENDPOINT", "\"https://invalid.invalid\"")
         }
         release {
             isMinifyEnabled = true
@@ -98,6 +104,9 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.security:security-crypto:1.0.0")
+    // Official Appwrite Android SDK — connectivity test only. 24.0.0 is the newest release built
+    // on Kotlin 1.9 / OkHttp 4.12 (25+ need Kotlin 2.2 + OkHttp 5, which this toolchain can't read).
+    implementation("io.appwrite:sdk-for-android:24.0.0")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
     testImplementation("junit:junit:4.13.2")

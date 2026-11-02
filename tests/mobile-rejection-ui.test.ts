@@ -15,6 +15,7 @@ vi.mock("@/lib/local-session", () => ({ useAdminToken: () => null }));
 vi.mock("@/lib/report-draft", () => ({ loadReportDraft: () => null, saveReportDraft: vi.fn(), clearReportDraft: vi.fn() }));
 vi.mock("@/lib/offline-queue", () => ({ subscribeQueue: () => () => {}, enqueue: vi.fn() }));
 vi.mock("@/components/crm/DictateButton", () => ({ DictateButton: () => null }));
+vi.mock("@/components/crm/TidyNoteButton", () => ({ TidyNoteButton: () => null }));
 vi.mock("sonner", () => ({ toast: { info: vi.fn(), warning: vi.fn(), success: vi.fn(), error: vi.fn(), dismiss: vi.fn() } }));
 import { PostCallReportGate } from "@/components/crm/PostCallReportGate";
 
