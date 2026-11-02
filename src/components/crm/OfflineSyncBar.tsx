@@ -171,6 +171,9 @@ export function OfflineSyncBar() {
       report_submit: (payload) => sendReport({ data: { ...payload, adminToken } as never }),
     });
     setBusy(false);
+    if (result.synced || result.failed) {
+      window.__lovableEvents?.track?.("project.offline_sync_finished", { synced: result.synced, failed: result.failed });
+    }
     if (result.synced) {
       toast.success(`${result.synced}টি অফলাইন কাজ সার্ভারে জমা হয়েছে`);
       void queryClient.invalidateQueries({ queryKey: ["crm-snapshot"] });

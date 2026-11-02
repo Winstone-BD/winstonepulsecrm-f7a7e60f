@@ -981,6 +981,10 @@ function ReportDialog({
       toast.dismiss(`report-save-${detail.report.id}`);
     },
     onSuccess: (result) => {
+      window.__lovableEvents?.track?.("project.call_report_saved", {
+        mode: result.offline ? "queued_offline" : "synced",
+        reassigned: !result.offline && "reassigned" in result && Boolean(result.reassigned),
+      });
       clearReportDraft(detail.report.id);
       setFailure(null);
       if (!result.offline && "reassigned" in result && result.reassigned) {
@@ -1010,6 +1014,7 @@ function ReportDialog({
     },
     onError: (error: Error) => {
       const f = classifyReportSaveError(error);
+      window.__lovableEvents?.track?.("project.call_report_save_failed", { kind: f.kind, retryable: f.retryable });
       setFailure(f);
       toast.error(t({ bn: "রিপোর্ট সেভ হয়নি", en: "Report not saved" }), {
         id: `report-save-${detail.report.id}`,

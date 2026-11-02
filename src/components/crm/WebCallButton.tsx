@@ -147,6 +147,13 @@ export function WebCallButton({
       });
     },
     onSuccess: () => {
+      const seconds = webStopwatchSeconds(live?.startedAt, Date.now());
+      window.__lovableEvents?.track?.("project.call_captured", {
+        source: "web_dialer",
+        lead_linked: Boolean(leadId),
+        connected_claim: seconds >= 10,
+        duration_bucket: seconds < 10 ? "under_10s" : seconds < 60 ? "10_59s" : seconds < 300 ? "1_5m" : "over_5m",
+      });
       localStorage.removeItem(KEY);
       setLive(null);
       toast.success("কল শেষ — এখন রিপোর্টটি পূরণ করুন");
