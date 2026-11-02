@@ -13,6 +13,7 @@ import { SnapshotSkeleton } from "@/components/crm/SnapshotSkeleton";
 import { AllocationTable, AssignLeadsWorkspace } from "@/components/crm/deck/AssignLeadsWorkspace";
 import { DeckKpis } from "@/components/crm/deck/DeckKpis";
 import { ImportHistoryPanel } from "@/components/crm/deck/ImportHistoryPanel";
+import { ImportFunnelPanel } from "@/components/crm/deck/ImportFunnelPanel";
 import { LeadStorePanel } from "@/components/crm/deck/LeadStorePanel";
 import { Button } from "@/components/ui/button";
 import { checkLeadHubAccess } from "@/lib/leadhub.functions";
@@ -114,7 +115,7 @@ function LeadHubWorkspace() {
       {section === "import" && <div className="space-y-4"><div className="flex justify-end"><CsvImportDialog /></div><HeadLeadIntakePanel /><ImportHistoryPanel /></div>}
       {section === "database" && <LeadStorePanel agents={agentOptions} canAssign={false} title={t({ bn: "মূল লিড ডেটাবেস", en: "Canonical Lead Database" })} />}
       {section === "assign" && <div className="space-y-4"><LeadDatabasePanel /><AssignLeadsWorkspace key={`${assignFor ?? "all"}-${draftKey}`} initialAgentId={assignFor} initialCount={assignCount} /></div>}
-      {section === "history" && <div className="space-y-4"><ImportHistoryPanel /><LeadStorePanel agents={agentOptions} canAssign={false} defaultAssignment="duplicate" title={t({ bn: "ডুপ্লিকেট / আলাদা রাখা রেকর্ড", en: "Duplicate / parked records" })} /><LeadStorePanel agents={agentOptions} canAssign={false} defaultQuality="invalid_phone" title={t({ bn: "ডেটার মান যাচাই", en: "Data quality review" })} /></div>}
+      {section === "history" && <div className="space-y-4"><ImportFunnelPanel /><ImportHistoryPanel /><LeadStorePanel agents={agentOptions} canAssign={false} defaultAssignment="duplicate" title={t({ bn: "ডুপ্লিকেট / আলাদা রাখা রেকর্ড", en: "Duplicate / parked records" })} /><LeadStorePanel agents={agentOptions} canAssign={false} defaultQuality="invalid_phone" title={t({ bn: "ডেটার মান যাচাই", en: "Data quality review" })} /></div>}
     </div>
   );
 }
