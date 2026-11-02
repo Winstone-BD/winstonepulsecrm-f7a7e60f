@@ -6,7 +6,7 @@
  * approved the PDF template. One send per recipient per Dhaka day.
  */
 import {
-  HQ_REPORT_ENABLED_KEY, HQ_REPORT_RECIPIENTS_KEY, HQ_REPORT_TEMPLATES, hqSummaryParams, hqTotals,
+  HQ_REPORT_ENABLED_KEY, HQ_REPORT_RECIPIENTS_KEY, HQ_REPORT_TEMPLATES, hqCallLogParams, hqSummaryParams, hqTotals,
   normalizeRecipientList, type AgentDayRow,
 } from "@/lib/hq-daily-report";
 
@@ -70,11 +70,11 @@ async function pdfTemplateApproved(): Promise<boolean> {
   return rows.some((r) => r.name === HQ_REPORT_TEMPLATES.pdf && r.language === "bn" && r.status === "APPROVED");
 }
 
-async function sendOne(input: { to: string; day: string; params: string[]; counts: Record<string, number>; pdf: { path: string; url: string } | null }) {
+async function sendOne(input: { to: string; day: string; params: string[]; counts: Record<string, number>; pdf: { path: string; url: string } | null; template?: string; dedupePrefix?: string }) {
   const db = await admin();
-  const template = input.pdf ? HQ_REPORT_TEMPLATES.pdf : HQ_REPORT_TEMPLATES.text;
+  const template = input.template ?? (input.pdf ? HQ_REPORT_TEMPLATES.pdf : HQ_REPORT_TEMPLATES.text);
   const reserve = await db.from("hq_whatsapp_report_sends").insert({
-    recipient: input.to, work_date: input.day, dedupe_key: `hq_daily:${input.to}:${input.day}`, template,
+    recipient: input.to, work_date: input.day, dedupe_key: `${input.dedupePrefix ?? "hq_daily"}:${input.to}:${input.day}`, template,
     with_pdf: Boolean(input.pdf), pdf_path: input.pdf?.path ?? null, counts: input.counts, status: "sending",
   }).select("id").single();
   if (reserve.error) {
@@ -141,5 +141,21 @@ export async function runHqDailyReport(now = new Date()) {
     const outcome = await sendOne({ to, day, params, counts: totals, pdf });
     if (outcome === "sent") sent++; else if (outcome === "failed") failed++;
   }
-  return { sent, failed, withPdf: Boolean(pdf), pdfStored };
+
+  // Short call-log match summary (counts only) as a second approved-template message.
+  let callLogSent = 0, callLogFailed = 0;
+  try {
+    const { readCallLogMatchSummary } = await import("@/lib/call-log-match-summary.server");
+    const { team } = await readCallLogMatchSummary(day);
+    const cl = hqCallLogParams(day, team);
+    const clCounts = { verifiedLeads: team.verifiedLeads, matched: team.matched, noAnswer: team.noAnswer, notMatched: team.notMatched, failures: team.failureTotal };
+    for (const to of settings.recipients) {
+      const outcome = await sendOne({ to, day, params: cl, counts: clCounts, pdf: null, template: HQ_REPORT_TEMPLATES.callLog, dedupePrefix: "hq_call_log" });
+      if (outcome === "sent") callLogSent++; else if (outcome === "failed") callLogFailed++;
+    }
+  } catch (e) {
+    console.error("[hq-daily-report] call-log summary step failed", e instanceof Error ? e.message : e);
+    callLogFailed = settings.recipients.length;
+  }
+  return { sent, failed, withPdf: Boolean(pdf), pdfStored, callLogSent, callLogFailed };
 }
