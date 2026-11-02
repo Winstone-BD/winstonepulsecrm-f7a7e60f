@@ -10,6 +10,7 @@ export type AppwritePingFailureKind =
   | "project_not_found"
   | "network"
   | "timeout"
+  | "sdk_load"
   | "http"
   | "unexpected";
 
@@ -71,7 +72,13 @@ export async function pingAppwrite(): Promise<AppwritePingResult> {
   const started = performance.now();
   const done = () => Math.round(performance.now() - started);
   try {
-    const { Client } = await import("appwrite");
+    let Client: typeof import("appwrite").Client;
+    try {
+      ({ Client } = await import("appwrite"));
+    } catch (err) {
+      const message = err instanceof Error ? err.message.slice(0, 300) : String(err).slice(0, 300);
+      return { ok: false, latencyMs: done(), kind: "sdk_load", code: null, type: null, message, checkedAt: new Date().toISOString(), config };
+    }
     const client = new Client().setEndpoint(config.endpoint).setProject(config.projectId);
     let timer: ReturnType<typeof setTimeout> | undefined;
     const timeout = new Promise<never>((_, reject) => {

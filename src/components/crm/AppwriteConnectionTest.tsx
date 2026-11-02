@@ -24,6 +24,10 @@ const HINT: Record<AppwritePingFailureKind, { bn: string; en: string }> = {
     bn: "নির্ধারিত সময়ের মধ্যে Appwrite উত্তর দেয়নি। একটু পরে আবার চেষ্টা করুন।",
     en: "Appwrite didn't answer in time. Try again shortly.",
   },
+  sdk_load: {
+    bn: "Appwrite টুলকিট লোড হয়নি — পেজটি রিফ্রেশ করে আবার চেষ্টা করুন। কোনো অনুরোধ Appwrite-এ যায়নি।",
+    en: "The Appwrite toolkit didn't load — refresh the page and try again. No request reached Appwrite.",
+  },
   http: {
     bn: "Appwrite একটি ত্রুটি ফেরত দিয়েছে। নিচের বিস্তারিত দেখুন।",
     en: "Appwrite returned an error. See the details below.",
