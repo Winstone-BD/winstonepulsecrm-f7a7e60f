@@ -3,7 +3,7 @@
  * Team and per-agent counts only; never customer names, phones or projects.
  */
 
-export const HQ_REPORT_TEMPLATES = { text: "hq_daily_summary", pdf: "hq_daily_report_pdf" } as const;
+export const HQ_REPORT_TEMPLATES = { text: "hq_daily_summary", pdf: "hq_daily_report_pdf", callLog: "hq_call_log_match_summary" } as const;
 export const HQ_REPORT_RECIPIENTS_KEY = "hq_daily_report_recipients";
 export const HQ_REPORT_ENABLED_KEY = "hq_daily_report_enabled";
 
@@ -62,4 +62,9 @@ export function scriptRuns(text: string): Array<{ text: string; bengali: boolean
     else runs.push({ text: ch, bengali: isBn });
   }
   return runs;
+}
+
+/** Call-log match template body variables {{1}}…{{6}}: date, leads reached, talked, no talk, not matched, send failures. Counts only. */
+export function hqCallLogParams(day: string, t: { verifiedLeads: number; matched: number; noAnswer: number; notMatched: number; failureTotal: number }): string[] {
+  return [bnDate(day), bnNum(t.verifiedLeads), bnNum(t.matched), bnNum(t.noAnswer), bnNum(t.notMatched), bnNum(t.failureTotal)];
 }
