@@ -438,16 +438,13 @@ export const getPublishedArticle = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Public read only: anonymous callers never write. view_count is no
+    // longer incremented from this unauthenticated endpoint.
     const { data: article } = await supabaseAdmin
       .from("support_articles")
-      .select("id, slug, title, summary, body_markdown, tags, updated_at, category_id, view_count")
+      .select("id, slug, title, summary, body_markdown, tags, updated_at, category_id")
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
-    if (!article) return null;
-    await supabaseAdmin
-      .from("support_articles")
-      .update({ view_count: article.view_count + 1 })
-      .eq("id", article.id);
-    return article;
+    return article ?? null;
   });
