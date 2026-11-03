@@ -297,6 +297,14 @@ export function ApkInstallCard() {
         </div>
       </div>
 
+      <ApkUploadPanel
+        current={release}
+        onPublished={() => {
+          setLink(null);
+          void refreshRelease();
+        }}
+      />
+
       <div className="rounded-xl border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="flex items-center gap-2 text-sm font-semibold">
