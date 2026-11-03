@@ -4,6 +4,15 @@
  */
 export const APPROVED_SIGNER_SHA256 = "2e6150e6065245c1b2b54137512d63ed400d229b881d1b915a2906174e1c7e6d";
 
+/** Certificate subject of the approved company signer (public). */
+export const APPROVED_SIGNER_SUBJECT = "CN=Winstone Connect, O=Winstone, C=BD";
+
+/** Formats a hex SHA-256 the way apksigner/keytool print it: AA:BB:CC… (uppercase, colon-separated). */
+export function formatFingerprint(hex: string): string {
+  const clean = hex.toLowerCase().replace(/[^a-f0-9]/g, "");
+  return (clean.toUpperCase().match(/.{1,2}/g) ?? []).join(":");
+}
+
 /** First version built from the latest code with scripts/build-signed-apk. */
 export const FIRST_OFFICIAL_VERSION_CODE = 33;
 

@@ -6,9 +6,53 @@ import { Button } from "@/components/ui/button";
 import { useT, useLang } from "@/lib/i18n";
 import { getAdminToken } from "@/lib/local-session";
 import { getApkDownloadLink } from "@/lib/apk-download.functions";
-import { APK_LINK_MINUTES, APK_RELEASE, apkReleaseStatus } from "@/lib/apk-release";
+import {
+  APK_LINK_MINUTES,
+  APK_RELEASE,
+  APPROVED_SIGNER_SHA256,
+  APPROVED_SIGNER_SUBJECT,
+  apkReleaseStatus,
+  formatFingerprint,
+} from "@/lib/apk-release";
 
 const releaseStatus = apkReleaseStatus(APK_RELEASE);
+const signerFingerprint = formatFingerprint(APK_RELEASE.signerSha256);
+const signerMatches = APK_RELEASE.signerSha256.toLowerCase() === APPROVED_SIGNER_SHA256;
+const releaseDate = new Date(APK_RELEASE.addedAt).toLocaleDateString("en-GB", {
+  timeZone: "Asia/Dhaka",
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+const INSTALL_STEPS: { bn: string; en: string }[] = [
+  { bn: "এজেন্টের ফোনে লিংক বা QR খুলে ফাইলটি ডাউনলোড করুন।", en: "Open the link or scan the QR on the agent's phone and download the file." },
+  { bn: "উপরের চেকসাম মিলিয়ে নিন (IT কম্পিউটারে যাচাই করে দিলে ভালো)।", en: "Check the checksum above (best done by IT on a computer)." },
+  { bn: "পুরনো টেস্ট অ্যাপ (Winstone Connect Test) থাকলে আগে আনইনস্টল করুন।", en: "Uninstall any old test app (Winstone Connect Test) first." },
+  { bn: "ফাইলটি খুলুন; ফোন জিজ্ঞেস করলে শুধু এই একবারের জন্য \"অজানা অ্যাপ ইনস্টল\" অনুমতি দিন।", en: "Open the file; if the phone asks, allow \"Install unknown apps\" for this one install." },
+  { bn: "Install চাপুন, তারপর অ্যাপ খুলে CRM-এর ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন।", en: "Tap Install, then open the app and sign in with the CRM email and password." },
+  { bn: "ফোন, কল লগ ও নোটিফিকেশন অনুমতি দিন, তারপর একটি টেস্ট কল করে CRM-এ রিপোর্ট আসছে কিনা দেখুন।", en: "Allow phone, call log and notification permissions, then make one test call and check the report reaches the CRM." },
+];
+
+function CopyChip({ value, label, done }: { value: string; label: string; done: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Button
+      size="sm"
+      variant="ghost"
+      className="h-6 px-2 text-xs"
+      onClick={() => {
+        void navigator.clipboard.writeText(value).then(() => {
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 1500);
+        });
+      }}
+    >
+      {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+      {copied ? done : label}
+    </Button>
+  );
+}
 
 type SmokeCheck = { name: string; ok: boolean; status: number | null; detail: string };
 type SmokeResult = {
@@ -131,11 +175,59 @@ export function ApkInstallCard() {
             <dd className="break-all font-mono">{APK_RELEASE.file}</dd>
             <dt className="text-muted-foreground">{t({ bn: "সংস্করণ", en: "Version" })}</dt>
             <dd>{APK_RELEASE.version} ({APK_RELEASE.versionCode}) · {mb(APK_RELEASE.sizeBytes)}</dd>
+            <dt className="text-muted-foreground">{t({ bn: "রিলিজের তারিখ", en: "Release date" })}</dt>
+            <dd>{releaseDate} {t({ bn: "(ঢাকা)", en: "(Dhaka)" })}</dd>
+            <dt className="text-muted-foreground">{t({ bn: "প্যাকেজ", en: "Package" })}</dt>
+            <dd className="break-all font-mono">{APK_RELEASE.packageName}</dd>
             <dt className="text-muted-foreground">{t({ bn: "সার্ভার", en: "Connects to" })}</dt>
             <dd>{APK_RELEASE.server}</dd>
-            <dt className="text-muted-foreground">SHA-256</dt>
-            <dd className="break-all font-mono">{APK_RELEASE.sha256}</dd>
           </dl>
+
+          <div className="space-y-2 rounded-md border bg-muted/40 p-3 text-xs">
+            <p className="flex items-center gap-1.5 font-semibold">
+              <ShieldCheck className="size-3.5 text-primary" />
+              {t({ bn: "ইনস্টলের আগে ফাইল যাচাই করুন", en: "Verify the file before installing" })}
+            </p>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted-foreground">{t({ bn: "ফাইলের SHA-256 চেকসাম", en: "File SHA-256 checksum" })}</span>
+                <CopyChip value={APK_RELEASE.sha256} label={t({ bn: "কপি", en: "Copy" })} done={t({ bn: "কপি হয়েছে", en: "Copied" })} />
+              </div>
+              <code className="block break-all rounded bg-background px-2 py-1 font-mono">{APK_RELEASE.sha256}</code>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted-foreground">{t({ bn: "সাইনিং সার্টিফিকেট SHA-256", en: "Signing certificate SHA-256" })}</span>
+                <CopyChip value={signerFingerprint} label={t({ bn: "কপি", en: "Copy" })} done={t({ bn: "কপি হয়েছে", en: "Copied" })} />
+              </div>
+              <code className="block break-all rounded bg-background px-2 py-1 font-mono">{signerFingerprint}</code>
+            </div>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+              <dt className="text-muted-foreground">{t({ bn: "সাইনার", en: "Signer" })}</dt>
+              <dd className="break-all font-mono">{APPROVED_SIGNER_SUBJECT}</dd>
+              <dt className="text-muted-foreground">{t({ bn: "অনুমোদিত কী", en: "Approved key" })}</dt>
+              <dd>
+                {signerMatches
+                  ? t({ bn: "✔ কোম্পানির অনুমোদিত কী-এর সাথে মিলেছে", en: "✔ Matches the approved company key" })
+                  : t({ bn: "✖ অনুমোদিত কী নয় — ইনস্টল করবেন না", en: "✖ Not the approved key — do not install" })}
+              </dd>
+            </dl>
+            <p className="text-muted-foreground">
+              {t({
+                bn: "কম্পিউটারে চেক: PowerShell-এ certutil -hashfile <ফাইল> SHA256 চালান — ফলাফল উপরের চেকসামের সাথে হুবহু মিলতে হবে। Android SDK থাকলে apksigner verify --print-certs <ফাইল> চালিয়ে সার্টিফিকেট SHA-256 মেলান। একটি অক্ষরও না মিললে ফাইলটি ইনস্টল করবেন না, IT-কে জানান।",
+                en: "On a computer: run certutil -hashfile <file> SHA256 in PowerShell — the result must match the checksum above exactly. With the Android SDK, run apksigner verify --print-certs <file> and compare the certificate SHA-256. If even one character differs, do not install it and tell IT.",
+              })}
+            </p>
+          </div>
+
+          <div className="space-y-1.5 rounded-md border p-3 text-xs">
+            <p className="font-semibold">{t({ bn: "ইনস্টল করার নিয়ম", en: "How to install" })}</p>
+            <ol className="list-decimal space-y-1 pl-4">
+              {INSTALL_STEPS.map((step, i) => (
+                <li key={i}>{t(step)}</li>
+              ))}
+            </ol>
+          </div>
           {releaseStatus === "official" ? (
             <p className="rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-xs">
               <span className="font-semibold">{t({ bn: "অফিশিয়াল রিলিজ", en: "Official release" })}</span>
