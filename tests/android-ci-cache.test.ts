@@ -109,7 +109,7 @@ describe("Android signing preflight", () => {
 
   it("runs after the key is restored and before the Gradle build", () => {
     expect(start).toBeGreaterThan(release.indexOf("Restore company key"));
-    expect(start).toBeLessThan(release.indexOf("scripts/build-signed-apk.sh"));
+    expect(start).toBeLessThan(release.indexOf("run: bash scripts/build-signed-apk.sh"));
   });
   it("passes passwords to keytool only via :env, never on the command line", () => {
     expect(block).toContain("-storepass:env PF_STORE_PASSWORD");
