@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -76,5 +76,15 @@ describe("build-signed-apk.sh fails closed", () => {
     expect(r.code).not.toBe(0);
     expect(r.out).toContain("Android SDK not found");
     expect(r.out).not.toContain(SECRET);
+  });
+});
+
+// Windows PowerShell 5.1 reads BOM-less .ps1 files as Windows-1252, so a UTF-8
+// em dash becomes a curly quote and breaks parsing (seen on the signing PC).
+describe("Windows .ps1 build scripts", () => {
+  it.each(["build-signed-apk.ps1", "build-debug-apk.ps1"])("%s is plain ASCII", (name) => {
+    const text = readFileSync(resolve(__dirname, "../scripts", name), "utf8");
+    const bad = [...text].filter((c) => c.charCodeAt(0) > 127);
+    expect(bad).toEqual([]);
   });
 });

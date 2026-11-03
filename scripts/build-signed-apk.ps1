@@ -1,4 +1,4 @@
-# Windows version of scripts/build-signed-apk.sh — official company-signed Winstone Connect
+# Windows version of scripts/build-signed-apk.sh - official company-signed Winstone Connect
 # release build with no GitHub/CI. Fails closed; never prints, copies or uploads passwords
 # or the keystore (Gradle reads them from android\local.properties itself). The only
 # signing value it handles is the PUBLIC certificate SHA-256 fingerprint.
@@ -43,7 +43,7 @@ if ($storeAbs.StartsWith($projectRoot + [IO.Path]::DirectorySeparatorChar, [Stri
 # 2) No keystore anywhere in the project.
 $stray = Get-ChildItem -Path $projectRoot -Recurse -File -Include *.jks, *.keystore, *.p12 -ErrorAction SilentlyContinue |
   Where-Object { $_.FullName -notmatch "[\\/](node_modules|build|\.gradle|\.git)[\\/]" } | Select-Object -First 5
-if ($stray) { Fail "keystore file(s) found inside the project — remove them first: $($stray.FullName -join '; ')" }
+if ($stray) { Fail "keystore file(s) found inside the project - remove them first: $($stray.FullName -join '; ')" }
 
 # 3) Android SDK tools.
 $sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } elseif ($env:ANDROID_SDK_ROOT) { $env:ANDROID_SDK_ROOT } else { (Prop "sdk.dir" "__WINSTONE_UNUSED__") -replace "\\\\", "\" -replace "\\:", ":" }
