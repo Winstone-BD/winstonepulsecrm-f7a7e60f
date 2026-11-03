@@ -101,3 +101,28 @@ describe("Android workflow hardening (2026-11-02)", () => {
     expect(tests).toContain("cancel-in-progress: ${{ github.event_name == 'pull_request' }}");
   });
 });
+
+describe("Android signing preflight", () => {
+  const release = readFileSync(".github/workflows/android-release.yml", "utf8");
+  const start = release.indexOf("name: Preflight - validate signing secrets");
+  const block = release.slice(start, release.indexOf("- name: Build, sign and verify"));
+
+  it("runs after the key is restored and before the Gradle build", () => {
+    expect(start).toBeGreaterThan(release.indexOf("Restore company key"));
+    expect(start).toBeLessThan(release.indexOf("run: bash scripts/build-signed-apk.sh"));
+  });
+  it("passes passwords to keytool only via :env, never on the command line", () => {
+    expect(block).toContain("-storepass:env PF_STORE_PASSWORD");
+    expect(block).toContain("-keypass:env PF_KEY_PASSWORD");
+    expect(block).not.toMatch(/-(storepass|keypass) "?\$/);
+  });
+  it("never echoes a secret variable or raw keytool output", () => {
+    expect(block).not.toMatch(/echo[^\n]*\$\{?PF_/);
+    expect(block).not.toMatch(/echo[^\n]*\$\{?out/);
+    expect(block).not.toMatch(/set -x/);
+  });
+  it("checks key password and pinned signer fingerprint", () => {
+    expect(block).toContain("keytool -certreq");
+    expect(block).toContain('[ "$got" != "$want" ]');
+  });
+});
