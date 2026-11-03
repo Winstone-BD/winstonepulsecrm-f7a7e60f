@@ -27,8 +27,8 @@ android {
         val crmUrl = (localProps.getProperty("CRM_BASE_URL") ?: "https://crm.winstonebd.com").trimEnd('/')
         buildConfigField("String", "CRM_BASE_URL", "\"$crmUrl\"")
         // Appwrite connectivity test (public project config only; never an API key).
-        val appwriteEndpoint = (localProps.getProperty("APPWRITE_ENDPOINT") ?: "https://sgp.cloud.appwrite.io/v1").trimEnd('/')
-        val appwriteProject = localProps.getProperty("APPWRITE_PROJECT_ID") ?: "6ae900580021177f0b22"
+        val appwriteEndpoint = (localProps.getProperty("APPWRITE_ENDPOINT") ?: "https://fra.cloud.appwrite.io/v1").trimEnd('/')
+        val appwriteProject = localProps.getProperty("APPWRITE_PROJECT_ID") ?: "6ae6cfc60036585efea9"
         buildConfigField("String", "APPWRITE_ENDPOINT", "\"$appwriteEndpoint\"")
         buildConfigField("String", "APPWRITE_PROJECT_ID", "\"$appwriteProject\"")
     }

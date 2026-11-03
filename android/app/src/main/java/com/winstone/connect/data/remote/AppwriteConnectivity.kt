@@ -13,7 +13,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 /**
- * Independent Appwrite connectivity test (project "winstonebd").
+ * Independent Appwrite connectivity test (project "My first project").
  *
  * Uses the official Appwrite Android SDK's `Client.ping()` (GET {endpoint}/ping).
  * Public project configuration only (BuildConfig APPWRITE_ENDPOINT / APPWRITE_PROJECT_ID);
