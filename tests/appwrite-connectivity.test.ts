@@ -9,18 +9,18 @@ import {
 import { classifyAppwriteError, isPongResponse } from "@/lib/appwrite-ping";
 
 describe("Appwrite connectivity config", () => {
-  it("defaults to the active Frankfurt project", () => {
+  it("defaults to the active Singapore project", () => {
     expect(resolveAppwriteConfig({})).toEqual({
-      endpoint: "https://fra.cloud.appwrite.io/v1",
-      projectId: "6ae6cfc60036585efea9",
-      projectName: "My first project",
+      endpoint: "https://sgp.cloud.appwrite.io/v1",
+      projectId: "6ae998b2002b6305289c",
+      projectName: "winstonebd",
     });
   });
 
   it("Android build defaults target the same Appwrite project as the web", () => {
     const gradle = readFileSync("android/app/build.gradle.kts", "utf8");
-    expect(gradle).toContain('?: "https://fra.cloud.appwrite.io/v1"');
-    expect(gradle).toContain('?: "6ae6cfc60036585efea9"');
+    expect(gradle).toContain('?: "https://sgp.cloud.appwrite.io/v1"');
+    expect(gradle).toContain('?: "6ae998b2002b6305289c"');
   });
 
   it("ignores non-https or malformed overrides", () => {

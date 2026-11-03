@@ -9,7 +9,7 @@ import {
   runAppwriteStartupPing,
 } from "@/lib/appwrite-startup";
 
-const config = { endpoint: "https://fra.cloud.appwrite.io/v1", projectId: "6ae6cfc60036585efea9", projectName: "My first project" };
+const config = { endpoint: "https://sgp.cloud.appwrite.io/v1", projectId: "6ae998b2002b6305289c", projectName: "winstonebd" };
 const ok: AppwritePingResult = { ok: true, latencyMs: 5, response: "Pong!", checkedAt: "2026-11-03T00:00:00Z", config };
 
 describe("Appwrite startup ping", () => {
