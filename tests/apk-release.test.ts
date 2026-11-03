@@ -46,3 +46,16 @@ describe("agent APK handed out by IT", () => {
     expect(APK_LINK_MINUTES).toBeLessThanOrEqual(60);
   });
 });
+
+describe("download page signing details", () => {
+  it("shows the approved certificate fingerprint in apksigner format", async () => {
+    const { formatFingerprint } = await import("@/lib/apk-release");
+    expect(formatFingerprint(APPROVED_SIGNER_SHA256)).toBe(
+      "2E:61:50:E6:06:52:45:C1:B2:B5:41:37:51:2D:63:ED:40:0D:22:9B:88:1D:1B:91:5A:29:06:17:4E:1C:7E:6D",
+    );
+  });
+  it("names the approved signer certificate", async () => {
+    const { APPROVED_SIGNER_SUBJECT } = await import("@/lib/apk-release");
+    expect(APPROVED_SIGNER_SUBJECT).toBe("CN=Winstone Connect, O=Winstone, C=BD");
+  });
+});
