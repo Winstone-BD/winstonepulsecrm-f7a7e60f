@@ -1,0 +1,20 @@
+# ninja log v5
+15	183	1793673276265483772	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu-hbm.cpp.o	b825f72c5f743829
+1	589	1793673276664575069	CMakeFiles/whisper.dir/jni.c.o	68a4b923d7787b9a
+4	1096	1793673277172743786	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-alloc.c.o	cc5bf3d2d6055cac
+11	2095	1793673278179688967	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu.c.o	e8e1864ac1df52b5
+10	2155	1793673278230410867	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-threading.cpp.o	9aac4e442c7ee19f
+20	2716	1793673278743373030	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu-traits.cpp.o	12e83b191cc7745d
+30	3089	1793673279175255325	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/vec.cpp.o	c9251da835adf41
+3	3232	1793673279314898770	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml.c.o	56927463d233a21f
+18	3366	1793673279453013834	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu-quants.c.o	5254b78130f01abd
+8	3385	1793673279460026323	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-backend.cpp.o	87c4ba84a404355a
+13	3602	1793673279684902564	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu.cpp.o	1b55d4ac8d0da2c9
+9	3991	1793673280054743912	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-backend-reg.cpp.o	f72342932e1a5a4f
+14	4776	1793673280858289274	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu-aarch64.cpp.o	9002787574e09273
+25	5329	1793673281412208600	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/binary-ops.cpp.o	b7713028628aa95a
+23	5628	1793673281711333868	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/unary-ops.cpp.o	9111ec3ec3d6cd24
+7	6761	1793673282839379162	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-quants.c.o	ccca2eeda99bb140
+38	9066	1793673285141933803	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ops.cpp.o	a3bc6bf59c2efb9b
+0	20992	1793673297026525376	CMakeFiles/whisper.dir/dev-server/android/whisper/src/main/jni/src/whisper.cpp.o	8a683bf6331642dc
+20993	21155	1793673297250055078	/dev-server/android/whisper/build/intermediates/cxx/Release/2q622l37/obj/x86_64/libwhisper.so	e5fb8c4940ac61d0

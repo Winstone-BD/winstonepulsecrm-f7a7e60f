@@ -3,7 +3,8 @@
 ## 2026-11-02 — Appwrite connectivity test (web + Android)
 - [x] Web: appwrite 29.2.0, IT Console → Health "Test Appwrite connection" (real client.ping()).
 - [x] Android: sdk-for-android 24.0.0, "Test Appwrite connection" on sign-in screen.
-- [ ] Appwrite Console: register Web platforms crm.winstonebd.com, winstonepulsecrm.lovable.app and the preview host (currently 403 general_unknown_origin; only localhost works) — owner action.
+- [x] 2026-11-03: switched web + Android to project 6ae6cfc60036585efea9 (fra); web startup ping once per page load.
+- [ ] Appwrite Console (new project): register Web platforms crm.winstonebd.com, winstonepulsecrm.lovable.app, the preview host and localhost, plus Android platform com.winstone.connect — owner action.
 - [ ] Real-phone tap test of the Android button — needs a handset.
 
 ## 2026-11-02 — Company signing key + 2.21 download

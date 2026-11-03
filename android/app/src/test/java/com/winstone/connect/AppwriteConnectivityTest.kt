@@ -28,7 +28,7 @@ class AppwriteConnectivityTest {
     }
 
     @Test fun networkAndTimeouts() {
-        assertEquals(Failure.NO_INTERNET, AppwriteConnectivity.classify(UnknownHostException("sgp.cloud.appwrite.io")).first)
+        assertEquals(Failure.NO_INTERNET, AppwriteConnectivity.classify(UnknownHostException("fra.cloud.appwrite.io")).first)
         assertEquals(Failure.NO_INTERNET, AppwriteConnectivity.classify(IOException("reset")).first)
         assertEquals(Failure.TIMEOUT, AppwriteConnectivity.classify(SocketTimeoutException()).first)
         assertEquals(Failure.TIMEOUT, AppwriteConnectivity.classify(RuntimeException(SocketTimeoutException())).first)

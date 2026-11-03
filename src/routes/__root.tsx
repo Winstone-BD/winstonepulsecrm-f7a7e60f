@@ -197,6 +197,17 @@ function RootComponent() {
     (window as unknown as { __clearDeployReloadFlag?: () => void }).__clearDeployReloadFlag?.();
   }, []);
 
+  // One Appwrite connectivity ping per page load (guarded inside the module, so
+  // re-renders and navigation never repeat it). Loaded lazily; failures are
+  // swallowed into a result shown in IT Console → Health and never block startup.
+  useEffect(() => {
+    void import("../lib/appwrite-startup")
+      .then((m) => m.runAppwriteStartupPing())
+      .catch(() => {
+        /* connectivity check unavailable — the app keeps working */
+      });
+  }, []);
+
   // One place that reacts to sign-in / sign-out so every board refetches with
   // the new identity.
   useEffect(() => {

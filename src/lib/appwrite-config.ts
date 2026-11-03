@@ -8,9 +8,9 @@
  *
  * Optional overrides: VITE_APPWRITE_ENDPOINT / VITE_APPWRITE_PROJECT_ID.
  */
-export const APPWRITE_DEFAULT_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
-export const APPWRITE_DEFAULT_PROJECT_ID = "6ae900580021177f0b22";
-export const APPWRITE_PROJECT_NAME = "winstonebd";
+export const APPWRITE_DEFAULT_ENDPOINT = "https://fra.cloud.appwrite.io/v1";
+export const APPWRITE_DEFAULT_PROJECT_ID = "6ae6cfc60036585efea9";
+export const APPWRITE_PROJECT_NAME = "My first project";
 
 export type AppwriteConfig = { endpoint: string; projectId: string; projectName: string };
 

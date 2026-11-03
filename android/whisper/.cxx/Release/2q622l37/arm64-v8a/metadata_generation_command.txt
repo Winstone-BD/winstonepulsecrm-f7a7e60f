@@ -1,0 +1,20 @@
+                        -H/dev-server/android/whisper/src/main/jni/whisper
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_SYSTEM_VERSION=26
+-DANDROID_PLATFORM=android-26
+-DANDROID_ABI=arm64-v8a
+-DCMAKE_ANDROID_ARCH_ABI=arm64-v8a
+-DANDROID_NDK=/tmp/asdk/sdk/ndk/27.0.12077973
+-DCMAKE_ANDROID_NDK=/tmp/asdk/sdk/ndk/27.0.12077973
+-DCMAKE_TOOLCHAIN_FILE=/tmp/asdk/sdk/ndk/27.0.12077973/build/cmake/android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=/tmp/asdk/sdk/cmake/3.22.1/bin/ninja
+-DCMAKE_C_FLAGS=-ffile-prefix-map=/dev-server/android/whisper=.
+-DCMAKE_CXX_FLAGS=-ffile-prefix-map=/dev-server/android/whisper=.
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/dev-server/android/whisper/build/intermediates/cxx/Release/2q622l37/obj/arm64-v8a
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/dev-server/android/whisper/build/intermediates/cxx/Release/2q622l37/obj/arm64-v8a
+-B/dev-server/android/whisper/.cxx/Release/2q622l37/arm64-v8a
+-GNinja
+-DCMAKE_BUILD_TYPE=Release
+                        Build command args: []
+                        Version: 2
