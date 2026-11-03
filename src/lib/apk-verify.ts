@@ -131,7 +131,7 @@ function parseManifest(x: Uint8Array): { packageName: string | null; versionName
           const n = strings[ni] ?? "";
           const id = resIds[ni];
           const raw = r.u32(a + 8);
-          const dataType = x[a + 15];
+          const dataType = x[a + 15] ?? 0;
           const data = r.u32(a + 16);
           const str = raw !== 0xffffffff ? strings[raw] ?? null : dataType === 0x03 ? strings[data] ?? null : null;
           if (n === "package") res.packageName = str;
@@ -159,9 +159,9 @@ function readStringPool(x: Uint8Array, o: number): string[] {
   for (let i = 0; i < count; i++) {
     let p = o + stringsStart + r.u32(o + headerSize + i * 4);
     if (utf8) {
-      p += x[p] & 0x80 ? 2 : 1; // utf-16 length
-      let len = x[p];
-      if (len & 0x80) { len = ((len & 0x7f) << 8) | x[p + 1]; p += 2; } else p += 1;
+      p += (x[p] ?? 0) & 0x80 ? 2 : 1; // utf-16 length
+      let len = x[p] ?? 0;
+      if (len & 0x80) { len = ((len & 0x7f) << 8) | (x[p + 1] ?? 0); p += 2; } else p += 1;
       out.push(dec8.decode(x.subarray(p, p + len)));
     } else {
       let len = r.u16(p);
@@ -210,10 +210,11 @@ function findSigningBlock(b: Uint8Array, zip: Zip): { start: number; pairs: Map<
 /** DER ECDSA signature → raw r||s for WebCrypto. */
 function derToRaw(sig: Uint8Array, size: number): Uint8Array {
   let o = 2;
-  if (sig[1] & 0x80) o = 2 + (sig[1] & 0x7f);
+  const l1 = sig[1] ?? 0;
+  if (l1 & 0x80) o = 2 + (l1 & 0x7f);
   const int = () => {
     if (sig[o] !== 0x02) throw new Error("bad ECDSA signature");
-    const len = sig[o + 1];
+    const len = sig[o + 1] ?? 0;
     let v = sig.subarray(o + 2, o + 2 + len);
     o += 2 + len;
     while (v.length > size && v[0] === 0) v = v.subarray(1);

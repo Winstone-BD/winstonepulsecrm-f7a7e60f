@@ -89,7 +89,7 @@ export const verifyApkUpload = createServerFn({ method: "POST" })
       packageName: inspection.packageName as string,
       sizeBytes: inspection.sizeBytes,
       sha256: inspection.sha256,
-      signerSha256: inspection.signerSha256s[0],
+      signerSha256: inspection.signerSha256s[0] as string,
       server: APK_RELEASE.server,
       companySigned: true,
       builtByReleaseScript: data.builtByReleaseScript,
