@@ -282,7 +282,7 @@ const includes = (hay: Uint8Array, needle: Uint8Array) => {
 async function verifySigners(b: Uint8Array, zip: Zip, block: { start: number; pairs: Map<number, Uint8Array> }, problems: string[]) {
   const v3 = block.pairs.get(BLOCK_V3);
   const v2 = block.pairs.get(BLOCK_V2);
-  const scheme = v3 ? "v3" : v2 ? "v2" : null;
+  const scheme: "v3" | "v2" | null = v3 ? "v3" : v2 ? "v2" : null;
   const value = v3 ?? v2;
   if (!scheme || !value) {
     problems.push("No APK Signature Scheme v2/v3 block");
@@ -303,9 +303,10 @@ async function verifySigners(b: Uint8Array, zip: Zip, block: { start: number; pa
     const [digestsBytes, d1] = lpAt(signedData, p); p = d1;
     const [certsBytes] = lpAt(signedData, p);
     const certList = lpSeq(certsBytes);
-    if (certList.length === 0) { problems.push("Signer has no certificate"); ok = false; continue; }
-    certs.add(hex(await sha("SHA-256", certList[0])));
-    if (!includes(certList[0], pubKey)) { problems.push("Signer public key does not match its certificate"); ok = false; }
+    const cert = certList[0];
+    if (!cert) { problems.push("Signer has no certificate"); ok = false; continue; }
+    certs.add(hex(await sha("SHA-256", cert)));
+    if (!includes(cert, pubKey)) { problems.push("Signer public key does not match its certificate"); ok = false; }
 
     const digests = new Map<number, Uint8Array>();
     for (const d of lpSeq(digestsBytes)) digests.set(new Reader(d).u32(0), lpAt(d, 4)[0]);
