@@ -5,7 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { useT, useLang } from "@/lib/i18n";
 import { getAdminToken } from "@/lib/local-session";
-import { getApkDownloadLink } from "@/lib/apk-download.functions";
+import { getApkDownloadLink, getCurrentApkRelease } from "@/lib/apk-download.functions";
+import { ApkUploadPanel } from "@/components/crm/ApkUploadPanel";
 import {
   APK_LINK_MINUTES,
   APK_RELEASE,
@@ -13,17 +14,12 @@ import {
   APPROVED_SIGNER_SUBJECT,
   apkReleaseStatus,
   formatFingerprint,
+  type ApkRelease,
 } from "@/lib/apk-release";
 
-const releaseStatus = apkReleaseStatus(APK_RELEASE);
-const signerFingerprint = formatFingerprint(APK_RELEASE.signerSha256);
-const signerMatches = APK_RELEASE.signerSha256.toLowerCase() === APPROVED_SIGNER_SHA256;
-const releaseDate = new Date(APK_RELEASE.addedAt).toLocaleDateString("en-GB", {
-  timeZone: "Asia/Dhaka",
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
+const dhakaDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { timeZone: "Asia/Dhaka", day: "numeric", month: "short", year: "numeric" });
+const fileName = (path: string) => path.split("/").pop() ?? path;
 
 const INSTALL_STEPS: { bn: string; en: string }[] = [
   { bn: "এজেন্টের ফোনে লিংক বা QR খুলে ফাইলটি ডাউনলোড করুন।", en: "Open the link or scan the QR on the agent's phone and download the file." },
@@ -74,6 +70,8 @@ export function ApkInstallCard() {
   const t = useT();
   const lang = useLang();
   const loadLink = useServerFn(getApkDownloadLink);
+  const loadRelease = useServerFn(getCurrentApkRelease);
+  const [release, setRelease] = useState<ApkRelease>(APK_RELEASE);
   const [link, setLink] = useState<{ url: string; expiresAt: string } | null>(null);
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
@@ -82,6 +80,22 @@ export function ApkInstallCard() {
   const [result, setResult] = useState<SmokeResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const refreshRelease = useCallback(async () => {
+    try {
+      setRelease(await loadRelease({ data: { adminToken: getAdminToken() } }));
+    } catch {
+      // Not unlocked yet: keep showing the built-in release facts.
+    }
+  }, [loadRelease]);
+  useEffect(() => {
+    void refreshRelease();
+  }, [refreshRelease]);
+
+  const releaseStatus = apkReleaseStatus(release);
+  const signerFingerprint = formatFingerprint(release.signerSha256);
+  const signerMatches = release.signerSha256.toLowerCase() === APPROVED_SIGNER_SHA256;
+  const releaseDate = dhakaDate(release.addedAt);
 
   const makeLink = async () => {
     setLinkBusy(true);
@@ -172,15 +186,15 @@ export function ApkInstallCard() {
         <div className="min-w-0 space-y-3">
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
             <dt className="text-muted-foreground">{t({ bn: "ফাইল", en: "File" })}</dt>
-            <dd className="break-all font-mono">{APK_RELEASE.file}</dd>
+            <dd className="break-all font-mono">{fileName(release.file)}</dd>
             <dt className="text-muted-foreground">{t({ bn: "সংস্করণ", en: "Version" })}</dt>
-            <dd>{APK_RELEASE.version} ({APK_RELEASE.versionCode}) · {mb(APK_RELEASE.sizeBytes)}</dd>
+            <dd>{release.version} ({release.versionCode}) · {mb(release.sizeBytes)}</dd>
             <dt className="text-muted-foreground">{t({ bn: "রিলিজের তারিখ", en: "Release date" })}</dt>
             <dd>{releaseDate} {t({ bn: "(ঢাকা)", en: "(Dhaka)" })}</dd>
             <dt className="text-muted-foreground">{t({ bn: "প্যাকেজ", en: "Package" })}</dt>
-            <dd className="break-all font-mono">{APK_RELEASE.packageName}</dd>
+            <dd className="break-all font-mono">{release.packageName}</dd>
             <dt className="text-muted-foreground">{t({ bn: "সার্ভার", en: "Connects to" })}</dt>
-            <dd>{APK_RELEASE.server}</dd>
+            <dd>{release.server}</dd>
           </dl>
 
           <div className="space-y-2 rounded-md border bg-muted/40 p-3 text-xs">
@@ -191,9 +205,9 @@ export function ApkInstallCard() {
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-muted-foreground">{t({ bn: "ফাইলের SHA-256 চেকসাম", en: "File SHA-256 checksum" })}</span>
-                <CopyChip value={APK_RELEASE.sha256} label={t({ bn: "কপি", en: "Copy" })} done={t({ bn: "কপি হয়েছে", en: "Copied" })} />
+                <CopyChip value={release.sha256} label={t({ bn: "কপি", en: "Copy" })} done={t({ bn: "কপি হয়েছে", en: "Copied" })} />
               </div>
-              <code className="block break-all rounded bg-background px-2 py-1 font-mono">{APK_RELEASE.sha256}</code>
+              <code className="block break-all rounded bg-background px-2 py-1 font-mono">{release.sha256}</code>
             </div>
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2">
@@ -261,7 +275,7 @@ export function ApkInstallCard() {
           <div className="flex flex-wrap gap-2">
             {link ? (
               <Button asChild size="sm">
-                <a href={link.url} download={APK_RELEASE.file}>
+                <a href={link.url} download={fileName(release.file)}>
                   <Download className="size-4" /> {t({ bn: "ডাউনলোড", en: "Download" })}
                 </a>
               </Button>
@@ -282,6 +296,14 @@ export function ApkInstallCard() {
           </div>
         </div>
       </div>
+
+      <ApkUploadPanel
+        current={release}
+        onPublished={() => {
+          setLink(null);
+          void refreshRelease();
+        }}
+      />
 
       <div className="rounded-xl border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
