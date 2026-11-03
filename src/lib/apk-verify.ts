@@ -123,7 +123,7 @@ function parseManifest(x: Uint8Array): { packageName: string | null; versionName
       const name = strings[r.u32(o + 20)];
       if (name === "manifest") {
         const attrStart = r.u16(o + 24), attrSize = r.u16(o + 26), count = r.u16(o + 28);
-        const base = o + headerSize + attrStart - 8 + 8; // attrStart is relative to the element extension (after the 16-byte node header)
+        const base = o + headerSize + attrStart; // attrStart is relative to the element extension
         const res = { packageName: null as string | null, versionName: null as string | null, versionCode: null as number | null };
         for (let i = 0; i < count; i++) {
           const a = base + i * attrSize;
