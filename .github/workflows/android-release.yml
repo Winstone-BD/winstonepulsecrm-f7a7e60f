@@ -100,8 +100,68 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/winstone-release.jks"
+          # Windows PowerShell Base64 often carries CR/LF or spaces; strip them before decoding.
+          if ! printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n\t ' | base64 --decode > "$RUNNER_TEMP/winstone-release.jks" 2>/dev/null; then
+            rm -f "$RUNNER_TEMP/winstone-release.jks"
+            echo "PREFLIGHT FAILED: ANDROID_KEYSTORE_BASE64 is not valid Base64. Re-encode the .jks file and update the secret." >&2
+            exit 1
+          fi
           echo "WINSTONE_KEYSTORE_PATH=$RUNNER_TEMP/winstone-release.jks" >> "$GITHUB_ENV"
+
+      # Proves keystore, store password, alias, key password and signer BEFORE the long
+      # Gradle build. Passwords reach keytool only through -storepass:env / -keypass:env
+      # (never argv), keytool output is captured and never echoed, and every failure
+      # prints a fixed message naming which secret to fix - never a value.
+      - name: Preflight - validate signing secrets and keystore (values never printed)
+        env:
+          PF_STORE_PASSWORD: ${{ secrets.WINSTONE_KEYSTORE_PASSWORD }}
+          PF_KEY_ALIAS: ${{ secrets.WINSTONE_KEY_ALIAS }}
+          PF_KEY_PASSWORD: ${{ secrets.WINSTONE_KEY_PASSWORD }}
+        run: |
+          set -uo pipefail
+          ks="$WINSTONE_KEYSTORE_PATH"
+          fail() { echo "PREFLIGHT FAILED: $1" >&2; rm -f "$RUNNER_TEMP/preflight.csr"; exit 1; }
+
+          [ -s "$ks" ] || fail "decoded keystore is empty. ANDROID_KEYSTORE_BASE64 must hold the whole .jks file."
+          size="$(stat -c %s "$ks")"
+          [ "$size" -ge 1000 ] || fail "decoded keystore is only $size bytes - the secret looks truncated."
+          magic="$(head -c 4 "$ks" | od -An -tx1 | tr -d ' \n')"
+          case "$magic" in
+            feedfeed) kind="JKS" ;;
+            30*) kind="PKCS12" ;;
+            *) fail "decoded file is not a JKS or PKCS12 keystore. ANDROID_KEYSTORE_BASE64 holds the wrong file." ;;
+          esac
+          echo "Keystore decoded: $kind, $size bytes."
+
+          if ! out="$(keytool -list -keystore "$ks" -storepass:env PF_STORE_PASSWORD 2>&1)"; then
+            if printf '%s' "$out" | grep -qiE 'password was incorrect|tampered|final block|pad'; then
+              fail "WINSTONE_KEYSTORE_PASSWORD does not open this keystore."
+            fi
+            fail "keytool could not read the keystore (corrupted file or unsupported format)."
+          fi
+          echo "Store password opens the keystore."
+
+          keytool -list -keystore "$ks" -storepass:env PF_STORE_PASSWORD -alias "$PF_KEY_ALIAS" >/dev/null 2>&1 \
+            || fail "WINSTONE_KEY_ALIAS is not an entry in this keystore (aliases are case-sensitive)."
+          echo "Key alias exists."
+
+          # certreq must sign with the private key, so it proves the key password unlocks it.
+          if ! keytool -certreq -keystore "$ks" -storepass:env PF_STORE_PASSWORD -alias "$PF_KEY_ALIAS" \
+               -keypass:env PF_KEY_PASSWORD -file "$RUNNER_TEMP/preflight.csr" >/dev/null 2>&1; then
+            fail "WINSTONE_KEY_PASSWORD does not unlock the key (this is the 'Given final block not properly padded' error)."
+          fi
+          rm -f "$RUNNER_TEMP/preflight.csr"
+          echo "Key password unlocks the signing key."
+
+          got="$(keytool -list -v -keystore "$ks" -storepass:env PF_STORE_PASSWORD -alias "$PF_KEY_ALIAS" 2>/dev/null \
+                 | grep -m1 -E '^[[:space:]]*SHA256:' | sed -E 's/^[[:space:]]*SHA256:[[:space:]]*//' | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
+          want="$(printf '%s' "$WINSTONE_RELEASE_CERT_SHA256" | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
+          [ -n "$got" ] || fail "could not read the signing certificate from the key entry."
+          if [ "$got" != "$want" ]; then
+            # Fingerprints are public certificate facts, safe to print.
+            fail "this key is not the approved company signer (got $got, expected $want)."
+          fi
+          echo "Signer matches the approved company fingerprint. Preflight passed."
 
       - name: Build, sign and verify (fails on any other signer, package or version)
         env:
