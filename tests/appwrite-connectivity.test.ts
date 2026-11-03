@@ -9,12 +9,18 @@ import {
 import { classifyAppwriteError, isPongResponse } from "@/lib/appwrite-ping";
 
 describe("Appwrite connectivity config", () => {
-  it("defaults to the winstonebd Singapore project", () => {
+  it("defaults to the active Frankfurt project", () => {
     expect(resolveAppwriteConfig({})).toEqual({
-      endpoint: "https://sgp.cloud.appwrite.io/v1",
-      projectId: "6ae900580021177f0b22",
-      projectName: "winstonebd",
+      endpoint: "https://fra.cloud.appwrite.io/v1",
+      projectId: "6ae6cfc60036585efea9",
+      projectName: "My first project",
     });
+  });
+
+  it("Android build defaults target the same Appwrite project as the web", () => {
+    const gradle = readFileSync("android/app/build.gradle.kts", "utf8");
+    expect(gradle).toContain('?: "https://fra.cloud.appwrite.io/v1"');
+    expect(gradle).toContain('?: "6ae6cfc60036585efea9"');
   });
 
   it("ignores non-https or malformed overrides", () => {
@@ -24,7 +30,7 @@ describe("Appwrite connectivity config", () => {
   });
 
   it("client code never carries an Appwrite API key", () => {
-    for (const f of ["src/lib/appwrite-config.ts", "src/lib/appwrite-ping.ts", "src/components/crm/AppwriteConnectionTest.tsx"]) {
+    for (const f of ["src/lib/appwrite-config.ts", "src/lib/appwrite-ping.ts", "src/lib/appwrite-startup.ts", "src/components/crm/AppwriteConnectionTest.tsx"]) {
       const src = readFileSync(f, "utf8");
       expect(src).not.toMatch(/setKey\(|X-Appwrite-Key|standard_[a-f0-9]{20,}/i);
     }
