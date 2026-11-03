@@ -186,15 +186,15 @@ export function ApkInstallCard() {
         <div className="min-w-0 space-y-3">
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
             <dt className="text-muted-foreground">{t({ bn: "ফাইল", en: "File" })}</dt>
-            <dd className="break-all font-mono">{APK_RELEASE.file}</dd>
+            <dd className="break-all font-mono">{fileName(release.file)}</dd>
             <dt className="text-muted-foreground">{t({ bn: "সংস্করণ", en: "Version" })}</dt>
-            <dd>{APK_RELEASE.version} ({APK_RELEASE.versionCode}) · {mb(APK_RELEASE.sizeBytes)}</dd>
+            <dd>{release.version} ({release.versionCode}) · {mb(release.sizeBytes)}</dd>
             <dt className="text-muted-foreground">{t({ bn: "রিলিজের তারিখ", en: "Release date" })}</dt>
             <dd>{releaseDate} {t({ bn: "(ঢাকা)", en: "(Dhaka)" })}</dd>
             <dt className="text-muted-foreground">{t({ bn: "প্যাকেজ", en: "Package" })}</dt>
-            <dd className="break-all font-mono">{APK_RELEASE.packageName}</dd>
+            <dd className="break-all font-mono">{release.packageName}</dd>
             <dt className="text-muted-foreground">{t({ bn: "সার্ভার", en: "Connects to" })}</dt>
-            <dd>{APK_RELEASE.server}</dd>
+            <dd>{release.server}</dd>
           </dl>
 
           <div className="space-y-2 rounded-md border bg-muted/40 p-3 text-xs">
@@ -205,9 +205,9 @@ export function ApkInstallCard() {
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-muted-foreground">{t({ bn: "ফাইলের SHA-256 চেকসাম", en: "File SHA-256 checksum" })}</span>
-                <CopyChip value={APK_RELEASE.sha256} label={t({ bn: "কপি", en: "Copy" })} done={t({ bn: "কপি হয়েছে", en: "Copied" })} />
+                <CopyChip value={release.sha256} label={t({ bn: "কপি", en: "Copy" })} done={t({ bn: "কপি হয়েছে", en: "Copied" })} />
               </div>
-              <code className="block break-all rounded bg-background px-2 py-1 font-mono">{APK_RELEASE.sha256}</code>
+              <code className="block break-all rounded bg-background px-2 py-1 font-mono">{release.sha256}</code>
             </div>
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2">
@@ -275,7 +275,7 @@ export function ApkInstallCard() {
           <div className="flex flex-wrap gap-2">
             {link ? (
               <Button asChild size="sm">
-                <a href={link.url} download={APK_RELEASE.file}>
+                <a href={link.url} download={fileName(release.file)}>
                   <Download className="size-4" /> {t({ bn: "ডাউনলোড", en: "Download" })}
                 </a>
               </Button>
