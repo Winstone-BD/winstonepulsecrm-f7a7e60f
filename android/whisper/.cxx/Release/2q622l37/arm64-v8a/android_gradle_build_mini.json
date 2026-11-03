@@ -1,0 +1,33 @@
+{
+  "buildFiles": [
+    "/dev-server/android/whisper/src/main/jni/whisper/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/tmp/asdk/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/dev-server/android/whisper/.cxx/Release/2q622l37/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/tmp/asdk/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/dev-server/android/whisper/.cxx/Release/2q622l37/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "whisper::@6890427a1f51a3e7e1df": {
+      "artifactName": "whisper",
+      "abi": "arm64-v8a",
+      "output": "/dev-server/android/whisper/build/intermediates/cxx/Release/2q622l37/obj/arm64-v8a/libwhisper.so",
+      "runtimeFiles": []
+    },
+    "whisper_v8fp16_va::@6890427a1f51a3e7e1df": {
+      "artifactName": "whisper_v8fp16_va",
+      "abi": "arm64-v8a",
+      "output": "/dev-server/android/whisper/build/intermediates/cxx/Release/2q622l37/obj/arm64-v8a/libwhisper_v8fp16_va.so",
+      "runtimeFiles": []
+    }
+  }
+}

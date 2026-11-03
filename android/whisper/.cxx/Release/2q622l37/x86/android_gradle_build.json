@@ -1,0 +1,40 @@
+{
+  "buildFiles": [
+    "/dev-server/android/whisper/src/main/jni/whisper/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/tmp/asdk/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/dev-server/android/whisper/.cxx/Release/2q622l37/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/tmp/asdk/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/dev-server/android/whisper/.cxx/Release/2q622l37/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "whisper::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "whisper",
+      "output": "/dev-server/android/whisper/build/intermediates/cxx/Release/2q622l37/obj/x86/libwhisper.so",
+      "runtimeFiles": []
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/tmp/asdk/sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/tmp/asdk/sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [
+    "c"
+  ],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

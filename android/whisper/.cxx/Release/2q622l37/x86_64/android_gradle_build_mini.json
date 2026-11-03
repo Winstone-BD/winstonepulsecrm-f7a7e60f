@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "/dev-server/android/whisper/src/main/jni/whisper/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/tmp/asdk/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/dev-server/android/whisper/.cxx/Release/2q622l37/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/tmp/asdk/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/dev-server/android/whisper/.cxx/Release/2q622l37/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "whisper::@6890427a1f51a3e7e1df": {
+      "artifactName": "whisper",
+      "abi": "x86_64",
+      "output": "/dev-server/android/whisper/build/intermediates/cxx/Release/2q622l37/obj/x86_64/libwhisper.so",
+      "runtimeFiles": []
+    }
+  }
+}

@@ -1,0 +1,4 @@
+/dev-server/android/whisper/.cxx/Release/2q622l37/armeabi-v7a/CMakeFiles/whisper_vfpv4.dir
+/dev-server/android/whisper/.cxx/Release/2q622l37/armeabi-v7a/CMakeFiles/whisper.dir
+/dev-server/android/whisper/.cxx/Release/2q622l37/armeabi-v7a/CMakeFiles/edit_cache.dir
+/dev-server/android/whisper/.cxx/Release/2q622l37/armeabi-v7a/CMakeFiles/rebuild_cache.dir

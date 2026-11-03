@@ -1,0 +1,585 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "/dev-server/android/whisper/build/intermediates/cxx/Release/2q622l37/obj/armeabi-v7a/libwhisper.so"
+		}
+	],
+	"backtrace" : 2,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"build_library",
+			"add_link_options",
+			"target_link_options",
+			"target_link_libraries",
+			"target_compile_options",
+			"add_definitions",
+			"target_compile_definitions",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 123,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 63,
+				"parent" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 2,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 5,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 88,
+				"parent" : 1
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 89,
+				"parent" : 1
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 90,
+				"parent" : 1
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 93,
+				"parent" : 1
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 106,
+				"parent" : 1
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 84,
+				"parent" : 1
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 85,
+				"parent" : 1
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 86,
+				"parent" : 1
+			},
+			{
+				"command" : 6,
+				"file" : 0,
+				"line" : 24,
+				"parent" : 0
+			},
+			{
+				"command" : 7,
+				"file" : 0,
+				"line" : 72,
+				"parent" : 1
+			},
+			{
+				"command" : 7,
+				"file" : 0,
+				"line" : 69,
+				"parent" : 1
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 125,
+				"parent" : 0
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 126,
+				"parent" : 0
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 127,
+				"parent" : 0
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 128,
+				"parent" : 0
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 129,
+				"parent" : 0
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 130,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -ffile-prefix-map=/dev-server/android/whisper=. -ffile-prefix-map=/dev-server/android/whisper/src/main/jni/whisper=. -O3 -DNDEBUG -fPIC"
+				},
+				{
+					"backtrace" : 10,
+					"fragment" : "-O3"
+				},
+				{
+					"backtrace" : 10,
+					"fragment" : "-DNDEBUG"
+				},
+				{
+					"backtrace" : 11,
+					"fragment" : "-fvisibility=hidden"
+				},
+				{
+					"backtrace" : 11,
+					"fragment" : "-fvisibility-inlines-hidden"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-ffunction-sections"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-fdata-sections"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 13,
+					"define" : "ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+				},
+				{
+					"backtrace" : 14,
+					"define" : "GGML_NO_TIMESTAMPS=1"
+				},
+				{
+					"backtrace" : 15,
+					"define" : "GGML_USE_CPU"
+				},
+				{
+					"define" : "whisper_EXPORTS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 16,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/.."
+				},
+				{
+					"backtrace" : 17,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../src"
+				},
+				{
+					"backtrace" : 18,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../include"
+				},
+				{
+					"backtrace" : 19,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../ggml/include"
+				},
+				{
+					"backtrace" : 20,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../ggml/src"
+				},
+				{
+					"backtrace" : 21,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../ggml/src/ggml-cpu"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					2
+				],
+				"standard" : "17"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				4,
+				5,
+				7,
+				9,
+				10,
+				11,
+				13,
+				14,
+				15,
+				16,
+				17
+			],
+			"sysroot" : 
+			{
+				"path" : "/tmp/asdk/sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+			}
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security -ffile-prefix-map=/dev-server/android/whisper=. -ffile-prefix-map=/dev-server/android/whisper/src/main/jni/whisper=. -O3 -DNDEBUG -fPIC"
+				},
+				{
+					"backtrace" : 10,
+					"fragment" : "-O3"
+				},
+				{
+					"backtrace" : 10,
+					"fragment" : "-DNDEBUG"
+				},
+				{
+					"backtrace" : 11,
+					"fragment" : "-fvisibility=hidden"
+				},
+				{
+					"backtrace" : 11,
+					"fragment" : "-fvisibility-inlines-hidden"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-ffunction-sections"
+				},
+				{
+					"backtrace" : 12,
+					"fragment" : "-fdata-sections"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 13,
+					"define" : "ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+				},
+				{
+					"backtrace" : 14,
+					"define" : "GGML_NO_TIMESTAMPS=1"
+				},
+				{
+					"backtrace" : 15,
+					"define" : "GGML_USE_CPU"
+				},
+				{
+					"define" : "whisper_EXPORTS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 16,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/.."
+				},
+				{
+					"backtrace" : 17,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../src"
+				},
+				{
+					"backtrace" : 18,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../include"
+				},
+				{
+					"backtrace" : 19,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../ggml/include"
+				},
+				{
+					"backtrace" : 20,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../ggml/src"
+				},
+				{
+					"backtrace" : 21,
+					"path" : "/dev-server/android/whisper/src/main/jni/whisper/../ggml/src/ggml-cpu"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				3,
+				6,
+				8,
+				12
+			],
+			"sysroot" : 
+			{
+				"path" : "/tmp/asdk/sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+			}
+		}
+	],
+	"id" : "whisper::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-static-libstdc++ -Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--no-undefined-version -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments  -Wl,--gc-sections",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-Xlinker",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "--build-id=none",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "-Xlinker",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "-z",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "-Xlinker",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "max-page-size=16384",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "-Wl,--gc-sections",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 6,
+				"fragment" : "-Wl,--exclude-libs,ALL",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 7,
+				"fragment" : "-flto",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 8,
+				"fragment" : "-Wl,-z,max-page-size=16384",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 9,
+				"fragment" : "/tmp/asdk/sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/26/liblog.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 9,
+				"fragment" : "-landroid",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-latomic -lm",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX",
+		"sysroot" : 
+		{
+			"path" : "/tmp/asdk/sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+		}
+	},
+	"name" : "whisper",
+	"nameOnDisk" : "libwhisper.so",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/src/whisper.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 1,
+			"path" : "jni.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 1,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 1,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-alloc.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-backend.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-backend-reg.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 1,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-quants.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-threading.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 1,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu-aarch64.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu-hbm.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 1,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu-quants.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ggml-cpu-traits.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/unary-ops.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/binary-ops.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/vec.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "/dev-server/android/whisper/src/main/jni/ggml/src/ggml-cpu/ops.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "SHARED_LIBRARY"
+}
