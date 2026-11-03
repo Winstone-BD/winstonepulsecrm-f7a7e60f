@@ -26,7 +26,6 @@ export function ApkUploadPanel({ current, onPublished }: { current: ApkRelease; 
   const [expected, setExpected] = useState("");
   const [attested, setAttested] = useState(false);
   const [local, setLocal] = useState<ApkInspection | null>(null);
-  const [checks, setChecks] = useState<ApkCheck[] | null>(null);
   const [server, setServer] = useState<ServerResult | null>(null);
   const [stage, setStage] = useState<"idle" | "reading" | "uploading" | "verifying" | "publishing">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +40,6 @@ export function ApkUploadPanel({ current, onPublished }: { current: ApkRelease; 
 
   const reset = () => {
     setLocal(null);
-    setChecks(null);
     setServer(null);
     setUploadedPath(null);
     setError(null);
@@ -59,7 +57,6 @@ export function ApkUploadPanel({ current, onPublished }: { current: ApkRelease; 
     try {
       const inspection = await inspectApk(new Uint8Array(await f.arrayBuffer()));
       setLocal(inspection);
-      setChecks(apkReleaseChecks(inspection, opts(expected)));
     } catch {
       setError(t({ bn: "ফাইলটি পড়া যায়নি।", en: "Could not read the file." }));
     } finally {
@@ -70,9 +67,9 @@ export function ApkUploadPanel({ current, onPublished }: { current: ApkRelease; 
   const onExpected = (v: string) => {
     setExpected(v);
     setServer(null);
-    if (local) setChecks(apkReleaseChecks(local, opts(v)));
   };
 
+  const checks: ApkCheck[] | null = local ? apkReleaseChecks(local, opts(expected)) : null;
   const localOk = Boolean(checks?.every((c) => c.ok));
 
   const run = async (publish: boolean) => {
