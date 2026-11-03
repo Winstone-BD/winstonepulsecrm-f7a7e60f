@@ -13,7 +13,7 @@ describe("Appwrite connectivity config", () => {
     expect(resolveAppwriteConfig({})).toEqual({
       endpoint: "https://sgp.cloud.appwrite.io/v1",
       projectId: "6ae998b2002b6305289c",
-      projectName: "winstonebd",
+      projectName: "Winstone Pulse CRM",
     });
   });
 

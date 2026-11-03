@@ -10,7 +10,7 @@
  */
 export const APPWRITE_DEFAULT_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 export const APPWRITE_DEFAULT_PROJECT_ID = "6ae998b2002b6305289c";
-export const APPWRITE_PROJECT_NAME = "winstonebd";
+export const APPWRITE_PROJECT_NAME = "Winstone Pulse CRM";
 
 export type AppwriteConfig = { endpoint: string; projectId: string; projectName: string };
 
