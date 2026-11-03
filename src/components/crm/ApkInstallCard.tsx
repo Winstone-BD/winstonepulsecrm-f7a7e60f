@@ -5,7 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { useT, useLang } from "@/lib/i18n";
 import { getAdminToken } from "@/lib/local-session";
-import { getApkDownloadLink } from "@/lib/apk-download.functions";
+import { getApkDownloadLink, getCurrentApkRelease } from "@/lib/apk-download.functions";
+import { ApkUploadPanel } from "@/components/crm/ApkUploadPanel";
 import {
   APK_LINK_MINUTES,
   APK_RELEASE,
@@ -13,17 +14,12 @@ import {
   APPROVED_SIGNER_SUBJECT,
   apkReleaseStatus,
   formatFingerprint,
+  type ApkRelease,
 } from "@/lib/apk-release";
 
-const releaseStatus = apkReleaseStatus(APK_RELEASE);
-const signerFingerprint = formatFingerprint(APK_RELEASE.signerSha256);
-const signerMatches = APK_RELEASE.signerSha256.toLowerCase() === APPROVED_SIGNER_SHA256;
-const releaseDate = new Date(APK_RELEASE.addedAt).toLocaleDateString("en-GB", {
-  timeZone: "Asia/Dhaka",
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
+const dhakaDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { timeZone: "Asia/Dhaka", day: "numeric", month: "short", year: "numeric" });
+const fileName = (path: string) => path.split("/").pop() ?? path;
 
 const INSTALL_STEPS: { bn: string; en: string }[] = [
   { bn: "এজেন্টের ফোনে লিংক বা QR খুলে ফাইলটি ডাউনলোড করুন।", en: "Open the link or scan the QR on the agent's phone and download the file." },
@@ -74,6 +70,8 @@ export function ApkInstallCard() {
   const t = useT();
   const lang = useLang();
   const loadLink = useServerFn(getApkDownloadLink);
+  const loadRelease = useServerFn(getCurrentApkRelease);
+  const [release, setRelease] = useState<ApkRelease>(APK_RELEASE);
   const [link, setLink] = useState<{ url: string; expiresAt: string } | null>(null);
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
@@ -82,6 +80,22 @@ export function ApkInstallCard() {
   const [result, setResult] = useState<SmokeResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const refreshRelease = useCallback(async () => {
+    try {
+      setRelease(await loadRelease({ data: { adminToken: getAdminToken() } }));
+    } catch {
+      // Not unlocked yet: keep showing the built-in release facts.
+    }
+  }, [loadRelease]);
+  useEffect(() => {
+    void refreshRelease();
+  }, [refreshRelease]);
+
+  const releaseStatus = apkReleaseStatus(release);
+  const signerFingerprint = formatFingerprint(release.signerSha256);
+  const signerMatches = release.signerSha256.toLowerCase() === APPROVED_SIGNER_SHA256;
+  const releaseDate = dhakaDate(release.addedAt);
 
   const makeLink = async () => {
     setLinkBusy(true);
