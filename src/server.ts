@@ -1,3 +1,9 @@
+// Must stay first: in a clean published build the server-entry chunk and the
+// start-server-core chunk import each other. Entering through the server entry
+// evaluated start-server-core before createCsrfMiddleware existed, so every page
+// returned 500 ("createCsrfMiddleware is not a function"). Loading the server core
+// first fixes the evaluation order.
+import "@tanstack/react-start/server";
 import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
