@@ -15,13 +15,17 @@ export const getMyBriefingStatus = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { resolveWorkCaller } = await import("@/lib/access.server");
     const caller = await resolveWorkCaller(data.adminToken ?? null);
-    const { agentBriefingStatus } = await import("@/lib/agent-briefing.server");
+    const { agentBriefingStatus, agentTempHold } = await import("@/lib/agent-briefing.server");
     // HQ/IT and signed-out sessions never face the agent briefing gate.
     if (caller.scope !== "agent" || !caller.profile) {
       const base = await agentBriefingStatus("00000000-0000-0000-0000-000000000000", 0);
-      return { ...base, required: false, acknowledged: true };
+      return { ...base, required: false, acknowledged: true, hold: null };
     }
-    return agentBriefingStatus(caller.profile.id);
+    const [status, hold] = await Promise.all([
+      agentBriefingStatus(caller.profile.id),
+      agentTempHold(caller.profile.id),
+    ]);
+    return { ...status, hold: hold.active ? hold : null };
   });
 
 export const acknowledgeMyBriefing = createServerFn({ method: "POST" })

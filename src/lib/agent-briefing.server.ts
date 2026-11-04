@@ -66,7 +66,32 @@ export async function agentBriefingStatus(
   };
 }
 
+/** One-day management hold; HQ approval of today's accountability review lifts it early. */
+export async function agentTempHold(agentId: string, now: Date | number = Date.now()) {
+  const { TEMP_HOLDS, TEMP_HOLD_DATE, tempHoldFor } = await import("@/lib/agent-temp-hold");
+  if (!TEMP_HOLDS[agentId]) return tempHoldFor(agentId, false, now);
+  const pre = tempHoldFor(agentId, false, now);
+  if (!pre.active) return pre;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("agent_accountability_reviews")
+    .select("status")
+    .eq("agent_id", agentId)
+    .eq("unlock_for_date", TEMP_HOLD_DATE);
+  // Fail closed: a read error keeps the hold until 11:15.
+  const approved = !error && (data ?? []).some((r) => r.status === "approved");
+  return tempHoldFor(agentId, approved, now);
+}
+
 export async function requireAgentBriefing(agentId: string, now: Date | number = Date.now()) {
+  const hold = await agentTempHold(agentId, now);
+  if (hold.active) {
+    return {
+      blocked: true as const,
+      reason: "অ্যাকাউন্ট সাময়িকভাবে স্থগিত — Executive HQ বরাবর যোগাযোগ করুন। HQ অনুমোদন দিলে অথবা সকাল ১১:১৫-এ আনলক হবে।",
+      briefing: null,
+    };
+  }
   const status = await agentBriefingStatus(agentId, now);
   if (status.required && !status.acknowledged) {
     return {
