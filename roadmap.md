@@ -19,8 +19,8 @@
    - [x] Owner authorization recorded: both summary types, aggregate-only, read-only; no customer records or mutations.
    - [ ] Verify authenticated app-to-app reads — FinOS snapshot now contains a scoped signed consumer; its configuration and deployment must be verified in its own chat. Pulse activation/publication requested November 8.
 1. Re-link connectors after workspace move:
-   - [ ] Google Drive — new workspace move November 8, previous link invalid
+   - [x] Google Drive — linked fresh after November 8 workspace move
    - [ ] Google Search Console — skipped by user
-   - [ ] Google Sheets — new workspace move November 8, previous link invalid
+   - [x] Google Sheets — linked fresh after November 8 workspace move
    - [ ] WhatsApp Business — skipped by user (HQ WhatsApp reports won't send until linked)
 2. Android official signed APK — blocker: signing key/passwords live only in GitHub secrets / user's PC; user must fix WINSTONE_KEY_PASSWORD and run the workflow.
