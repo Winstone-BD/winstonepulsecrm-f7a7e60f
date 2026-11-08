@@ -8,6 +8,7 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- FinOS logs persist before summary return; full IT PIN reads. Why: no audit loss or fabricated reads.
 - Lead assignment only via LeadHub Nexus (server PIN scope); imports land unassigned; claimLead retired — why: one canonical path, no quota bypass.
 - agent_accountability_reviews is server-only; approval needs HQ PIN, never IT — why: Executive HQ final approval.
 - 9:05 Dhaka briefing ack enforced server-side on every agent mutation (web + Android) — why: UI notices are bypassable.

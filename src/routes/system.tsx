@@ -33,6 +33,7 @@ import { ReportSheetPanel } from "@/components/crm/ReportSheetPanel";
 import { SheetSyncHealthPanel } from "@/components/crm/SheetSyncHealthPanel";
 import { BackendHealthPanel } from "@/components/crm/BackendHealthPanel";
 import { AppwriteConnectionTest } from "@/components/crm/AppwriteConnectionTest";
+import { FinosAccessLogPanel } from "@/components/crm/FinosAccessLogPanel";
 import { WebsiteKnowledgePanel } from "@/components/crm/WebsiteKnowledgePanel";
 import { DriveKnowledgePanel } from "@/components/crm/DriveKnowledgePanel";
 import { VersionDataPanel } from "@/components/crm/VersionDataPanel";
@@ -224,6 +225,7 @@ function SystemBoard() {
 
       {sec === "access" && (
         <div className="space-y-6">
+          <FinosAccessLogPanel />
           <AccountabilityReviewPanel surface="it" />
           <StaffAccountsTable />
           <AccountApprovals />
