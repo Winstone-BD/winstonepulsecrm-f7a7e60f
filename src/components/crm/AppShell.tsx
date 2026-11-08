@@ -32,6 +32,7 @@ const AgentContributionGate = lazy(() => import("@/components/crm/AgentContribut
 const AgentFeedbackGate = lazy(() => import("@/components/crm/AgentFeedbackGate").then((m) => ({ default: m.AgentFeedbackGate })));
 const CopilotDrawer = lazy(() => import("@/components/crm/CopilotDrawer").then((m) => ({ default: m.CopilotDrawer })));
 const RuntimeAlertWatcher = lazy(() => import("@/components/crm/RuntimeAlertWatcher").then((m) => ({ default: m.RuntimeAlertWatcher })));
+const WorkedLeadWarningBell = lazy(() => import("@/components/crm/WorkedLeadWarningBell").then((m) => ({ default: m.WorkedLeadWarningBell })));
 
 // Latest build is streamed from the backend; the bundled asset stays as a fallback.
 const APK_URL = "/api/public/download/apk";
@@ -153,6 +154,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {scope !== "none" && <ReminderBell />}
 
             {scope !== "none" && <NoticeBoardBell />}
+            {(scope === "agent" || scope === "authority") && <Suspense fallback={null}><WorkedLeadWarningBell /></Suspense>}
 
             {scope === "agent" && <VisitRequestBell />}
 

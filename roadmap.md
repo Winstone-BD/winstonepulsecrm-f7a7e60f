@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Open tasks
+8. Worked pending lead inactivity alerts:
+   - [x] Derived current-owner seven-business-day warnings; 22 rules/regression tests pass, signed-in authority UI shows 126 real warnings on desktop/mobile without live writes. Refresh on opening/focus and every 15 minutes while visible; no publication requested.
 7. FinOS activation and publication (November 8):
    - [x] Pulse shared key presence confirmed; disabled signed probe returned 409 and unsigned probe returned 401; all 28 FinOS tests pass.
    - [x] Owner-requested FINOS_SUMMARY_ENABLED=true configured; real signed local financial/work requests returned 200 with persisted receipts.
