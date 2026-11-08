@@ -103,6 +103,7 @@ import { Route as ApiPublicBackupsRunRouteImport } from './routes/api/public/bac
 import { Route as ApiPublicConfigMaintenanceRouteImport } from './routes/api/public/config/maintenance'
 import { Route as ApiPublicConfigRulesRouteImport } from './routes/api/public/config/rules'
 import { Route as ApiPublicDownloadApkRouteImport } from './routes/api/public/download/apk'
+import { Route as ApiPublicFinosSummaryRouteImport } from './routes/api/public/finos/summary'
 import { Route as ApiPublicHooksDeployHealthRouteImport } from './routes/api/public/hooks/deploy-health'
 import { Route as ApiPublicHooksDriveBackupRouteImport } from './routes/api/public/hooks/drive-backup'
 import { Route as ApiPublicHooksLeadDistributionRouteImport } from './routes/api/public/hooks/lead-distribution'
@@ -614,6 +615,11 @@ const ApiPublicDownloadApkRoute = ApiPublicDownloadApkRouteImport.update({
   path: '/api/public/download/apk',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFinosSummaryRoute = ApiPublicFinosSummaryRouteImport.update({
+  id: '/api/public/finos/summary',
+  path: '/api/public/finos/summary',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksDeployHealthRoute =
   ApiPublicHooksDeployHealthRouteImport.update({
     id: '/api/public/hooks/deploy-health',
@@ -896,6 +902,7 @@ export interface FileRoutesByFullPath {
   '/api/public/config/maintenance': typeof ApiPublicConfigMaintenanceRoute
   '/api/public/config/rules': typeof ApiPublicConfigRulesRoute
   '/api/public/download/apk': typeof ApiPublicDownloadApkRoute
+  '/api/public/finos/summary': typeof ApiPublicFinosSummaryRoute
   '/api/public/hooks/deploy-health': typeof ApiPublicHooksDeployHealthRoute
   '/api/public/hooks/drive-backup': typeof ApiPublicHooksDriveBackupRoute
   '/api/public/hooks/lead-distribution': typeof ApiPublicHooksLeadDistributionRoute
@@ -1025,6 +1032,7 @@ export interface FileRoutesByTo {
   '/api/public/config/maintenance': typeof ApiPublicConfigMaintenanceRoute
   '/api/public/config/rules': typeof ApiPublicConfigRulesRoute
   '/api/public/download/apk': typeof ApiPublicDownloadApkRoute
+  '/api/public/finos/summary': typeof ApiPublicFinosSummaryRoute
   '/api/public/hooks/deploy-health': typeof ApiPublicHooksDeployHealthRoute
   '/api/public/hooks/drive-backup': typeof ApiPublicHooksDriveBackupRoute
   '/api/public/hooks/lead-distribution': typeof ApiPublicHooksLeadDistributionRoute
@@ -1155,6 +1163,7 @@ export interface FileRoutesById {
   '/api/public/config/maintenance': typeof ApiPublicConfigMaintenanceRoute
   '/api/public/config/rules': typeof ApiPublicConfigRulesRoute
   '/api/public/download/apk': typeof ApiPublicDownloadApkRoute
+  '/api/public/finos/summary': typeof ApiPublicFinosSummaryRoute
   '/api/public/hooks/deploy-health': typeof ApiPublicHooksDeployHealthRoute
   '/api/public/hooks/drive-backup': typeof ApiPublicHooksDriveBackupRoute
   '/api/public/hooks/lead-distribution': typeof ApiPublicHooksLeadDistributionRoute
@@ -1286,6 +1295,7 @@ export interface FileRouteTypes {
     | '/api/public/config/maintenance'
     | '/api/public/config/rules'
     | '/api/public/download/apk'
+    | '/api/public/finos/summary'
     | '/api/public/hooks/deploy-health'
     | '/api/public/hooks/drive-backup'
     | '/api/public/hooks/lead-distribution'
@@ -1415,6 +1425,7 @@ export interface FileRouteTypes {
     | '/api/public/config/maintenance'
     | '/api/public/config/rules'
     | '/api/public/download/apk'
+    | '/api/public/finos/summary'
     | '/api/public/hooks/deploy-health'
     | '/api/public/hooks/drive-backup'
     | '/api/public/hooks/lead-distribution'
@@ -1544,6 +1555,7 @@ export interface FileRouteTypes {
     | '/api/public/config/maintenance'
     | '/api/public/config/rules'
     | '/api/public/download/apk'
+    | '/api/public/finos/summary'
     | '/api/public/hooks/deploy-health'
     | '/api/public/hooks/drive-backup'
     | '/api/public/hooks/lead-distribution'
@@ -1674,6 +1686,7 @@ export interface RootRouteChildren {
   ApiPublicConfigMaintenanceRoute: typeof ApiPublicConfigMaintenanceRoute
   ApiPublicConfigRulesRoute: typeof ApiPublicConfigRulesRoute
   ApiPublicDownloadApkRoute: typeof ApiPublicDownloadApkRoute
+  ApiPublicFinosSummaryRoute: typeof ApiPublicFinosSummaryRoute
   ApiPublicHooksDeployHealthRoute: typeof ApiPublicHooksDeployHealthRoute
   ApiPublicHooksDriveBackupRoute: typeof ApiPublicHooksDriveBackupRoute
   ApiPublicHooksLeadDistributionRoute: typeof ApiPublicHooksLeadDistributionRoute
@@ -2369,6 +2382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDownloadApkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/finos/summary': {
+      id: '/api/public/finos/summary'
+      path: '/api/public/finos/summary'
+      fullPath: '/api/public/finos/summary'
+      preLoaderRoute: typeof ApiPublicFinosSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/deploy-health': {
       id: '/api/public/hooks/deploy-health'
       path: '/api/public/hooks/deploy-health'
@@ -2699,6 +2719,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicConfigMaintenanceRoute: ApiPublicConfigMaintenanceRoute,
   ApiPublicConfigRulesRoute: ApiPublicConfigRulesRoute,
   ApiPublicDownloadApkRoute: ApiPublicDownloadApkRoute,
+  ApiPublicFinosSummaryRoute: ApiPublicFinosSummaryRoute,
   ApiPublicHooksDeployHealthRoute: ApiPublicHooksDeployHealthRoute,
   ApiPublicHooksDriveBackupRoute: ApiPublicHooksDriveBackupRoute,
   ApiPublicHooksLeadDistributionRoute: ApiPublicHooksLeadDistributionRoute,
