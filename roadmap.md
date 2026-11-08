@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Open tasks
+3. FinOS financial/work summary read access:
+   - [x] Owner authorization recorded: both summary types, aggregate-only, read-only; no customer records or mutations.
+   - [ ] Activate authenticated app-to-app reads — blocked: FinOS currently has CRM navigation/health only, no authenticated summary consumer; receiving-project changes must be made in its own chat. No access enabled or deployment requested here.
 1. Re-link connectors after workspace move:
    - [x] Google Drive
    - [ ] Google Search Console — skipped by user
