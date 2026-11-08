@@ -14,7 +14,13 @@ The database-generated UTC timestamp is displayed in Asia/Dhaka. A receipt prove
 
 ## Request contract
 
-Inactive or incomplete configuration returns HTTP 409 with `integration_disabled` (an expected blocked state, not a server outage). No data is read and no receipt is written. Actual summary or receipt failures still return HTTP 503, without private error details.
+Missing key configuration returns HTTP 409 with `integration_disabled` (an expected blocked state, not a server outage). With a configured key, signatures are checked even before activation: unauthorized requests return 401, and a valid signed request while the switch is off returns 409. Neither reads data nor writes a receipt. Actual summary or receipt failures still return HTTP 503, without private error details.
+
+## Key checks and replacement
+
+IT Console → Access offers a full-IT-PIN protected presence-only status check. It returns only whether a key is configured and whether the switch is on. It does not establish delivery or return key values, fingerprints, lengths or matching details.
+
+Replace the shared key only through secure project secret settings/forms, never through CRM text inputs. Keep `FINOS_SUMMARY_ENABLED` off, replace `FINOS_SUMMARY_SECRET` in both Pulse and FinOS, then verify the FinOS server's signed request before enabling. There is no previous-key fallback: requests signed with a superseded key are rejected once the new configuration takes effect. This task adds replacement guidance, not an in-CRM secret-storage editor, and does not rotate or create a real key.
 
 Body: `{"summaryType":"financial","from":"2026-11-01","to":"2026-11-08"}` (or `work`), at most 31 inclusive Dhaka days, at most 2 KB. Unknown fields are rejected.
 

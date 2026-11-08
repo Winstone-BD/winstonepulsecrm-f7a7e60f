@@ -43,7 +43,7 @@ export async function handleFinosSummary(request: Request, deps: Dependencies): 
   const reply = (value: unknown, status = 200) => Response.json(value, { status, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
   // Expected inactive configuration is a client-visible conflict, not a server
   // outage. Still deny all data access; real read/audit failures remain 503.
-  if (!deps.enabled || !deps.secret || deps.secret.length < 32) return reply({ error: "integration_disabled" }, 409);
+  if (!deps.secret || deps.secret.length < 32) return reply({ error: "integration_disabled" }, 409);
   if (request.method !== "POST") return reply({ error: "method_not_allowed" }, 405);
   if (!request.headers.get("content-type")?.startsWith("application/json")) return reply({ error: "json_required" }, 415);
   // Stream size cap before decoding, including chunked requests.
@@ -61,6 +61,9 @@ export async function handleFinosSummary(request: Request, deps: Dependencies): 
   for (const part of parts) { bytes.set(part, offset); offset += part.length; }
   const body = new TextDecoder().decode(bytes);
   if (!await verifyFinosSignature(deps.secret, request, body)) return reply({ error: "unauthorized" }, 401);
+  // Validate request authority even while switched off. Valid signatures cannot
+  // read data until activation; wrong signatures are always refused first.
+  if (!deps.enabled) return reply({ error: "integration_disabled" }, 409);
   let input: FinosSummaryInput;
   try { input = finosSummaryInput.parse(JSON.parse(body)); } catch { return reply({ error: "invalid_summary_period_or_type" }, 400); }
   try {

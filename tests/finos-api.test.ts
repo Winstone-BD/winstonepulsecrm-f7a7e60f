@@ -36,6 +36,16 @@ describe("Pulse FinOS API", () => {
   it("denies an unconfigured key", async () => {
     expect((await handleFinosSummary(await request(), { ...deps(), secret: undefined })).status).toBe(409);
   });
+  it("rejects unauthorized requests before activation without data or audit writes", async () => {
+    const d = { ...deps(), enabled: false };
+    expect((await handleFinosSummary(await request(input, "other-app"), d)).status).toBe(401);
+    expect(d.load).not.toHaveBeenCalled(); expect(d.log).not.toHaveBeenCalled();
+  });
+  it("rejects the previous signature after a key replacement", async () => {
+    const d = { ...deps(), secret: "different-test-fixture-credential-not-real" };
+    expect((await handleFinosSummary(await request(), d)).status).toBe(401);
+    expect(d.load).not.toHaveBeenCalled();
+  });
   it("denies another project even with a valid signature", async () => {
     const d = deps(); expect((await handleFinosSummary(await request(input, "other-app"), d)).status).toBe(401);
     expect(d.load).not.toHaveBeenCalled(); expect(d.log).not.toHaveBeenCalled();

@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Open tasks
+6. FinOS key safety:
+   - [x] Presence-only full-IT status, secure replacement guidance and wrong-signature refusal before activation; 28 tests passed.
+   - [ ] Real key replacement and signed FinOS check — requires secure shared-secret entry in both apps and FinOS consumer; no key rotation, activation or publication performed.
 5. Pulse FinOS summary API:
    - [x] Signed aggregate-only endpoint, bounded Dhaka periods, receipt-before-return and 21 passing tests prepared; local endpoint confirms disabled.
    - [ ] Activation and real FinOS end-to-end test — needs dedicated shared secret in both apps, FinOS server consumer and explicit publication; no live requests or data changes performed.

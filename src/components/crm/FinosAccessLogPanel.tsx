@@ -6,13 +6,19 @@ import { Button } from "@/components/ui/button";
 import { useAdminToken } from "@/lib/local-session";
 import { useLang, useT } from "@/lib/i18n";
 import { FINOS_LOG_PAGE_SIZE, type FinosLogRow } from "@/lib/finos-access";
-import { getFinosAccessLog } from "@/lib/finos-access.functions";
+import { getFinosAccessLog, getFinosSecurityStatus } from "@/lib/finos-access.functions";
 
 export function FinosAccessLogPanel() {
   const token = useAdminToken();
   const t = useT();
   const lang = useLang();
   const fetchLog = useServerFn(getFinosAccessLog);
+  const fetchSecurity = useServerFn(getFinosSecurityStatus);
+  const security = useQuery({
+    queryKey: ["finos-security-status", token],
+    queryFn: () => fetchSecurity({ data: { adminToken: token } }),
+    enabled: Boolean(token), retry: false,
+  });
   const [page, setPage] = useState(0);
   const [type, setType] = useState<"all" | "financial" | "work">("all");
   const log = useQuery({
@@ -30,6 +36,17 @@ export function FinosAccessLogPanel() {
       <h2 className="flex items-center gap-2 text-sm font-semibold"><ScrollText className="size-4 text-primary" />{t({ bn: "FinOS অ্যাক্সেস লগ", en: "FinOS access log" })}</h2>
       <Button variant="outline" size="icon" aria-label={t({ bn: "রিফ্রেশ", en: "Refresh" })} title={t({ bn: "রিফ্রেশ", en: "Refresh" })} disabled={!token || log.isFetching} onClick={() => void log.refetch()}><RefreshCw className={log.isFetching ? "size-4 animate-spin motion-reduce:animate-none" : "size-4"} /></Button>
     </header>
+    <div className="space-y-2 border-b border-border pb-3 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-medium">{t({ bn: "FinOS API নিরাপত্তা", en: "FinOS API security" })}</h3>
+        <Button variant="outline" size="sm" disabled={!token || security.isFetching} onClick={() => void security.refetch()}><RefreshCw className="size-3.5" />{t({ bn: "অবস্থা যাচাই", en: "Check status" })}</Button>
+      </div>
+      {security.isError ? <p role="alert" className="text-destructive">{t({ bn: "পূর্ণ IT অনুমতি দিয়ে আবার যাচাই করুন।", en: "Check again with full IT authorization." })}</p> : security.data ? <dl className="grid grid-cols-2 gap-2">
+        <dt className="text-muted-foreground">{t({ bn: "API কী", en: "API key" })}</dt><dd>{security.data.keyConfigured ? t({ bn: "সেট করা আছে", en: "Configured" }) : t({ bn: "সেট করা নেই", en: "Not configured" })}</dd>
+        <dt className="text-muted-foreground">{t({ bn: "সংযোগ", en: "Connection" })}</dt><dd>{security.data.enabled ? t({ bn: "সুইচ চালু; সফল সংযোগ যাচাই বাকি", en: "Switch on; connection not verified" }) : t({ bn: "বন্ধ", en: "Off" })}</dd>
+      </dl> : <p className="text-muted-foreground">{t({ bn: "অবস্থা যাচাই করা হয়নি।", en: "Status not checked." })}</p>}
+      <details><summary className="cursor-pointer font-medium">{t({ bn: "নিরাপদ কী পরিবর্তন", en: "Secure key replacement" })}</summary><p className="mt-2 text-muted-foreground">{t({ bn: "প্রথমে সংযোগ বন্ধ করুন। Project Settings → Secrets-এ FINOS_SUMMARY_SECRET পরিবর্তন করুন এবং FinOS-এর নিরাপদ Secrets-এ একই কী দিন। এখানে বা চ্যাটে কী লিখবেন না। দুই অ্যাপ আপডেটের পর স্বাক্ষরিত অনুরোধ যাচাই করে সংযোগ চালু করুন।", en: "Turn the connection off first. Replace FINOS_SUMMARY_SECRET in Project Settings → Secrets and set the same key in FinOS secure Secrets. Never enter it here or in chat. Update both apps and verify signed requests before enabling the connection." })}</p></details>
+    </div>
     <label className="flex flex-wrap items-center gap-2 text-xs">
       {t({ bn: "সারসংক্ষেপের ধরন", en: "Summary type" })}
       <select className="rounded-md border border-input bg-background px-2 py-2 text-foreground" value={type} onChange={(e) => { setType(e.target.value as typeof type); setPage(0); }}>
