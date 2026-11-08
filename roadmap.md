@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Open tasks
+5. Pulse FinOS summary API:
+   - [x] Signed aggregate-only endpoint, bounded Dhaka periods, receipt-before-return and 21 passing tests prepared; local endpoint confirms disabled.
+   - [ ] Activation and real FinOS end-to-end test — needs dedicated shared secret in both apps, FinOS server consumer and explicit publication; no live requests or data changes performed.
 4. FinOS access log:
    - [x] Read-only IT Access viewer and server-only summary-serving receipt hook; privacy/failure tests passed. No backfilled reads or live writes.
    - [ ] Real FinOS receipt end-to-end verification — blocked by missing authenticated FinOS consumer; viewer does not activate data access.
