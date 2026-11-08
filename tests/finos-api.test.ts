@@ -27,11 +27,14 @@ describe("Pulse FinOS API", () => {
   });
   it("stays off by default and never reads data", async () => {
     const d = { ...deps(), enabled: false };
-    expect((await handleFinosSummary(await request(), d)).status).toBe(503);
+    const response = await handleFinosSummary(await request(), d);
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: "integration_disabled" });
     expect(d.load).not.toHaveBeenCalled();
+    expect(d.log).not.toHaveBeenCalled();
   });
   it("denies an unconfigured key", async () => {
-    expect((await handleFinosSummary(await request(), { ...deps(), secret: undefined })).status).toBe(503);
+    expect((await handleFinosSummary(await request(), { ...deps(), secret: undefined })).status).toBe(409);
   });
   it("denies another project even with a valid signature", async () => {
     const d = deps(); expect((await handleFinosSummary(await request(input, "other-app"), d)).status).toBe(401);

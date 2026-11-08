@@ -41,7 +41,9 @@ type Dependencies = {
 };
 export async function handleFinosSummary(request: Request, deps: Dependencies): Promise<Response> {
   const reply = (value: unknown, status = 200) => Response.json(value, { status, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
-  if (!deps.enabled || !deps.secret || deps.secret.length < 32) return reply({ error: "integration_disabled" }, 503);
+  // Expected inactive configuration is a client-visible conflict, not a server
+  // outage. Still deny all data access; real read/audit failures remain 503.
+  if (!deps.enabled || !deps.secret || deps.secret.length < 32) return reply({ error: "integration_disabled" }, 409);
   if (request.method !== "POST") return reply({ error: "method_not_allowed" }, 405);
   if (!request.headers.get("content-type")?.startsWith("application/json")) return reply({ error: "json_required" }, 415);
   // Stream size cap before decoding, including chunked requests.

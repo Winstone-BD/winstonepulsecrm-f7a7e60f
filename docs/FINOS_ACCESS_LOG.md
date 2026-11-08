@@ -14,6 +14,8 @@ The database-generated UTC timestamp is displayed in Asia/Dhaka. A receipt prove
 
 ## Request contract
 
+Inactive or incomplete configuration returns HTTP 409 with `integration_disabled` (an expected blocked state, not a server outage). No data is read and no receipt is written. Actual summary or receipt failures still return HTTP 503, without private error details.
+
 Body: `{"summaryType":"financial","from":"2026-11-01","to":"2026-11-08"}` (or `work`), at most 31 inclusive Dhaka days, at most 2 KB. Unknown fields are rejected.
 
 Headers: `Content-Type: application/json`, `x-finos-project` = the approved FinOS project ID, `x-finos-timestamp` = Unix seconds, `x-finos-signature` = `sha256=` followed by lowercase HMAC-SHA256 hex.
