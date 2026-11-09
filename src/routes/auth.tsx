@@ -6,7 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import logoAsset from "@/assets/winstone-emblem.png.asset.json";
+import logoAsset from "@/assets/winstone-properties-logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,7 +151,7 @@ function AuthPage() {
           <Link to="/" className="flex items-center gap-3">
             <img
               src={logoAsset.url}
-              alt="Winstone logo"
+              alt="Winstone Properties Ltd. logo"
               className="size-11 rounded-full object-cover ring-1 ring-border"
             />
             <span>

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { BarChart3, Database, Headphones, Lock, Server } from "lucide-react";
-import logoAsset from "@/assets/winstone-pulse-logo-black-tight.webp.asset.json";
+import logoAsset from "@/assets/winstone-properties-logo.png.asset.json";
 import { AdminPinDialog } from "@/components/crm/AdminPinDialog";
 import { Button } from "@/components/ui/button";
 import { useMyAccount } from "@/lib/session";
@@ -59,11 +59,11 @@ function WorkspaceSigninPage() {
       <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6">
           <Link to="/" className="flex min-w-0 items-center gap-2.5">
-            <span className="inline-flex shrink-0 items-center overflow-hidden rounded-md bg-plate-ink px-2.5 py-1.5 ring-1 ring-gold/25">
+            <span className="inline-flex shrink-0 items-center overflow-hidden rounded-full ring-1 ring-border">
               <img
                 src={logoAsset.url}
-                alt="Winstone Pulse — The Premium Real Estate CRM"
-                className="block h-9 w-auto sm:h-11"
+                alt="Winstone Properties Ltd. logo"
+                className="block size-10 object-contain sm:size-12"
               />
             </span>
           </Link>

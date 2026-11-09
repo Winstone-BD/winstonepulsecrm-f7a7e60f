@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import emblemAsset from "@/assets/winstone-emblem.png.asset.json";
+import emblemAsset from "@/assets/winstone-properties-logo.png.asset.json";
 import androidAsset from "@/assets/device-android.webp.asset.json";
 import webAsset from "@/assets/device-web.webp.asset.json";
 import desktopAsset from "@/assets/device-desktop.webp.asset.json";
@@ -126,7 +126,7 @@ function EntryHall() {
           <span className="inline-flex min-w-0 items-center gap-2 sm:gap-4">
             <img
               src={emblemAsset.url}
-              alt="Winstone Pulse circular house emblem"
+              alt="Winstone Properties Ltd. logo"
               width={64}
               height={64}
               className="size-9 shrink-0 rounded-full object-cover sm:size-16"
