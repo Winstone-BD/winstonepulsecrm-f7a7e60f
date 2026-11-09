@@ -73,4 +73,3 @@
 - `bun run scan:sensitive` is the read-only scan for signing keys/secrets in tracked files and public downloads (ZIPs opened); it prints file + rule only, never values — why: one check, no leaked matches.
 - No GitHub logic in the CRM app (panels, API calls, cron, issues); Git only runs Android CI (`.github/workflows/android-*.yml`, see android/AGENTS.md); APKs reach agents only via IT's PIN-gated `android-apk` links — why: no runtime Git dependency.
 
-- Shared CRM branding imports the canonical logo asset pointer; browser/install icons derive from that same uploaded source — why: prevent mismatched logos across entry and workspace screens.
