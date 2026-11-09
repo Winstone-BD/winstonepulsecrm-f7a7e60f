@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Open tasks
+9. Bengali executive audit presentation (November 9):
+   - [x] Produced 39-slide downloadable PowerPoint and PDF from supplied sources, with charts, 13 case studies, six agent reviews, visit histories and speaker notes. All slides rendered and inspected; font glyph/number wrapping corrected and rechecked, schema validated. Historical claims and count mismatches explicitly separated; no CRM or live-data changes.
 8. Worked pending lead inactivity alerts:
    - [x] Derived current-owner seven-business-day warnings; 22 rules/regression tests pass, signed-in authority UI shows 126 real warnings on desktop/mobile without live writes. Refresh on opening/focus and every 15 minutes while visible; no publication requested.
 7. FinOS activation and publication (November 8):
