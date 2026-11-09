@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Open tasks
+11. Six-number lead audit (November 9):
+   - [x] Matched three distinct numbers (four lead rows including one duplicate), reconciled 21 reports and all 227 history IDs, checked 15 V2 scores, and produced a 75-page Bangla evidence PDF; rendered and inspected every page. No CRM writes or unsupported blame.
+   - [ ] Resolve three unmatched numbers and independently confirm claimed visits/identity — original source or assignment receipts and agent/customer evidence are required.
 10. Bengali 100-lead evidence and training PDF (November 9):
    - [x] Read one current snapshot of 4,184 eligible owned leads; reproducibly selected 100 distinct training cases (40 positive, 30 rejection, 20 unassessed, 10 other), explicitly not a representative conversion estimate.
    - [x] Produced 211-page Bangla PDF with sources, agent comparison, six-answer qualification, all 153 report IDs, follow-up/booking/state histories and training discussion. Reconciled unique IDs and cohort totals; inspected all pages and corrected split checklist content/index overflow. Distinguished stored verification flags from matched phone evidence. Added to Executive Lead Audit collection (pending file status). No CRM writes or publication.
