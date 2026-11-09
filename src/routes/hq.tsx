@@ -6,7 +6,7 @@ import { AgentKpiDashboard } from "@/components/crm/hq/AgentKpiDashboard";
 import { DistributionFailurePanel } from "@/components/crm/DistributionFailurePanel";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ChevronDown, ShieldCheck } from "lucide-react";
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 
 import { PAGE_SECTIONS, sectionSearch, useSection } from "@/lib/page-sections";
 import { Lead360Workspace } from "@/components/crm/hq/Lead360Workspace";
@@ -49,6 +49,7 @@ import { WhatsappAgentSummary } from "@/components/crm/hq/WhatsappAgentSummary";
 import { buildAgentStats, buildTimeline, useSnapshot } from "@/lib/crm-data";
 
 const HQ_TABS = PAGE_SECTIONS["/hq"];
+const VipRecoveryQueue = lazy(() => import("@/components/crm/hq/VipRecoveryQueue").then(m => ({ default: m.VipRecoveryQueue })));
 
 export const Route = createFileRoute("/hq")({
   validateSearch: sectionSearch,
@@ -304,6 +305,7 @@ function ControlBoard() {
             {tab === "followups" && <div className="space-y-4"><ConversationOutcomesPanel /><ReportsBoard /></div>}
 
             {tab === "lead360" && <Lead360Workspace />}
+            {tab === "recovery" && <Suspense fallback={<SnapshotSkeleton />}><VipRecoveryQueue onOpenLead={setOpenLeadId} /></Suspense>}
 
             {tab === "tools" && (
               <div className="space-y-8">

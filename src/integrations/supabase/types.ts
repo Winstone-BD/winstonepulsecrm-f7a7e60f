@@ -1972,6 +1972,53 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_vip_recovery_reviews: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string
+          cohort_key: string
+          created_at: string
+          decision: string
+          id: string
+          lead_id: string
+          note: string
+          request_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name: string
+          cohort_key: string
+          created_at?: string
+          decision: string
+          id?: string
+          lead_id: string
+          note: string
+          request_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string
+          cohort_key?: string
+          created_at?: string
+          decision?: string
+          id?: string
+          lead_id?: string
+          note?: string
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "executive_vip_recovery_reviews_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follow_up_changes: {
         Row: {
           action: string

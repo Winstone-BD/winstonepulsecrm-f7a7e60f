@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Open tasks
+12. Executive VIP Recovery Queue:
+   - [x] Original 100 audit IDs retained in case order; HQ queue shows live lead/agent names, saved source, report evidence and one derived management review task per case.
+   - [x] Server-gated append-only idempotent management reviews, search/agent/reason/stage filters and permanent history; no lead/ownership/KPI mutations. Signed-in live reads and draft controls verified; saving/read-back exercised with mocked storage only, never production test writes. Not published.
 11. Six-number lead audit (November 9):
    - [x] Matched three distinct numbers (four lead rows including one duplicate), reconciled 21 reports and all 227 history IDs, checked 15 V2 scores, and produced a 75-page Bangla evidence PDF; rendered and inspected every page. No CRM writes or unsupported blame.
    - [ ] Resolve three unmatched numbers and independently confirm claimed visits/identity — original source or assignment receipts and agent/customer evidence are required.
