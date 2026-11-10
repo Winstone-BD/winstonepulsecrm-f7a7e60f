@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Open tasks
+15. VIP recovery first batch (preview only):
+   - [x] Original cohort matches 17 historically Hot leads (V2 or saved legacy label); one already closed_converted excluded, leaving 16 review candidates. Three already belong to possible recipient Mehedi Ashraf, so only 13 would transfer; no invented investor eligibility or padding to 20.
+   - [ ] Recipient confirmation and final approval pending; Mehedi Ashraf already has 50 unique assignments on November 10, so today’s hard cap blocks additional assignments. No reassignment or recovery-review writes performed.
 14. Agent sales scorecards:
    - [x] HQ KPI tab now shows current-portfolio conversion from approved bookings, saved visit bookings and confirmed prior-Hot → closed/not-interested losses; Dhaka dates, agent search, CSV and freshness. 31 tests pass; signed-in real read shows 10 agents, search isolates one and CSV exports 10. Desktop/phone checks have no sideways overflow. No KPI/business-data mutations or publication.
 13. Database performance and running-credit review (November 10):
