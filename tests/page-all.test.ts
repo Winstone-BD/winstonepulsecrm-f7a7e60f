@@ -13,6 +13,44 @@ function source(all: { id: string }[], failAt?: number) {
 }
 
 describe("pageAllParallel", () => {
+  it("reads a short first page with one request, not six speculative requests", async () => {
+    const requested: number[] = [];
+    const all = rows(750);
+    const result = await pageAllParallel(async (from, to) => {
+      requested.push(from);
+      return { data: all.slice(from, to + 1), error: null };
+    });
+    expect(result.data).toEqual(all);
+    expect(requested).toEqual([0]);
+  });
+
+  it("bounds subsequent default batches to three in-flight reads", async () => {
+    let inFlight = 0;
+    let peak = 0;
+    const all = rows(9545);
+    const result = await pageAllParallel(async (from, to) => {
+      inFlight++;
+      peak = Math.max(peak, inFlight);
+      await new Promise(resolve => setTimeout(resolve, 1));
+      inFlight--;
+      return { data: all.slice(from, to + 1), error: null };
+    });
+    expect(result.data).toEqual(all);
+    expect(peak).toBe(3);
+  });
+
+  it("fails if a fetched batch contains an error even after a short page", async () => {
+    const result = await pageAllParallel(source(rows(1500), 2000));
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toBe("boom");
+  });
+
+  it("fails closed when the page safety limit is exhausted", async () => {
+    const result = await pageAllParallel(async from => ({ data: [{ id: `r${from}` }], error: null }), { pageSize: 1, concurrency: 1 });
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toBe("Read exceeded the page safety limit");
+  });
+
   it("returns every row in order across many pages (9,545 rows)", async () => {
     const all = rows(9545);
     const { data, error } = await pageAllParallel(source(all));

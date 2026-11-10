@@ -1,6 +1,10 @@
 # Roadmap
 
 ## Open tasks
+13. Database performance and running-credit review (November 10):
+   - [x] Measured project usage, database health, top statements, existing indexes and bounded query plans; inspected scheduled-job metadata.
+   - [x] Reduced speculative shared paging; 77 tests pass, same rows preserved, short reads 6→1 requests and 6,075-row reads 12→7.
+   - [x] Recorded usage/query/index/schedule findings and capacity/billing limits; authority snapshot loaded in signed-in Desk, agent-only cards correctly unavailable for authority session. No resize, data deletion or publication; agent-session and realized-credit measurements remain unverified.
 12. Executive VIP Recovery Queue:
    - [x] Original 100 audit IDs retained in case order; HQ queue shows live lead/agent names, saved source, report evidence and one derived management review task per case.
    - [x] Server-gated append-only idempotent management reviews, search/agent/reason/stage filters and permanent history; no lead/ownership/KPI mutations. Signed-in live reads and draft controls verified; saving/read-back exercised with mocked storage only, never production test writes. Not published.

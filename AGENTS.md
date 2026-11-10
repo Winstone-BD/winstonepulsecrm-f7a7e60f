@@ -60,7 +60,7 @@
 - Agent snapshots use crm-agent-leads.server.ts indexed ownership union, stable updated_at/id paging, leadOwner precedence and fail on partial reads — why: no full scans, transfers or truncated totals.
 - Command Agent work reviews reuse its existing OpenAI Responses path with aggregate-only sampled evidence and empty action allowlists; current canonical ownership gates agent facts — why: no customer payloads, fabricated totals or automatic CRM changes.
 - Callback/manual call logging never assigns leads; new numbers enter canonical intake unassigned and require LeadHub ownership before reporting — why: calls cannot bypass routing or take another agent's lead.
-- Reads use page-all.ts (parallel 1,000-row pages, id-dedupe, fail on errors); homepage uses WebP CDN/shared fonts — why: avoid serial reads/downloads.
+- Reads use page-all.ts (first page alone, then 3 parallel pages, ID dedupe, fail on errors/limits); homepage WebP/shared fonts — why: fewer empty reads.
 - Desk/Analytics/HQ KPIs use kpi-contract.ts; agent-kpi-board.ts groups authorized rows, never phone-sync metrics — why: one definition.
 - Rejections use shared defaults; mobile UI tests mock all writes — why: no invented facts or live test data.
 - HQ forecasts never allocate; version choices grant no access; call-sandbox and the sandbox APK's SyncFailureDrill stay offline (liveWrites 0) — why: facts are not authority.
