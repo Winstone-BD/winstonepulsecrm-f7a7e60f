@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Download, RefreshCw, TrendingUp } from "lucide-react";
@@ -11,6 +11,9 @@ import { dhakaDateOf } from "@/lib/business-day";
 import { readAgentSalesScorecards } from "@/lib/agent-sales-scorecard.functions";
 import { downloadCsv, toCsv } from "@/lib/crm-reports";
 
+import type { AgentSalesScorecard, LeadSourceBucket } from "@/lib/agent-sales-scorecard";
+const AgentSourceLeadList = lazy(() => import("./AgentSourceLeadList"));
+
 export function AgentSalesScorecards() {
   const t = useT();
   const token = useAdminToken();
@@ -22,6 +25,15 @@ export function AgentSalesScorecards() {
   const q = useQuery({ queryKey:["agent-sales-scorecards",token ?? "session",from,to], queryFn:()=>read({data:{adminToken:token,from,to}}), enabled:valid, staleTime:60_000 });
   const rows = q.data?.rows.filter(r=>r.name.toLowerCase().includes(search.trim().toLowerCase())) ?? [];
   const labels = { assigned:t({bn:"বর্তমান লিড",en:"Current portfolio"}),converted:t({bn:"অনুমোদিত বুকিং লিড",en:"Approved booked leads"}),visits:t({bn:"ভিজিট বুকিং",en:"Visit bookings"}),lost:t({bn:"হারানো হট লিড",en:"Hot leads lost"}),rate:t({bn:"কনভার্সন হার",en:"Conversion rate"}) };
+  const [selected, setSelected] = useState<{agentId:string;name:string;bucket:LeadSourceBucket;label:string}|null>(null);
+  const buckets: LeadSourceBucket[] = ["companyDatabase","selfAssigned","unknownSource","otherSource"];
+  const sourceLabels = [t({bn:"কোম্পানি ডেটাবেজ",en:"Company database"}),t({bn:"নিজে যুক্ত",en:"Self-assigned"}),t({bn:"উৎস অজানা",en:"Unknown source"}),t({bn:"অন্যান্য উৎস",en:"Other known source"})];
+  const sourceButton = (r: AgentSalesScorecard, index:number) => {
+    const bucket = buckets[index];
+    const label = sourceLabels[index];
+    if (!bucket || !label) return null;
+    return <Button variant="link" className="h-10 min-w-10 p-0 font-semibold tabular-nums underline underline-offset-4" aria-label={`${r.name} · ${label} · ${r[bucket]}`} onClick={() => setSelected({agentId:r.agentId,name:r.name,bucket,label})}>{r[bucket]}</Button>;
+  };
   const rate = (n:number|null)=>n===null?"—":`${n.toFixed(1)}%`;
   return <section className="space-y-4 border-b border-border pb-6" aria-label="Agent sales scorecards">
     <header className="flex flex-wrap items-start justify-between gap-3">
@@ -44,9 +56,10 @@ export function AgentSalesScorecards() {
     {!valid?<p role="alert" className="text-sm text-destructive">{t({bn:"সঠিক ক্রমে সর্বোচ্চ ৯২ দিনের তারিখ দিন।",en:"Choose dates in order, at most 92 days."})}</p>:q.isPending?<p role="status" className="text-sm text-muted-foreground">{t({bn:"স্কোরকার্ড লোড হচ্ছে…",en:"Loading scorecards…"})}</p>:q.isError?<p role="alert" className="text-sm text-destructive">{t({bn:"স্কোরকার্ড পড়া যায়নি। আবার চেষ্টা করুন।",en:"Scorecards unavailable. Please refresh."})}</p>:<>
       <p className="text-xs text-muted-foreground">{t({bn:"তথ্য পড়া হয়েছে",en:"Evidence read"})}: {q.data?.generatedAt?new Date(q.data.generatedAt).toLocaleString("en-GB",{timeZone:"Asia/Dhaka"}):"—"} · {t({bn:"বর্তমান মালিকানায় হিসাব; ট্রান্সফারের আগের এজেন্টকে দায়ী নয়।",en:"Current ownership attribution; transferred leads are not blamed on former agents."})}</p>
       {!rows.length?<p className="text-sm text-muted-foreground">{t({bn:"কোনো এজেন্ট পাওয়া যায়নি।",en:"No agents match."})}</p>:<>
-        <ul className="grid gap-3 md:hidden">{rows.map(r=><li key={r.agentId} className="rounded-lg border border-border bg-card p-3"><h3 className="break-words text-sm font-semibold">{r.name}</h3><div className="mt-2 flex items-baseline justify-between gap-2"><span className="text-xs text-muted-foreground">{labels.rate}</span><strong className="tabular-nums text-2xl">{rate(r.conversionRate)}</strong></div><dl className="mt-3 grid grid-cols-2 gap-3 text-xs">{[[labels.assigned,r.assigned],[labels.converted,r.converted],[labels.visits,r.visits],[labels.lost,r.hotLost],[t({bn:"কোম্পানি ডেটাবেজ",en:"Company database"}),r.companyDatabase],[t({bn:"নিজে যুক্ত",en:"Self-assigned"}),r.selfAssigned],[t({bn:"উৎস অজানা",en:"Unknown source"}),r.unknownSource],[t({bn:"অন্যান্য উৎস",en:"Other known source"}),r.otherSource]].map(([label,value])=><div key={label}><dt className="text-muted-foreground">{label}</dt><dd className="mt-1 text-lg font-semibold tabular-nums">{value}</dd></div>)}</dl></li>)}</ul>
-        <div className="table-scroll hidden md:block"><table className="w-full min-w-[1050px] text-sm"><thead><tr className="border-b border-border text-xs text-muted-foreground"><th className="py-3 text-left">{t({bn:"এজেন্ট",en:"Agent"})}</th>{[labels.assigned,labels.converted,labels.rate,labels.visits,labels.lost,t({bn:"কোম্পানি ডেটাবেজ",en:"Company database"}),t({bn:"নিজে যুক্ত",en:"Self-assigned"}),t({bn:"উৎস অজানা",en:"Unknown source"}),t({bn:"অন্যান্য উৎস",en:"Other known source"})].map(l=><th key={l} className="px-2 py-3 text-right font-medium">{l}</th>)}</tr></thead><tbody>{rows.map(r=><tr key={r.agentId} className="border-b border-border"><td className="py-3 font-medium">{r.name}</td>{[r.assigned,r.converted,rate(r.conversionRate),r.visits,r.hotLost,r.companyDatabase,r.selfAssigned,r.unknownSource,r.otherSource].map((value,i)=><td key={i} className="px-2 py-3 text-right tabular-nums">{value}</td>)}</tr>)}</tbody></table></div>
+        <ul className="grid gap-3 md:hidden">{rows.map(r=><li key={r.agentId} className="rounded-lg border border-border bg-card p-3"><h3 className="break-words text-sm font-semibold">{r.name}</h3><div className="mt-2 flex items-baseline justify-between gap-2"><span className="text-xs text-muted-foreground">{labels.rate}</span><strong className="tabular-nums text-2xl">{rate(r.conversionRate)}</strong></div><dl className="mt-3 grid grid-cols-2 gap-3 text-xs">{[[labels.assigned,r.assigned],[labels.converted,r.converted],[labels.visits,r.visits],[labels.lost,r.hotLost],[t({bn:"কোম্পানি ডেটাবেজ",en:"Company database"}),r.companyDatabase],[t({bn:"নিজে যুক্ত",en:"Self-assigned"}),r.selfAssigned],[t({bn:"উৎস অজানা",en:"Unknown source"}),r.unknownSource],[t({bn:"অন্যান্য উৎস",en:"Other known source"}),r.otherSource]].map(([label,value],i)=><div key={label}><dt className="text-muted-foreground">{label}</dt><dd className="mt-1 text-lg font-semibold tabular-nums">{i>=4?sourceButton(r,i-4):value}</dd></div>)}</dl></li>)}</ul>
+        <div className="table-scroll hidden md:block"><table className="w-full min-w-[1050px] text-sm"><thead><tr className="border-b border-border text-xs text-muted-foreground"><th className="py-3 text-left">{t({bn:"এজেন্ট",en:"Agent"})}</th>{[labels.assigned,labels.converted,labels.rate,labels.visits,labels.lost,t({bn:"কোম্পানি ডেটাবেজ",en:"Company database"}),t({bn:"নিজে যুক্ত",en:"Self-assigned"}),t({bn:"উৎস অজানা",en:"Unknown source"}),t({bn:"অন্যান্য উৎস",en:"Other known source"})].map(l=><th key={l} className="px-2 py-3 text-right font-medium">{l}</th>)}</tr></thead><tbody>{rows.map(r=><tr key={r.agentId} className="border-b border-border"><td className="py-3 font-medium">{r.name}</td>{[r.assigned,r.converted,rate(r.conversionRate),r.visits,r.hotLost,r.companyDatabase,r.selfAssigned,r.unknownSource,r.otherSource].map((value,i)=><td key={i} className="px-2 py-3 text-right tabular-nums">{i>=5?sourceButton(r,i-5):value}</td>)}</tr>)}</tbody></table></div>
       </>}
     </>}
+    {selected && <Suspense fallback={<p role="status">{t({bn:"লিড লোড হচ্ছে…",en:"Loading leads…"})}</p>}><AgentSourceLeadList key={`${selected.agentId}:${selected.bucket}`} {...selected} onClose={() => setSelected(null)} /></Suspense>}
   </section>;
 }

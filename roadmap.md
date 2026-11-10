@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Open tasks
+19. Scorecard source drilldown:
+   - [ ] Source counts open an authority-only current-owner lead list using the scorecard bucket classifier, search, pagination and phone-safe display; read-only, no assignment changes.
 18. Cold database workflow and scorecard source breakdown:
    - [x] Delivered comprehensive Bangla workflow document in Files; three-attempt SOP remains proposed, explicit opt-outs preserved, no new universal Closed blocking.
    - [x] Added current-portfolio company database/self/unknown/other known source buckets to scorecards and CSV; concrete source tests pass; real HQ shows 10 agents and phone cards without sideways overflow.

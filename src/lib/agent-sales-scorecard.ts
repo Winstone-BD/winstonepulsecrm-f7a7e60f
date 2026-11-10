@@ -10,6 +10,17 @@ export type AgentSalesScorecard = { agentId: string; name: string; assigned: num
 
 const unique = <T extends { id: string }>(rows: T[]) => [...new Map(rows.map(r => [r.id, r])).values()];
 
+export type LeadSourceBucket = "companyDatabase" | "selfAssigned" | "unknownSource" | "otherSource";
+export function leadSourceBucket(lead: { source?: string | null; assignment_source: string | null }): LeadSourceBucket {
+  if (["head_database", "public_directory"].includes(lead.source ?? "")) return "companyDatabase";
+  if (lead.source === "agent_app" || lead.assignment_source === "self") return "selfAssigned";
+  if (!lead.source || ["unknown", "unrecorded"].includes(lead.source)) return "unknownSource";
+  return "otherSource";
+}
+export function agentSourceLeads<T extends { id: string; assigned_to: string | null; assigned_agent_id: string | null; source?: string | null; assignment_source: string | null }>(leads: T[], agentId: string, bucket: LeadSourceBucket): T[] {
+  return unique(leads).filter(l => l.assignment_source !== "duplicate_skipped" && leadOwner(l) === agentId && leadSourceBucket(l) === bucket);
+}
+
 /** Current portfolio denominator; period outcomes; confirmed same-agent Hot → rejection only. */
 export function agentSalesScorecards(input: ScorecardInput, start: string, end: string): AgentSalesScorecard[] {
   if (!Number.isFinite(Date.parse(start)) || !Number.isFinite(Date.parse(end)) || start >= end) throw new Error("Invalid scorecard dates");
@@ -26,10 +37,10 @@ export function agentSalesScorecards(input: ScorecardInput, start: string, end: 
   return unique(input.agents).map(agent => {
     const owned = leads.filter(l => leadOwner(l) === agent.id);
     const ids = new Set(owned.map(l => l.id));
-    const companyDatabase = owned.filter(l => ["head_database", "public_directory"].includes(l.source ?? "")).length;
-    const selfAssigned = owned.filter(l => !["head_database", "public_directory"].includes(l.source ?? "") && (l.source === "agent_app" || l.assignment_source === "self")).length;
-    const unknownSource = owned.filter(l => !l.source || ["unknown", "unrecorded"].includes(l.source)).filter(l => l.assignment_source !== "self").length;
-    const otherSource = owned.length - companyDatabase - selfAssigned - unknownSource;
+    const companyDatabase = owned.filter(l => leadSourceBucket(l) === "companyDatabase").length;
+    const selfAssigned = owned.filter(l => leadSourceBucket(l) === "selfAssigned").length;
+    const unknownSource = owned.filter(l => leadSourceBucket(l) === "unknownSource").length;
+    const otherSource = owned.filter(l => leadSourceBucket(l) === "otherSource").length;
     const conversions = new Set(unique(input.bookings).filter(b => ids.has(b.lead_id) && b.agent_id === agent.id && b.approval_status === "approved" && b.status !== "cancelled" && within(b.booked_at)).map(b => b.lead_id));
     const visits = unique(input.visits).filter(v => ids.has(v.lead_id) && v.agent_id === agent.id && v.status !== "cancelled" && within(v.created_at)).length;
     let hotLost = 0;

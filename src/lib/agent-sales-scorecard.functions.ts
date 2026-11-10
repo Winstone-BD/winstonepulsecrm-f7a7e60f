@@ -9,6 +9,26 @@ const input = z.object({ adminToken: z.string().nullable().optional(), from: day
   .refine(v => v.from <= v.to, "From must not follow To")
   .refine(v => Date.parse(v.to) - Date.parse(v.from) < 92 * 864e5, "Choose at most 92 days");
 
+const sourceInput = z.object({ adminToken: z.string().nullable().optional(), agentId: z.string().uuid(), bucket: z.enum(["companyDatabase", "selfAssigned", "unknownSource", "otherSource"]) });
+export const readAgentSourceLeads = createServerFn({ method: "POST" })
+  .inputValidator((value: unknown) => sourceInput.parse(value))
+  .handler(async ({ data }) => {
+    const { resolveCaller } = await import("./access.server");
+    const caller = await resolveCaller(data.adminToken);
+    if (caller.scope !== "authority") throw new Error("Executive HQ or IT access required");
+    const { supabaseAdmin: db } = await import("@/integrations/supabase/client.server");
+    const { pageAllParallel } = await import("./page-all");
+    const { agentSourceLeads } = await import("./agent-sales-scorecard");
+    const result = await pageAllParallel((a,b) => db.from("leads")
+      .select("id,name,phone_number,status,source,assignment_source,assigned_to,assigned_agent_id")
+      .or(`assigned_to.eq.${data.agentId},and(assigned_to.is.null,assigned_agent_id.eq.${data.agentId})`)
+      .order("id").range(a,b));
+    if (result.error) throw new Error("Source leads unavailable. Please refresh.");
+    return { rows: agentSourceLeads(result.data ?? [], data.agentId, data.bucket)
+      .map(l => ({ id: l.id, name: l.name, phone: l.phone_number, status: l.status, source: l.source }))
+      .sort((a,b) => (a.name ?? "").localeCompare(b.name ?? "") || a.id.localeCompare(b.id)), generatedAt: new Date().toISOString() };
+  });
+
 export const readAgentSalesScorecards = createServerFn({ method: "POST" })
   .inputValidator((value: unknown) => input.parse(value))
   .handler(async ({ data }) => {
