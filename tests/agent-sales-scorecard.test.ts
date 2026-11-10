@@ -13,4 +13,7 @@ describe("agent sales scorecards",()=>{
  it("uses exclusive Dhaka period end and unknown rate for no portfolio",()=>{const d=base();d.reports[1].submitted_at=end;expect(row(d).hotLost).toBe(0);d.leads=[];expect(row(d).conversionRate).toBeNull();});
  it("does not count reopened leads or rejection without earlier Hot",()=>{const d=base();d.leads[0].status="follow_up";expect(row(d).hotLost).toBe(0);d.leads[0].status="closed";d.reports[0].temperature="warm";expect(row(d).hotLost).toBe(0);});
  it("rejects reversed date ranges",()=>expect(()=>agentSalesScorecards(base(),end,start)).toThrow("Invalid scorecard dates"));
+ it("counts head_database and public_directory as company database once",()=>{const d=base();d.leads=[{...d.leads[0],source:"head_database"},{...d.leads[0],id:"l2",source:"public_directory"}];d.leads.push(d.leads[0]);expect(row(d).companyDatabase).toBe(2);});
+ it("counts explicit self intake without overriding company provenance",()=>{const d=base();d.leads=[{...d.leads[0],source:"agent_app"},{...d.leads[0],id:"l2",source:"head_database",assignment_source:"self"}];expect(row(d).selfAssigned).toBe(1);expect(row(d).companyDatabase).toBe(1);});
+ it("separates unknown from other known sources",()=>{const d=base();d.leads=[{...d.leads[0],source:null},{...d.leads[0],id:"l2",source:"website"}];expect(row(d).unknownSource).toBe(1);expect(row(d).otherSource).toBe(1);expect(row(d).assigned).toBe(2);});
 });

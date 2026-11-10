@@ -127,6 +127,7 @@ import { Route as ApiPublicJobsFirebaseGrpcWatchRouteImport } from './routes/api
 import { Route as ApiPublicJobsInventorySheetRouteImport } from './routes/api/public/jobs/inventory-sheet'
 import { Route as ApiPublicJobsLeadReportSheetRouteImport } from './routes/api/public/jobs/lead-report-sheet'
 import { Route as ApiPublicJobsMessengerRetentionRouteImport } from './routes/api/public/jobs/messenger-retention'
+import { Route as ApiPublicJobsSheetLeadIntakeRouteImport } from './routes/api/public/jobs/sheet-lead-intake'
 import { Route as ApiPublicMetaMessengerRouteImport } from './routes/api/public/meta/messenger'
 import { Route as ApiPublicN8nLeadsRouteImport } from './routes/api/public/n8n/leads'
 import { Route as ApiPublicOsEventsRouteImport } from './routes/api/public/os/events'
@@ -753,6 +754,12 @@ const ApiPublicJobsMessengerRetentionRoute =
     path: '/api/public/jobs/messenger-retention',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsSheetLeadIntakeRoute =
+  ApiPublicJobsSheetLeadIntakeRouteImport.update({
+    id: '/api/public/jobs/sheet-lead-intake',
+    path: '/api/public/jobs/sheet-lead-intake',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicMetaMessengerRoute = ApiPublicMetaMessengerRouteImport.update({
   id: '/api/public/meta/messenger',
   path: '/api/public/meta/messenger',
@@ -926,6 +933,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/inventory-sheet': typeof ApiPublicJobsInventorySheetRoute
   '/api/public/jobs/lead-report-sheet': typeof ApiPublicJobsLeadReportSheetRoute
   '/api/public/jobs/messenger-retention': typeof ApiPublicJobsMessengerRetentionRoute
+  '/api/public/jobs/sheet-lead-intake': typeof ApiPublicJobsSheetLeadIntakeRoute
   '/api/public/meta/messenger': typeof ApiPublicMetaMessengerRoute
   '/api/public/n8n/leads': typeof ApiPublicN8nLeadsRoute
   '/api/public/os/events': typeof ApiPublicOsEventsRoute
@@ -1056,6 +1064,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/inventory-sheet': typeof ApiPublicJobsInventorySheetRoute
   '/api/public/jobs/lead-report-sheet': typeof ApiPublicJobsLeadReportSheetRoute
   '/api/public/jobs/messenger-retention': typeof ApiPublicJobsMessengerRetentionRoute
+  '/api/public/jobs/sheet-lead-intake': typeof ApiPublicJobsSheetLeadIntakeRoute
   '/api/public/meta/messenger': typeof ApiPublicMetaMessengerRoute
   '/api/public/n8n/leads': typeof ApiPublicN8nLeadsRoute
   '/api/public/os/events': typeof ApiPublicOsEventsRoute
@@ -1187,6 +1196,7 @@ export interface FileRoutesById {
   '/api/public/jobs/inventory-sheet': typeof ApiPublicJobsInventorySheetRoute
   '/api/public/jobs/lead-report-sheet': typeof ApiPublicJobsLeadReportSheetRoute
   '/api/public/jobs/messenger-retention': typeof ApiPublicJobsMessengerRetentionRoute
+  '/api/public/jobs/sheet-lead-intake': typeof ApiPublicJobsSheetLeadIntakeRoute
   '/api/public/meta/messenger': typeof ApiPublicMetaMessengerRoute
   '/api/public/n8n/leads': typeof ApiPublicN8nLeadsRoute
   '/api/public/os/events': typeof ApiPublicOsEventsRoute
@@ -1319,6 +1329,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/inventory-sheet'
     | '/api/public/jobs/lead-report-sheet'
     | '/api/public/jobs/messenger-retention'
+    | '/api/public/jobs/sheet-lead-intake'
     | '/api/public/meta/messenger'
     | '/api/public/n8n/leads'
     | '/api/public/os/events'
@@ -1449,6 +1460,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/inventory-sheet'
     | '/api/public/jobs/lead-report-sheet'
     | '/api/public/jobs/messenger-retention'
+    | '/api/public/jobs/sheet-lead-intake'
     | '/api/public/meta/messenger'
     | '/api/public/n8n/leads'
     | '/api/public/os/events'
@@ -1579,6 +1591,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/inventory-sheet'
     | '/api/public/jobs/lead-report-sheet'
     | '/api/public/jobs/messenger-retention'
+    | '/api/public/jobs/sheet-lead-intake'
     | '/api/public/meta/messenger'
     | '/api/public/n8n/leads'
     | '/api/public/os/events'
@@ -1710,6 +1723,7 @@ export interface RootRouteChildren {
   ApiPublicJobsInventorySheetRoute: typeof ApiPublicJobsInventorySheetRoute
   ApiPublicJobsLeadReportSheetRoute: typeof ApiPublicJobsLeadReportSheetRoute
   ApiPublicJobsMessengerRetentionRoute: typeof ApiPublicJobsMessengerRetentionRoute
+  ApiPublicJobsSheetLeadIntakeRoute: typeof ApiPublicJobsSheetLeadIntakeRoute
   ApiPublicMetaMessengerRoute: typeof ApiPublicMetaMessengerRoute
   ApiPublicN8nLeadsRoute: typeof ApiPublicN8nLeadsRoute
   ApiPublicOsEventsRoute: typeof ApiPublicOsEventsRoute
@@ -2550,6 +2564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsMessengerRetentionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/sheet-lead-intake': {
+      id: '/api/public/jobs/sheet-lead-intake'
+      path: '/api/public/jobs/sheet-lead-intake'
+      fullPath: '/api/public/jobs/sheet-lead-intake'
+      preLoaderRoute: typeof ApiPublicJobsSheetLeadIntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/meta/messenger': {
       id: '/api/public/meta/messenger'
       path: '/api/public/meta/messenger'
@@ -2743,6 +2764,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsInventorySheetRoute: ApiPublicJobsInventorySheetRoute,
   ApiPublicJobsLeadReportSheetRoute: ApiPublicJobsLeadReportSheetRoute,
   ApiPublicJobsMessengerRetentionRoute: ApiPublicJobsMessengerRetentionRoute,
+  ApiPublicJobsSheetLeadIntakeRoute: ApiPublicJobsSheetLeadIntakeRoute,
   ApiPublicMetaMessengerRoute: ApiPublicMetaMessengerRoute,
   ApiPublicN8nLeadsRoute: ApiPublicN8nLeadsRoute,
   ApiPublicOsEventsRoute: ApiPublicOsEventsRoute,

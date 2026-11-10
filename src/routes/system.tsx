@@ -28,6 +28,7 @@ import { OsSyncPanel } from "@/components/crm/OsSyncPanel";
 import { LoginFailuresPanel, MonthlySummaryPanel } from "@/components/crm/SecurityMonitorPanel";
 import { YearArchivePanel } from "@/components/crm/YearArchivePanel";
 import { LeadReportSheetPanel } from "@/components/crm/LeadReportSheetPanel";
+import { SheetLeadStreamPanel } from "@/components/crm/SheetLeadStreamPanel";
 import { OfflineAlertSettingsPanel } from "@/components/crm/OfflineAlertSettingsPanel";
 import { ReportSheetPanel } from "@/components/crm/ReportSheetPanel";
 import { SheetSyncHealthPanel } from "@/components/crm/SheetSyncHealthPanel";
@@ -186,6 +187,7 @@ function SystemBoard() {
       {sec === "leads" && (
         <div className="space-y-6">
           <LeadDatabasePanel />
+          <SheetLeadStreamPanel />
           <ExtraLeadPanel />
           <YearArchivePanel />
         </div>

@@ -2,11 +2,12 @@
 
 ## Open tasks
 18. Cold database workflow and scorecard source breakdown:
-   - [ ] Deliver comprehensive Bangla workflow document, distinguishing proposed multi-call policy from enforced rules and preserving explicit opt-outs.
-   - [ ] Add current-portfolio company-database/self-assigned/unknown source counts to agent scorecards with tests.
-   - [ ] Run authorized Daily Lead Report sync and verify real lead/visit/outcome reads; do not turn report-mirror cells into invented CRM facts.
+   - [x] Delivered comprehensive Bangla workflow document in Files; three-attempt SOP remains proposed, explicit opt-outs preserved, no new universal Closed blocking.
+   - [x] Added current-portfolio company database/self/unknown/other known source buckets to scorecards and CSV; concrete source tests pass; real HQ shows 10 agents and phone cards without sideways overflow.
+   - [x] Ran authorized preservation-mode Daily Lead Report sync: 500 CRM snapshot rows plus 2 website enquiries read back; snapshot has 0 visits and 2 booking records (not approved conversions), with saved statuses. New Leads is empty, successful intake created 0. No reverse writes of visit/outcome mirror cells.
 17. Daily Lead Report inbound stream:
-   - [ ] Create dedicated New Leads tab and twice-daily canonical unassigned intake, durable dedupe/receipts, IT status and tests; never import CRM report mirrors. Live callback activation waits for publication if absent.
+   - [x] Created/read back New Leads tab; canonical unassigned intake with server-only hash receipts, bounded run claim, IT status/manual action and 9 stream tests. Real empty intake read back in IT; no invented test customers.
+   - [ ] Activate 09:30/18:30 Dhaka schedule after publication and verify real new-row delivery. Live endpoint returns 404; temporary schedule was removed to avoid failed calls. Publication not authorized; real incoming row unavailable because New Leads is empty.
 16. Immediate site-visit management alerts:
    - [x] Applied event-driven report/visit triggers and RLS-protected management live alerts; separate resolved history, no backfill/polling/AI/assignment or external messaging. 36 tests passed including 14 isolated PostgreSQL trigger cases; signed-in HQ read/refresh and phone layout verified. Live feed currently empty; no customer test writes or publication, so production event-to-screen delivery remains unverified.
 15. VIP recovery first batch (preview only):
