@@ -6311,6 +6311,7 @@ export type Database = {
           created_at: string
           detail: string | null
           id: string
+          resolved_at: string | null
           severity: string
           title: string
         }
@@ -6322,6 +6323,7 @@ export type Database = {
           created_at?: string
           detail?: string | null
           id?: string
+          resolved_at?: string | null
           severity?: string
           title: string
         }
@@ -6333,6 +6335,7 @@ export type Database = {
           created_at?: string
           detail?: string | null
           id?: string
+          resolved_at?: string | null
           severity?: string
           title?: string
         }
@@ -7530,6 +7533,10 @@ export type Database = {
           _title: string
         }
         Returns: string
+      }
+      reconcile_site_visit_alert: {
+        Args: { _report: string }
+        Returns: undefined
       }
       recover_follow_up_atomic: {
         Args: {

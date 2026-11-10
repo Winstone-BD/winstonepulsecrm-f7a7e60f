@@ -1044,6 +1044,20 @@
       "when": 1794259558347,
       "tag": "0148_executive_vip_recovery_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 149,
+      "version": "7",
+      "when": 1794283342700,
+      "tag": "0149_site_visit_management_alerts",
+      "breakpoints": true
+    },
+    {
+      "idx": 150,
+      "version": "7",
+      "when": 1794283555301,
+      "tag": "0150_management_visit_alert_realtime",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,2 @@
+ALTER POLICY "Supervisors read alerts" ON public.system_alerts USING (public.has_role(auth.uid(), 'admin'::public.app_role) OR (public.has_role(auth.uid(), 'team_leader'::public.app_role) AND code NOT LIKE 'site_visit_unbooked:%'));
+ALTER PUBLICATION supabase_realtime ADD TABLE public.system_alerts;

@@ -1,0 +1,34 @@
+import { PGlite } from "@electric-sql/pglite";
+import { readFileSync } from "node:fs";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+const db = new PGlite();
+const report = "00000000-0000-0000-0000-000000000002";
+const lead = "00000000-0000-0000-0000-000000000001";
+beforeAll(async () => {
+  await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
+    CREATE TABLE profiles(id uuid PRIMARY KEY,name text);
+    CREATE TABLE leads(id uuid PRIMARY KEY,name text,assigned_agent_id uuid,assigned_to uuid);
+    CREATE TABLE call_reports(id uuid PRIMARY KEY,lead_id uuid,agent_id uuid,status text,submitted_at timestamptz,customer_response text,next_action text);
+    CREATE TABLE site_visits(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),lead_id uuid,status text,visit_at timestamptz);
+    CREATE TABLE system_alerts(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),code text NOT NULL,severity text,title text,detail text,action text,acknowledged_at timestamptz,created_at timestamptz DEFAULT now());`);
+  await db.exec(readFileSync(new URL("../drizzle/migrations/0149_site_visit_management_alerts.sql", import.meta.url), "utf8"));
+});
+beforeEach(async () => { await db.exec(`TRUNCATE system_alerts,site_visits,call_reports,leads; INSERT INTO leads(id,name) VALUES ('${lead}','Synthetic customer');`); });
+afterAll(async () => { await db.close(); });
+const submit = (status = "submitted", response = "site_visit", action = "no_action") => db.query(`INSERT INTO call_reports VALUES ($1,$2,NULL,$3,'2026-11-10T04:00:00Z',$4,$5)`, [report, lead, status, response, action]);
+const open = async () => (await db.query<{ n: number }>("SELECT count(*)::int n FROM system_alerts WHERE resolved_at IS NULL")).rows[0]?.n;
+const visit = (status: string, at = "2026-11-11T04:00:00Z") => db.query("INSERT INTO site_visits(lead_id,status,visit_at) VALUES ($1,$2,$3)", [lead, status, at]);
+describe("transactional site visit alerts", () => {
+  it("creates an alert immediately on submitted visit interest", async () => { await submit(); expect(await open()).toBe(1); });
+  it("also accepts the saved arrange-visit next action", async () => { await submit("submitted", "interested", "site_visit"); expect(await open()).toBe(1); });
+  it("excludes draft reports", async () => { await submit("pending"); expect(await open()).toBe(0); });
+  it("excludes reports without visit signals", async () => { await submit("submitted", "interested"); expect(await open()).toBe(0); });
+  it.each(["scheduled", "completed"])("does not alert with a %s visit", async status => { await visit(status); await submit(); expect(await open()).toBe(0); });
+  it.each(["cancelled", "no_show"])("does not treat %s as booked", async status => { await visit(status); await submit(); expect(await open()).toBe(1); });
+  it("does not let a past completed visit hide a new signal", async () => { await visit("completed", "2026-11-01T04:00:00Z"); await submit(); expect(await open()).toBe(1); });
+  it("deduplicates repeated reconciliation", async () => { await submit(); await db.query("SELECT reconcile_site_visit_alert($1)", [report]); expect(await open()).toBe(1); });
+  it("resolves on booking and preserves the original alert", async () => { await submit(); await visit("scheduled"); expect(await open()).toBe(0); expect((await db.query("SELECT id FROM system_alerts")).rows).toHaveLength(1); });
+  it("creates a new open alert if a scheduled visit is cancelled", async () => { await submit(); await visit("scheduled"); await db.exec("UPDATE site_visits SET status='cancelled'"); expect(await open()).toBe(1); expect((await db.query("SELECT id FROM system_alerts")).rows).toHaveLength(2); });
+  it("keeps alert open after manual acknowledgement while the visit is missing", async () => { await submit(); await db.exec("UPDATE system_alerts SET acknowledged_at=now()"); expect(await open()).toBe(1); });
+  it("does not allow authenticated callers to invoke the privileged reconciler", async () => { await db.exec("SET ROLE authenticated"); try { await expect(db.query("SELECT reconcile_site_visit_alert($1)", [report])).rejects.toThrow("permission denied"); } finally { await db.exec("RESET ROLE"); } });
+});

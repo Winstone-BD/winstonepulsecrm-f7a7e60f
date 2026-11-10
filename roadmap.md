@@ -2,7 +2,7 @@
 
 ## Open tasks
 16. Immediate site-visit management alerts:
-   - [ ] Add event-driven alerts for submitted saved visit signals without a confirmed visit; deduplicate, preserve history and management-only reads. No automatic assignment or external messaging.
+   - [x] Applied event-driven report/visit triggers and RLS-protected management live alerts; separate resolved history, no backfill/polling/AI/assignment or external messaging. 36 tests passed including 14 isolated PostgreSQL trigger cases; signed-in HQ read/refresh and phone layout verified. Live feed currently empty; no customer test writes or publication, so production event-to-screen delivery remains unverified.
 15. VIP recovery first batch (preview only):
    - [x] Original cohort matches 17 historically Hot leads (V2 or saved legacy label); one already closed_converted excluded, leaving 16 review candidates. Three already belong to possible recipient Mehedi Ashraf, so only 13 would transfer; no invented investor eligibility or padding to 20.
    - [ ] Recipient confirmation and final approval pending; Mehedi Ashraf already has 50 unique assignments on November 10, so today’s hard cap blocks additional assignments. No reassignment or recovery-review writes performed.

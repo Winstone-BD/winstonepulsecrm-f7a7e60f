@@ -51,6 +51,7 @@ import { buildAgentStats, buildTimeline, useSnapshot } from "@/lib/crm-data";
 
 const HQ_TABS = PAGE_SECTIONS["/hq"];
 const VipRecoveryQueue = lazy(() => import("@/components/crm/hq/VipRecoveryQueue").then(m => ({ default: m.VipRecoveryQueue })));
+const SiteVisitAlerts = lazy(() => import("@/components/crm/hq/SiteVisitAlerts").then(m => ({ default: m.SiteVisitAlerts })));
 
 export const Route = createFileRoute("/hq")({
   validateSearch: sectionSearch,
@@ -216,6 +217,7 @@ function ControlBoard() {
           {/* White content surface */}
           <div className="min-w-0 flex-1 rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
             <MaintenanceProfileNotice />
+            <Suspense fallback={null}><SiteVisitAlerts /></Suspense>
             {tab === "kpis" && <div className="space-y-6"><AgentSalesScorecards /><AgentKpiDashboard /></div>}
             {tab === "overview" && (
               <div className="space-y-8">
