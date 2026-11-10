@@ -1,6 +1,10 @@
 # Roadmap
 
 ## Open tasks
+18. Cold database workflow and scorecard source breakdown:
+   - [ ] Deliver comprehensive Bangla workflow document, distinguishing proposed multi-call policy from enforced rules and preserving explicit opt-outs.
+   - [ ] Add current-portfolio company-database/self-assigned/unknown source counts to agent scorecards with tests.
+   - [ ] Run authorized Daily Lead Report sync and verify real lead/visit/outcome reads; do not turn report-mirror cells into invented CRM facts.
 17. Daily Lead Report inbound stream:
    - [ ] Create dedicated New Leads tab and twice-daily canonical unassigned intake, durable dedupe/receipts, IT status and tests; never import CRM report mirrors. Live callback activation waits for publication if absent.
 16. Immediate site-visit management alerts:

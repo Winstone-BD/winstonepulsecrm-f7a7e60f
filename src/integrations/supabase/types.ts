@@ -5335,6 +5335,62 @@ export type Database = {
         }
         Relationships: []
       }
+      sheet_lead_intake_receipts: {
+        Row: {
+          created_at: string
+          lead_id: string | null
+          outcome: string
+          row_hash: string
+        }
+        Insert: {
+          created_at?: string
+          lead_id?: string | null
+          outcome: string
+          row_hash: string
+        }
+        Update: {
+          created_at?: string
+          lead_id?: string | null
+          outcome?: string
+          row_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sheet_lead_intake_receipts_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sheet_lead_intake_runs: {
+        Row: {
+          finished_at: string | null
+          id: string
+          result: Json | null
+          slot: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          finished_at?: string | null
+          id?: string
+          result?: Json | null
+          slot: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          finished_at?: string | null
+          id?: string
+          result?: Json | null
+          slot?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       sheet_sync_events: {
         Row: {
           attempt: number
@@ -7435,6 +7491,7 @@ export type Database = {
         Returns: Json
       }
       capture_db_performance_snapshot: { Args: never; Returns: string }
+      claim_sheet_lead_intake: { Args: { _slot: string }; Returns: string }
       clean_person_name: { Args: { _raw: string }; Returns: string }
       create_report_follow_up_atomic: {
         Args: { _agent: string; _patch: Json; _reason: string; _report: string }
