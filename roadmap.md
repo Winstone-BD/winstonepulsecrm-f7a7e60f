@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Open tasks
+17. Daily Lead Report inbound stream:
+   - [ ] Create dedicated New Leads tab and twice-daily canonical unassigned intake, durable dedupe/receipts, IT status and tests; never import CRM report mirrors. Live callback activation waits for publication if absent.
 16. Immediate site-visit management alerts:
    - [x] Applied event-driven report/visit triggers and RLS-protected management live alerts; separate resolved history, no backfill/polling/AI/assignment or external messaging. 36 tests passed including 14 isolated PostgreSQL trigger cases; signed-in HQ read/refresh and phone layout verified. Live feed currently empty; no customer test writes or publication, so production event-to-screen delivery remains unverified.
 15. VIP recovery first batch (preview only):
