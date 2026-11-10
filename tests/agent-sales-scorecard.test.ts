@@ -1,0 +1,16 @@
+import { describe,expect,it } from "vitest";
+import { agentSalesScorecards, type ScorecardInput } from "@/lib/agent-sales-scorecard";
+const start = "2026-11-01T18:00:00.000Z", end = "2026-11-10T18:00:00.000Z";
+const base = (): ScorecardInput => ({ agents:[{id:"a",name:"Agent A"}], leads:[{id:"l",assigned_to:"a",assigned_agent_id:"a",status:"closed",outcome_category:"not_interested",assignment_source:null}], reports:[{id:"h",lead_id:"l",agent_id:"a",submitted_at:"2026-10-01T00:00:00.000Z",category:"interested",temperature:"hot"},{id:"r",lead_id:"l",agent_id:"a",submitted_at:"2026-11-05T00:00:00.000Z",category:"not_interested",temperature:null}], bookings:[],visits:[] });
+const row = (data:ScorecardInput) => agentSalesScorecards(data,start,end)[0];
+describe("agent sales scorecards",()=>{
+ it("counts one confirmed hot-to-closed-lost lead, deduplicated",()=>{const d=base();d.reports.push(d.reports[0]);d.leads.push(d.leads[0]);expect(row(d).hotLost).toBe(1);});
+ it("does not count inactivity, wrong numbers or no answer as lost",()=>{for(const outcome of ["wrong_number","no_answer","follow_up"]){const d=base();d.leads[0].outcome_category=outcome;expect(row(d).hotLost).toBe(0);}});
+ it("requires prior Hot evidence, not a current label or another agent's report",()=>{const d=base();d.reports[0].agent_id="b";expect(row(d).hotLost).toBe(0);});
+ it("does not attribute a transferred lead to the former agent",()=>{const d=base();d.leads[0].assigned_to="b";expect(row(d).assigned).toBe(0);expect(row(d).hotLost).toBe(0);});
+ it("counts approved distinct booked leads divided by current portfolio",()=>{const d=base();d.leads.push({...d.leads[0],id:"l2"});const b={id:"b",lead_id:"l",agent_id:"a",booked_at:"2026-11-05T00:00:00.000Z",status:"pending",approval_status:"approved"};d.bookings=[b,{...b,id:"b2"},{...b,id:"b3",lead_id:"l2",approval_status:"pending"}];expect(row(d).converted).toBe(1);expect(row(d).conversionRate).toBe(50);expect(row(d).hotLost).toBe(0);});
+ it("counts non-cancelled visit booking records once, not customer promises",()=>{const d=base();const v={id:"v",lead_id:"l",agent_id:"a",created_at:"2026-11-05T00:00:00.000Z",status:"scheduled"};d.visits=[v,v,{...v,id:"v2",status:"cancelled"}];expect(row(d).visits).toBe(1);});
+ it("uses exclusive Dhaka period end and unknown rate for no portfolio",()=>{const d=base();d.reports[1].submitted_at=end;expect(row(d).hotLost).toBe(0);d.leads=[];expect(row(d).conversionRate).toBeNull();});
+ it("does not count reopened leads or rejection without earlier Hot",()=>{const d=base();d.leads[0].status="follow_up";expect(row(d).hotLost).toBe(0);d.leads[0].status="closed";d.reports[0].temperature="warm";expect(row(d).hotLost).toBe(0);});
+ it("rejects reversed date ranges",()=>expect(()=>agentSalesScorecards(base(),end,start)).toThrow("Invalid scorecard dates"));
+});

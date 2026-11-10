@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Open tasks
+14. Agent sales scorecards:
+   - [x] HQ KPI tab now shows current-portfolio conversion from approved bookings, saved visit bookings and confirmed prior-Hot → closed/not-interested losses; Dhaka dates, agent search, CSV and freshness. 31 tests pass; signed-in real read shows 10 agents, search isolates one and CSV exports 10. Desktop/phone checks have no sideways overflow. No KPI/business-data mutations or publication.
 13. Database performance and running-credit review (November 10):
    - [x] Measured project usage, database health, top statements, existing indexes and bounded query plans; inspected scheduled-job metadata.
    - [x] Reduced speculative shared paging; 77 tests pass, same rows preserved, short reads 6→1 requests and 6,075-row reads 12→7.
